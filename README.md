@@ -28,6 +28,8 @@ flask run
 
 To setup the database:
 
+** Make sure that mysql is not running on port 3306 before starting the container **
+
 1) Open a terminal in the `database` folder
 
 2) Run the following command:
