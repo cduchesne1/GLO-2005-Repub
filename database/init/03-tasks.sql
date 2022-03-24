@@ -1,0 +1,13 @@
+DROP TABLE IF EXISTS tasks;
+
+CREATE TABLE IF NOT tasks(
+    id INT AUTO_INCREMENT,
+    title VARCHAR(255) NOT NULL,
+    description TEXT,
+    assignedTo INT,
+    status VARCHAR(255) NOT NULL,
+    creator INT,
+    FOREIGN KEY(assignedTo) REFERENCES users(id) ON UPDATE CASCADE ON DELETE NO ACTION,
+    FOREIGN KEY(creator) REFERENCES users(id) ON UPDATE CASCADE ON DELETE NO ACTION,
+    PRIMARY KEY(id)
+);
