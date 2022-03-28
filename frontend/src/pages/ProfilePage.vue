@@ -1,7 +1,7 @@
 <template>
-  <div class="bg-gray-800 w-full h-full flex flex-col min-h-screen">
+  <div class="bg-gray-800 w-full flex flex-col min-h-screen">
     <LoggedTopBar />
-    <div class="flex px-24 justify-between items-center">
+    <div class="flex px-48 justify-between items-center my-16">
       <div class="flex">
         <img src="../assets/bigProfilePic.svg" />
         <div class="flex flex-col justify-center ml-4">
@@ -35,16 +35,26 @@
         <p class="text-white text-base max-w-sm text-justify">This is the description of the user. He is a passionate person and likes to code.</p>
       </div>
     </div>
-    <FooterComponent />
+    <div class="px-48">
+      <RepositoryItem v-for="repository in repositories" :key="repository"/>
+    </div>
+    <FooterComponent class="mt-8"/>
   </div>
 </template>
 <script>
 import LoggedTopBar from "@/components/LoggedTopBar";
 import FooterComponent from "@/components/FooterComponent";
+import RepositoryItem from "@/components/RepositoryItem";
 export default {
   components: {
     LoggedTopBar,
     FooterComponent,
+    RepositoryItem,
+  },
+  data() {
+    return {
+      repositories: ["1", "2", "3", "4", "5", "6"],
+    };
   },
 };
 </script>
