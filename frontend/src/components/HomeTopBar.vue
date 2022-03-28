@@ -1,4 +1,3 @@
-'
 <template>
   <div class="flex justify-evenly items-center px-24 py-10">
     <div class="flex">
