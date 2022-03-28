@@ -3,3 +3,6 @@ Flask
 
 # Automated tests
 pytest
+
+# MySQL
+pymysql

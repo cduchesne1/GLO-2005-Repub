@@ -68,11 +68,6 @@ def task(task_id):
     return 'Task {}'.format(task_id)
 
 
-@app.route('/tasks/<int:task_id>/comments', methods=['GET'])
-def task_comments(task_id):
-    return 'Task {} comments'.format(task_id)
-
-
 @app.route('/tasks/<int:task_id>/comments', methods=['GET', 'POST'])
 def task_comments(task_id):
     return 'Task {} comments'.format(task_id)
