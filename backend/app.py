@@ -1,4 +1,7 @@
+import json
+
 from flask import Flask
+from services.usersService import get_all_users
 
 app = Flask(__name__)
 
@@ -25,7 +28,10 @@ def signup():
 
 @app.route('/users', methods=['GET'])
 def users():
-    return 'Users list'
+    result = get_all_users()
+    if result is None:
+        return 'No users found', 404
+    return json.dumps({"users": list(result), "total": len(result)}), 200
 
 
 @app.route('/users/<int:user_id>', methods=['GET', 'PUT', 'DELETE'])
