@@ -1,7 +1,7 @@
 import json
 
-from flask import Flask
-from services.usersService import get_all_users
+from flask import Flask, request
+from services.usersService import *
 
 app = Flask(__name__)
 
@@ -36,7 +36,27 @@ def users():
 
 @app.route('/users/<int:user_id>', methods=['GET', 'PUT', 'DELETE'])
 def profile(user_id):
-    return 'User {}'.format(user_id)
+    if request.method == 'GET':
+        result = get_user(user_id)
+        if result is None:
+            return 'User with id {} not found'.format(user_id), 404
+        return json.dumps(result), 200
+    elif request.method == 'PUT':
+        if not is_valid_user(user_id):
+            return 'User with id {} not found'.format(user_id), 404
+        result = update_user(user_id, request.get_json())
+        if result:
+            return 'User with id {} updated'.format(user_id), 200
+        return 'User with id {} not updated'.format(user_id), 400
+    elif request.method == 'DELETE':
+        if not is_valid_user(user_id):
+            return 'User with id {} not found'.format(user_id), 404
+        result = delete_user(user_id)
+        if result:
+            return 'User with id {} deleted'.format(user_id), 200
+        return 'User with id {} not deleted'.format(user_id), 400
+    else:
+        return 'Method not allowed', 405
 
 
 @app.route('/users/<int:user_id>/repositories', methods=['GET'])

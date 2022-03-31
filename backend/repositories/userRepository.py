@@ -25,3 +25,34 @@ def get_all_users():
     except Exception as e:
         print(e)
         return None
+
+
+def get_user(user_id):
+    try:
+        cursor.execute("SELECT * FROM users WHERE id = %s;", (user_id,))
+        result = cursor.fetchone()
+        return __to_dto(result)
+    except Exception as e:
+        print(e)
+        return None
+
+
+def update_user(user_id, user_data):
+    try:
+        cursor.execute("UPDATE users SET name = %s, username = %s, email = %s, bio = %s, website = %s, company = %s, location = %s WHERE id = %s;",
+                       (user_data["name"], user_data["username"], user_data["email"], user_data["bio"], user_data["website"], user_data["company"], user_data["location"], user_id))
+        connection.commit()
+        return True
+    except Exception as e:
+        print(e)
+        return False
+
+
+def delete_user(user_id):
+    try:
+        cursor.execute("DELETE FROM users WHERE id = %s;", (user_id,))
+        connection.commit()
+        return True
+    except Exception as e:
+        print(e)
+        return False
