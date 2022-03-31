@@ -4,7 +4,7 @@ connection = pymysql.connect(host='localhost', user='user', password='password',
 cursor = connection.cursor()
 
 
-def __to_user(row):
+def __to_dto(row):
     return {
         "id": row[0],
         "name": row[1],
@@ -21,7 +21,7 @@ def get_all_users():
     try:
         cursor.execute("SELECT * FROM users;")
         result = cursor.fetchall()
-        return [__to_user(row) for row in result]
+        return [__to_dto(row) for row in result]
     except Exception as e:
         print(e)
         return None
