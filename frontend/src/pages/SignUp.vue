@@ -20,16 +20,6 @@
         <a v-if="emailError" class="text-md text-red-600 mb-2">{{
           emailError
         }}</a>
-        <label for="name" class="text-md text-white mt-8 mb-2">Full Name</label>
-        <input
-          name="name"
-          type="text"
-          v-model="name"
-          class="bg-gray-800 text-white w-96 py-2 px-2 rounded-lg"
-        />
-        <a v-if="nameError" class="text-md text-red-600 mb-2">{{
-          nameError
-        }}</a>
         <label for="username" class="text-md text-white mt-8 mb-2"
           >Username</label
         >
@@ -41,6 +31,16 @@
         />
         <a v-if="usernameError" class="text-md text-red-600 mb-2">{{
           usernameError
+        }}</a>
+        <label for="name" class="text-md text-white mt-8 mb-2">Full Name</label>
+        <input
+          name="name"
+          type="text"
+          v-model="name"
+          class="bg-gray-800 text-white w-96 py-2 px-2 rounded-lg"
+        />
+        <a v-if="nameError" class="text-md text-red-600 mb-2">{{
+          nameError
         }}</a>
         <label for="password" class="text-md text-white mt-8 mb-2"
           >Password</label
@@ -122,7 +122,7 @@ export default {
       } else if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.email) === false) {
         this.emailError = "Email is invalid";
       }
-      
+
       if (this.name === "") {
         this.nameError = "Name is required";
       }
