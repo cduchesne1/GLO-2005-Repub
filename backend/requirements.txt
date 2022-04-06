@@ -6,3 +6,6 @@ pytest
 
 # MySQL
 pymysql
+
+#Encryption
+bcrypt

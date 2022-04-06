@@ -1,14 +1,21 @@
 import json
 
-from flask import Flask
-from services.usersService import get_all_users
+from flask import Flask, request, make_response
+
+from exceptions.InvalidParameterException import InvalidParameterException
+from exceptions.ItemNotFoundException import ItemNotFoundException
+from exceptions.MissingParameterException import MissingParameterException
+from services.usersService import get_all_users, create_user
 
 app = Flask(__name__)
+app.register_error_handler(InvalidParameterException, lambda e: e)
+app.register_error_handler(ItemNotFoundException, lambda e: e)
+app.register_error_handler(MissingParameterException, lambda e: e)
 
 
 @app.route('/')
 def heartbeat():
-    return 'Welcome to GitGud API'
+    return 'Welcome to RePub API'
 
 
 @app.route('/login', methods=['POST'])
@@ -23,7 +30,10 @@ def logout():
 
 @app.route('/signup', methods=['POST'])
 def signup():
-    return 'Signup successful'
+    result = create_user(request.get_json())
+    response = make_response()
+    response.headers['Location'] = '/users/{}'.format(result)
+    return response, 201
 
 
 @app.route('/users', methods=['GET'])
