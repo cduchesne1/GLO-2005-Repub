@@ -36,3 +36,22 @@ def create_user(user_data):
 
 def __encrypt_password(password):
     return bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
+
+
+def get_user(user_id):
+    cursor.execute("SELECT * FROM users WHERE id = %s;", (user_id,))
+    result = cursor.fetchone()
+    return __to_dto(result) if result else None
+
+
+def update_user(user_id, user_data):
+    cursor.execute(
+        "UPDATE users SET name = %s, username = %s, email = %s, bio = %s, website = %s, company = %s, location = %s WHERE id = %s;",
+        (user_data["name"], user_data["username"], user_data["email"], user_data["bio"], user_data["website"],
+         user_data["company"], user_data["location"], user_id))
+    connection.commit()
+
+
+def delete_user(user_id):
+    cursor.execute("DELETE FROM users WHERE id = %s;", (user_id,))
+    connection.commit()

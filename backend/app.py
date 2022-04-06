@@ -2,10 +2,7 @@ import json
 
 from flask import Flask, request, make_response
 
-from exceptions.InvalidParameterException import InvalidParameterException
-from exceptions.ItemNotFoundException import ItemNotFoundException
-from exceptions.MissingParameterException import MissingParameterException
-from services.usersService import get_all_users, create_user
+from services.usersService import *
 
 app = Flask(__name__)
 app.register_error_handler(InvalidParameterException, lambda e: e)
@@ -15,7 +12,7 @@ app.register_error_handler(MissingParameterException, lambda e: e)
 
 @app.route('/')
 def heartbeat():
-    return 'Welcome to RePub API'
+    return 'Welcome to RePub API', 200
 
 
 @app.route('/login', methods=['POST'])
@@ -39,14 +36,22 @@ def signup():
 @app.route('/users', methods=['GET'])
 def users():
     result = get_all_users()
-    if result is None:
-        return 'No users found', 404
     return json.dumps({"users": list(result), "total": len(result)}), 200
 
 
 @app.route('/users/<int:user_id>', methods=['GET', 'PUT', 'DELETE'])
 def profile(user_id):
-    return 'User {}'.format(user_id)
+    if request.method == 'GET':
+        result = get_user(user_id)
+        return json.dumps(result), 200
+    elif request.method == 'PUT':
+        update_user(user_id, request.get_json())
+        return 'User with id {} updated'.format(user_id), 200
+    elif request.method == 'DELETE':
+        delete_user(user_id)
+        return 'User with id {} deleted'.format(user_id), 200
+    else:
+        return 'Method not allowed', 405
 
 
 @app.route('/users/<int:user_id>/repositories', methods=['GET'])

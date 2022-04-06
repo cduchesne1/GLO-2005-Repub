@@ -1,12 +1,42 @@
 import re
 
 from exceptions.InvalidParameterException import InvalidParameterException
+from exceptions.ItemNotFoundException import ItemNotFoundException
 from exceptions.MissingParameterException import MissingParameterException
 from repositories import userRepository
 
 
 def get_all_users():
-    return userRepository.get_all_users()
+    result = userRepository.get_all_users()
+    if result is None:
+        raise ItemNotFoundException("No users found")
+    return result
+
+
+def get_user(user_id):
+    result = userRepository.get_user(user_id)
+    if result is None:
+        raise ItemNotFoundException(f"User with id {user_id} not found")
+    return result
+
+
+def is_valid_user(user_id):
+    user = get_user(user_id)
+    return user is not None
+
+
+def update_user(user_id, user_data):
+    if is_valid_user(user_id):
+        userRepository.update_user(user_id, user_data)
+    else:
+        raise ItemNotFoundException(f"User with id {user_id} not found")
+
+
+def delete_user(user_id):
+    if is_valid_user(user_id):
+        userRepository.delete_user(user_id)
+    else:
+        raise ItemNotFoundException(f"User with id {user_id} not found")
 
 
 def create_user(user_data):
