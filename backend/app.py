@@ -32,7 +32,7 @@ def logout():
 def signup():
     result = create_user(request.get_json())
     response = make_response()
-    response.headers['Location'] = '/users/{}'.format(result)
+    response.headers['Location'] = f'{request.url_root}users/{result}'
     return response, 201
 
 
