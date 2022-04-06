@@ -55,3 +55,9 @@ def __validate_user_data(user_data):
 
     if not re.fullmatch(r'[^@]+@[^@]+\.[^@]+', user_data['email']):
         raise InvalidParameterException('Invalid email')
+
+    if userRepository.username_exists(user_data['username']):
+        raise InvalidParameterException('Username already exists')
+
+    if userRepository.email_exists(user_data['email']):
+        raise InvalidParameterException('Email already exists')

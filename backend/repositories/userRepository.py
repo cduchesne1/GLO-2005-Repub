@@ -55,3 +55,13 @@ def update_user(user_id, user_data):
 def delete_user(user_id):
     cursor.execute("DELETE FROM users WHERE id = %s;", (user_id,))
     connection.commit()
+
+
+def username_exists(username):
+    cursor.execute("SELECT * FROM users WHERE username = %s;", username)
+    return cursor.fetchone() is not None
+
+
+def email_exists(email):
+    cursor.execute("SELECT * FROM users WHERE email = %s;", email)
+    return cursor.fetchone() is not None
