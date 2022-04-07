@@ -9,7 +9,9 @@ CREATE TABLE IF NOT EXISTS users(
     website VARCHAR(255),
     company VARCHAR(255),
     location VARCHAR(255),
-    PRIMARY KEY(id)
+    PRIMARY KEY(id),
+    UNIQUE (username),
+    UNIQUE (email)
 );
 
 INSERT INTO users(name, username, email, bio, website, company, location)

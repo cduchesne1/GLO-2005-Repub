@@ -1,14 +1,18 @@
 import json
 
-from flask import Flask, request
+from flask import Flask, request, make_response
+
 from services.usersService import *
 
 app = Flask(__name__)
+app.register_error_handler(InvalidParameterException, lambda e: e)
+app.register_error_handler(ItemNotFoundException, lambda e: e)
+app.register_error_handler(MissingParameterException, lambda e: e)
 
 
 @app.route('/')
 def heartbeat():
-    return 'Welcome to GitGud API'
+    return 'Welcome to RePub API', 200
 
 
 @app.route('/login', methods=['POST'])
@@ -23,14 +27,15 @@ def logout():
 
 @app.route('/signup', methods=['POST'])
 def signup():
-    return 'Signup successful'
+    result = create_user(request.get_json())
+    response = make_response()
+    response.headers['Location'] = f'{request.url_root}users/{result}'
+    return response, 201
 
 
 @app.route('/users', methods=['GET'])
 def users():
     result = get_all_users()
-    if result is None:
-        return 'No users found', 404
     return json.dumps({"users": list(result), "total": len(result)}), 200
 
 
@@ -38,23 +43,13 @@ def users():
 def profile(user_id):
     if request.method == 'GET':
         result = get_user(user_id)
-        if result is None:
-            return 'User with id {} not found'.format(user_id), 404
         return json.dumps(result), 200
     elif request.method == 'PUT':
-        if not is_valid_user(user_id):
-            return 'User with id {} not found'.format(user_id), 404
-        result = update_user(user_id, request.get_json())
-        if result:
-            return 'User with id {} updated'.format(user_id), 200
-        return 'User with id {} not updated'.format(user_id), 400
+        update_user(user_id, request.get_json())
+        return 'User with id {} updated'.format(user_id), 200
     elif request.method == 'DELETE':
-        if not is_valid_user(user_id):
-            return 'User with id {} not found'.format(user_id), 404
-        result = delete_user(user_id)
-        if result:
-            return 'User with id {} deleted'.format(user_id), 200
-        return 'User with id {} not deleted'.format(user_id), 400
+        delete_user(user_id)
+        return 'User with id {} deleted'.format(user_id), 200
     else:
         return 'Method not allowed', 405
 
