@@ -1,9 +1,14 @@
 import json
 
+import pymysql
 from flask import Flask, request, make_response
 from flask_cors import CORS, cross_origin
 
-from services.usersService import *
+from exceptions.InvalidParameterException import InvalidParameterException
+from exceptions.ItemNotFoundException import ItemNotFoundException
+from exceptions.MissingParameterException import MissingParameterException
+from repositories.userRepository import UserRepository
+from services.usersService import UsersService
 
 app = Flask(__name__)
 app.config['CORS_HEADERS'] = 'Content-Type'
@@ -12,6 +17,10 @@ app.register_error_handler(ItemNotFoundException, lambda e: e)
 app.register_error_handler(MissingParameterException, lambda e: e)
 
 cors = CORS(app, resources={r"/*": {"origins": "http://localhost:8080"}})
+
+connection = pymysql.connect(host='localhost', user='user', password='password', db='mydb')
+user_repository = UserRepository(connection)
+user_service = UsersService(user_repository)
 
 
 @app.route('/')
@@ -32,7 +41,7 @@ def logout():
 @app.route('/signup', methods=['POST'])
 @cross_origin(origin='localhost', headers=['Content- Type', 'Authorization'])
 def signup():
-    result = create_user(request.get_json())
+    result = user_service.create_user(request.get_json())
     response = make_response()
     response.headers['Location'] = f'{request.url_root}users/{result}'
     return response, 201
@@ -40,20 +49,20 @@ def signup():
 
 @app.route('/users', methods=['GET'])
 def users():
-    result = get_all_users()
+    result = user_service.get_all_users()
     return json.dumps({"users": list(result), "total": len(result)}), 200
 
 
 @app.route('/users/<int:user_id>', methods=['GET', 'PUT', 'DELETE'])
 def profile(user_id):
     if request.method == 'GET':
-        result = get_user(user_id)
+        result = user_service.get_user(user_id)
         return json.dumps(result), 200
     elif request.method == 'PUT':
-        update_user(user_id, request.get_json())
+        user_service.update_user(user_id, request.get_json())
         return 'User with id {} updated'.format(user_id), 200
     elif request.method == 'DELETE':
-        delete_user(user_id)
+        user_service.delete_user(user_id)
         return 'User with id {} deleted'.format(user_id), 200
     else:
         return 'Method not allowed', 405
