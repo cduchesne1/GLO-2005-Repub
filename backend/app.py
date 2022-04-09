@@ -7,7 +7,9 @@ from flask_cors import CORS, cross_origin
 from exceptions.InvalidParameterException import InvalidParameterException
 from exceptions.ItemNotFoundException import ItemNotFoundException
 from exceptions.MissingParameterException import MissingParameterException
+from repositories.repositoryRepository import RepositoryRepository
 from repositories.userRepository import UserRepository
+from services.repositoriesService import RepositoriesService
 from services.usersService import UsersService
 
 app = Flask(__name__)
@@ -20,7 +22,9 @@ cors = CORS(app, resources={r"/*": {"origins": "http://localhost:8080"}})
 
 connection = pymysql.connect(host='localhost', user='user', password='password', db='mydb')
 user_repository = UserRepository(connection)
-user_service = UsersService(user_repository)
+repository_repository = RepositoryRepository(connection)
+users_service = UsersService(user_repository)
+repositories_service = RepositoriesService(repository_repository, users_service)
 
 
 @app.route('/')
@@ -41,7 +45,7 @@ def logout():
 @app.route('/signup', methods=['POST'])
 @cross_origin(origin='localhost', headers=['Content- Type', 'Authorization'])
 def signup():
-    result = user_service.create_user(request.get_json())
+    result = users_service.create_user(request.get_json())
     response = make_response()
     response.headers['Location'] = f'{request.url_root}users/{result}'
     return response, 201
@@ -49,20 +53,20 @@ def signup():
 
 @app.route('/users', methods=['GET'])
 def users():
-    result = user_service.get_all_users()
+    result = users_service.get_all_users()
     return json.dumps({"users": list(result), "total": len(result)}), 200
 
 
 @app.route('/users/<int:user_id>', methods=['GET', 'PUT', 'DELETE'])
 def profile(user_id):
     if request.method == 'GET':
-        result = user_service.get_user(user_id)
+        result = users_service.get_user(user_id)
         return json.dumps(result), 200
     elif request.method == 'PUT':
-        user_service.update_user(user_id, request.get_json())
+        users_service.update_user(user_id, request.get_json())
         return 'User with id {} updated'.format(user_id), 200
     elif request.method == 'DELETE':
-        user_service.delete_user(user_id)
+        users_service.delete_user(user_id)
         return 'User with id {} deleted'.format(user_id), 200
     else:
         return 'Method not allowed', 405
@@ -70,7 +74,8 @@ def profile(user_id):
 
 @app.route('/users/<int:user_id>/repositories', methods=['GET'])
 def user_repositories(user_id):
-    return 'User {} repositories'.format(user_id)
+    result = repositories_service.get_user_repositories(user_id)
+    return json.dumps({"repositories": list(result), "total": len(result)}), 200
 
 
 @app.route('/users/<int:user_id>/tasks', methods=['GET'])
