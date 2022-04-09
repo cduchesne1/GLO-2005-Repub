@@ -1,13 +1,17 @@
 import json
 
 from flask import Flask, request, make_response
+from flask_cors import CORS, cross_origin
 
 from services.usersService import *
 
 app = Flask(__name__)
+app.config['CORS_HEADERS'] = 'Content-Type'
 app.register_error_handler(InvalidParameterException, lambda e: e)
 app.register_error_handler(ItemNotFoundException, lambda e: e)
 app.register_error_handler(MissingParameterException, lambda e: e)
+
+cors = CORS(app, resources={r"/*": {"origins": "http://localhost:8080"}})
 
 
 @app.route('/')
@@ -26,6 +30,7 @@ def logout():
 
 
 @app.route('/signup', methods=['POST'])
+@cross_origin(origin='localhost', headers=['Content- Type', 'Authorization'])
 def signup():
     result = create_user(request.get_json())
     response = make_response()
