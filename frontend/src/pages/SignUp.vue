@@ -101,12 +101,13 @@ export default {
           body: JSON.stringify(user),
         });
 
-        if (response.status === 200) {
+        if (response.status === 201) {
           this.$router.push("/profile");
         } else {
-          if (response.body.data.desc === "Email already exists") {
+          const error = await response.json();
+          if (error.desc === "Email already exists") {
             this.emailError = "Email already exists";
-          } else if (response.body.data.desc === "Username already exists") {
+          } else if (error.desc === "Username already exists") {
             this.usernameError = "Username already exists";
           }
         }
