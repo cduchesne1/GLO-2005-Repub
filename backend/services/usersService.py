@@ -25,13 +25,13 @@ class UsersService:
         return result
 
     def update_user(self, user_id: int, user_data: Optional[dict[str, Any]]) -> None:
-        if self.__is_valid_user(user_id):
+        if self.is_valid_user(user_id):
             self.repository.update_user(user_id, user_data)
         else:
             raise ItemNotFoundException(f"User with id {user_id} not found")
 
     def delete_user(self, user_id: int) -> None:
-        if self.__is_valid_user(user_id):
+        if self.is_valid_user(user_id):
             self.repository.delete_user(user_id)
         else:
             raise ItemNotFoundException(f"User with id {user_id} not found")
@@ -40,7 +40,7 @@ class UsersService:
         self.__validate_user_data(user_data)
         return self.repository.create_user(user_data)
 
-    def __is_valid_user(self, user_id: int) -> bool:
+    def is_valid_user(self, user_id: int) -> bool:
         user = self.get_user(user_id)
         return user is not None
 
