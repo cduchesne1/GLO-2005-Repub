@@ -43,7 +43,7 @@ def logout():
 
 
 @app.route('/signup', methods=['POST'])
-@cross_origin(origin='localhost', headers=['Content- Type', 'Authorization'])
+@cross_origin(origin='localhost', headers=['Content-Type', 'Authorization'])
 def signup():
     result = users_service.create_user(request.get_json())
     response = make_response()
@@ -58,6 +58,7 @@ def users():
 
 
 @app.route('/users/<int:user_id>', methods=['GET', 'PUT', 'DELETE'])
+@cross_origin(origin='localhost', headers=['Content-Type', 'Authorization'])
 def profile(user_id):
     if request.method == 'GET':
         result = users_service.get_user(user_id)
@@ -84,8 +85,18 @@ def user_tasks(user_id):
 
 
 @app.route('/repositories', methods=['GET', 'POST'])
+@cross_origin(origin='localhost', headers=['Content- Type', 'Authorization'])
 def repositories():
-    return 'Repositories list'
+    if request.method == 'GET':
+        result = repositories_service.get_public_repositories()
+        return json.dumps({"repositories": list(result), "total": len(result)}), 200
+    elif request.method == 'POST':
+        result = repositories_service.create_repository(request.get_json())
+        response = make_response()
+        response.headers['Location'] = f'{request.url_root}repositories/{result}'
+        return response, 201
+    else:
+        return 'Method not allowed', 405
 
 
 @app.route('/repositories/<int:repository_id>', methods=['GET', 'PUT', 'DELETE'])
