@@ -101,7 +101,17 @@ def repositories():
 
 @app.route('/repositories/<int:repository_id>', methods=['GET', 'PUT', 'DELETE'])
 def repository(repository_id):
-    return 'Repository {}'.format(repository_id)
+    if request.method == 'GET':
+        result = repositories_service.get_repository(repository_id)
+        return json.dumps(result), 200
+    elif request.method == 'PUT':
+        repositories_service.update_repository(repository_id, request.get_json())
+        return 'Repository with id {} updated'.format(repository_id), 200
+    elif request.method == 'DELETE':
+        repositories_service.delete_repository(repository_id)
+        return 'Repository with id {} deleted'.format(repository_id), 200
+    else:
+        return 'Method not allowed', 405
 
 
 @app.route('/repositories/<int:repository_id>/tasks', methods=['GET'])

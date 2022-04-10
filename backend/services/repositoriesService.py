@@ -12,6 +12,12 @@ class RepositoriesService:
         self.repository = repository
         self.users_service = users_service
 
+    def get_repository(self, repository_id: int) -> dict[str, Any]:
+        result = self.repository.get_repository(repository_id)
+        if result is None:
+            raise ItemNotFoundException(f"Repository with id {repository_id} not found")
+        return result
+
     def get_public_repositories(self) -> list[dict[str, Any]]:
         return self.repository.get_all_public()
 
@@ -23,6 +29,22 @@ class RepositoriesService:
     def create_repository(self, repository_data: Optional[dict[str, Any]]) -> int:
         self.__validate_repository_data(repository_data)
         return self.repository.create_repository(repository_data)
+
+    def update_repository(self, repository_id: int, repository_data: Optional[dict[str, Any]]) -> None:
+        if self.is_valid_repository(repository_id):
+            self.repository.update_repository(repository_id, repository_data)
+        else:
+            raise ItemNotFoundException(f"Repository with id {repository_id} not found")
+
+    def delete_repository(self, repository_id: int) -> None:
+        if self.is_valid_repository(repository_id):
+            self.repository.delete_repository(repository_id)
+        else:
+            raise ItemNotFoundException(f"Repository with id {repository_id} not found")
+
+    def is_valid_repository(self, repository_id: int) -> bool:
+        repository = self.get_repository(repository_id)
+        return repository is not None
 
     def __validate_repository_data(self, repository_data: Optional[dict[str, Any]]) -> None:
         if repository_data is None:
