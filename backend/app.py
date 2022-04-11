@@ -3,12 +3,15 @@ import json
 from flask import Flask, request, make_response
 
 from services.usersService import *
+from services.login import Logger
 
 app = Flask(__name__)
 app.register_error_handler(InvalidParameterException, lambda e: e)
 app.register_error_handler(ItemNotFoundException, lambda e: e)
 app.register_error_handler(MissingParameterException, lambda e: e)
 
+
+logger = Logger()
 
 @app.route('/')
 def heartbeat():
@@ -17,6 +20,7 @@ def heartbeat():
 
 @app.route('/login', methods=['POST'])
 def login():
+    token = logger.log_user(request.get_json())
     return 'Login successful'
 
 

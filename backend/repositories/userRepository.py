@@ -65,3 +65,6 @@ def username_exists(username):
 def email_exists(email):
     cursor.execute("SELECT * FROM users WHERE email = %s;", email)
     return cursor.fetchone() is not None
+
+def log_user(user_credential):
+    pass
