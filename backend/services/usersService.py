@@ -1,63 +1,63 @@
 import re
+from typing import Any, Optional
 
 from exceptions.InvalidParameterException import InvalidParameterException
 from exceptions.ItemNotFoundException import ItemNotFoundException
 from exceptions.MissingParameterException import MissingParameterException
-from repositories import userRepository
+from repositories.userRepository import UserRepository
 
 
-def get_all_users():
-    result = userRepository.get_all_users()
-    if result is None:
-        raise ItemNotFoundException("No users found")
-    return result
+class UsersService:
 
+    def __init__(self, user_repository: UserRepository):
+        self.repository = user_repository
 
-def get_user(user_id):
-    result = userRepository.get_user(user_id)
-    if result is None:
-        raise ItemNotFoundException(f"User with id {user_id} not found")
-    return result
+    def get_all_users(self) -> list[dict[str, Any]]:
+        result = self.repository.get_all_users()
+        if result is None:
+            raise ItemNotFoundException("No users found")
+        return result
 
+    def get_user(self, user_id: int) -> dict[str, Any]:
+        result = self.repository.get_user(user_id)
+        if result is None:
+            raise ItemNotFoundException(f"User with id {user_id} not found")
+        return result
 
-def is_valid_user(user_id):
-    user = get_user(user_id)
-    return user is not None
+    def update_user(self, user_id: int, user_data: Optional[dict[str, Any]]) -> None:
+        if self.is_valid_user(user_id):
+            self.repository.update_user(user_id, user_data)
+        else:
+            raise ItemNotFoundException(f"User with id {user_id} not found")
 
+    def delete_user(self, user_id: int) -> None:
+        if self.is_valid_user(user_id):
+            self.repository.delete_user(user_id)
+        else:
+            raise ItemNotFoundException(f"User with id {user_id} not found")
 
-def update_user(user_id, user_data):
-    if is_valid_user(user_id):
-        userRepository.update_user(user_id, user_data)
-    else:
-        raise ItemNotFoundException(f"User with id {user_id} not found")
+    def create_user(self, user_data: Optional[dict[str, Any]]) -> int:
+        self.__validate_user_data(user_data)
+        return self.repository.create_user(user_data)
 
+    def is_valid_user(self, user_id: int) -> bool:
+        user = self.get_user(user_id)
+        return user is not None
 
-def delete_user(user_id):
-    if is_valid_user(user_id):
-        userRepository.delete_user(user_id)
-    else:
-        raise ItemNotFoundException(f"User with id {user_id} not found")
+    def __validate_user_data(self, user_data: Optional[dict[str, Any]]) -> None:
+        if 'email' not in user_data or 'username' not in user_data or 'name' not in user_data \
+                or 'password' not in user_data:
+            raise MissingParameterException('One or more parameters are missing')
 
+        if user_data['email'] == '' or user_data['username'] == '' or user_data['name'] == '' \
+                or user_data['password'] == '':
+            raise InvalidParameterException('Invalid parameter')
 
-def create_user(user_data):
-    __validate_user_data(user_data)
-    return userRepository.create_user(user_data)
+        if not re.fullmatch(r'[^@]+@[^@]+\.[^@]+', user_data['email']):
+            raise InvalidParameterException('Invalid email')
 
+        if self.repository.username_exists(user_data['username']):
+            raise InvalidParameterException('Username already exists')
 
-def __validate_user_data(user_data):
-    if 'email' not in user_data or 'username' not in user_data or 'name' not in user_data \
-            or 'password' not in user_data:
-        raise MissingParameterException('One or more parameters are missing')
-
-    if user_data['email'] == '' or user_data['username'] == '' or user_data['name'] == '' \
-            or user_data['password'] == '':
-        raise InvalidParameterException('Invalid parameter')
-
-    if not re.fullmatch(r'[^@]+@[^@]+\.[^@]+', user_data['email']):
-        raise InvalidParameterException('Invalid email')
-
-    if userRepository.username_exists(user_data['username']):
-        raise InvalidParameterException('Username already exists')
-
-    if userRepository.email_exists(user_data['email']):
-        raise InvalidParameterException('Email already exists')
+        if self.repository.email_exists(user_data['email']):
+            raise InvalidParameterException('Email already exists')

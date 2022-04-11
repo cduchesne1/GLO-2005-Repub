@@ -1,5 +1,6 @@
 # Flask Framework
 Flask
+flask-cors
 
 # Automated tests
 pytest
