@@ -2,7 +2,6 @@ import re
 
 from repositories import userRepository
 from exceptions.InvalidParameterException import InvalidParameterException
-from exceptions.ItemNotFoundException import ItemNotFoundException
 from exceptions.MissingParameterException import MissingParameterException
 
 class Logger:
