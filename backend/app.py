@@ -36,8 +36,8 @@ def heartbeat():
 
 @app.route('/login', methods=['POST'])
 def login():
-    token = logger.log_user(request.get_json())
-    return token, 200
+    token_id = logger.log_user(request.get_json())
+    return token_id, 200
 
 
 @app.route('/logout', methods=['POST'])

@@ -82,7 +82,7 @@ class UserRepository:
         token_expire_time = datetime.datetime.now() + datetime.timedelta(days=1)
         new_token = {"token_id": token_id, "token_creation_time": token_creation_time, "token_expire_time": token_expire_time }
         self.tokens.append(new_token)
-        return new_token
+        return new_token["token_id"]
 
     def __get_user_id(self, email):
         self.cursor.execute("SELECT id FROM users WHERE email = %s", email)
