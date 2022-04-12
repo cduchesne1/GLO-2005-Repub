@@ -1,8 +1,10 @@
+from pickle import FALSE
 from typing import Any, Optional
 import bcrypt
 from uuid import uuid4
 import datetime
 from exceptions import InvalidParameterException
+from exceptions import TokenExpiredException
 
 class UserRepository:
     def __init__(self, connection):
@@ -90,3 +92,16 @@ class UserRepository:
         if user_id is None:
             raise InvalidParameterException("email doesn't exist")
         return user_id
+
+    def check_if_token_is_valid(self, token):
+        for stocked_token in self.tokens:
+            if stocked_token["token_expire_time"] < datetime.datetime.now():
+                self.tokens.remove(stocked_token)
+                continue
+            if stocked_token["token_id"] == token["token_id"]:
+                self.update_token(token)
+                return True
+        return False
+
+    def update_token(self, token):
+        pass
