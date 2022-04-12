@@ -55,4 +55,3 @@ class RepositoriesService:
             raise InvalidParameterException("Invalid parameter")
         if not self.users_service.is_valid_user(repository_data["owner"]):
             raise ItemNotFoundException(f"User with id {repository_data['owner']} not found")
-
