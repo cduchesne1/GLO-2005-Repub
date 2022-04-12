@@ -26,9 +26,8 @@ user_repository = UserRepository(connection)
 repository_repository = RepositoryRepository(connection)
 users_service = UsersService(user_repository)
 repositories_service = RepositoriesService(repository_repository, users_service)
-
-
 logger = Logger()
+
 
 @app.route('/')
 def heartbeat():
@@ -38,7 +37,7 @@ def heartbeat():
 @app.route('/login', methods=['POST'])
 def login():
     token = logger.log_user(request.get_json())
-    return 'Login successful'
+    return token, 200
 
 
 @app.route('/logout', methods=['POST'])
