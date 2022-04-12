@@ -26,10 +26,7 @@ class Logger:
         if self.user_repository.email_exists(user_credential['email']):
             raise InvalidParameterException('Email already exists')
 
-    def check_if_token_is_valid(self, token):
-        if "token_id" not in token or "token_creation_time" not in token or "token_expire_time" not in token:
-            raise MissingParameterException("token is missing a parameters")
-
-        if "token_id" == "" or "token_creation_time" == "" or "token_expire_time" == "":
-            raise InvalidParameterException("A parameter of the token is empty")
-        return self.user_repository.check_if_token_is_valid(token)
+    def check_if_token_is_valid(self, token_id):
+        if token_id == "":
+            raise InvalidParameterException("token_id is empty")
+        return self.user_repository.check_if_token_is_valid(token_id)
