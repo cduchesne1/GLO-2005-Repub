@@ -19,6 +19,15 @@ class TaskRepository:
             "number": row[7],
         }
 
+    def __to_comment_dto(self, row: tuple) -> dict[str, Any]:
+        return {
+            "id": row[0],
+            "task": row[1],
+            "comment": row[2],
+            "sender": row[3],
+            "timestamp": row[4],
+        }
+
     def get_all_tasks(self) -> list[dict[str, Any]]:
         self.cursor.execute("""
             SELECT * FROM tasks
@@ -72,3 +81,16 @@ class TaskRepository:
     def get_task_repository(self, task_id: int) -> int:
         self.cursor.execute("SELECT repository FROM tasks WHERE id = %s", task_id)
         return self.cursor.fetchone()[0]
+
+    def get_task_comments(self, task_id: int) -> list[dict[str, Any]]:
+        self.cursor.execute("""
+            SELECT * FROM comments WHERE task = %s
+        """, task_id)
+        return [self.__to_comment_dto(row) for row in self.cursor.fetchall()]
+
+    def create_comment(self, task_id: int, comment_data: dict[str, Any]) -> int:
+        self.cursor.execute("INSERT INTO comments (task, comment, sender, timestamp) VALUES (%s, %s, %s, %s)",
+                            (task_id, comment_data["comment"], comment_data["sender"],
+                             datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
+        self.connection.commit()
+        return self.cursor.lastrowid
