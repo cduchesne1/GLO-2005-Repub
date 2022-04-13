@@ -26,15 +26,14 @@ class UsersService:
 
     def update_user(self, user_id: int, user_data: Optional[dict[str, Any]]) -> None:
         if self.is_valid_user(user_id):
-            self.repository.update_user(user_id, user_data)
-        else:
-            raise ItemNotFoundException(f"User with id {user_id} not found")
+            self.__validate_user_data_for_update(user_data)
+            return self.repository.update_user(user_id, user_data)
+        raise ItemNotFoundException(f"User with id {user_id} not found")
 
     def delete_user(self, user_id: int) -> None:
         if self.is_valid_user(user_id):
-            self.repository.delete_user(user_id)
-        else:
-            raise ItemNotFoundException(f"User with id {user_id} not found")
+            return self.repository.delete_user(user_id)
+        raise ItemNotFoundException(f"User with id {user_id} not found")
 
     def create_user(self, user_data: Optional[dict[str, Any]]) -> int:
         self.__validate_user_data(user_data)
@@ -61,3 +60,17 @@ class UsersService:
 
         if self.repository.email_exists(user_data['email']):
             raise InvalidParameterException('Email already exists')
+
+    def __validate_user_data_for_update(self, user_data: Optional[dict[str, Any]]) -> None:
+        if "name" in user_data and user_data['name'] == '':
+            raise InvalidParameterException('Invalid name')
+        if "username" in user_data:
+            if user_data['username'] == '':
+                raise InvalidParameterException('Invalid username')
+            if self.repository.username_exists(user_data['username']):
+                raise InvalidParameterException('Username already exists')
+        if "email" in user_data:
+            if user_data['email'] == '':
+                raise InvalidParameterException('Invalid email')
+            if self.repository.email_exists(user_data['email']):
+                raise InvalidParameterException('Email already exists')

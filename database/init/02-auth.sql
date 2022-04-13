@@ -4,7 +4,7 @@ CREATE TABLE IF NOT EXISTS authentication(
     id INT AUTO_INCREMENT,
     password VARCHAR(255) NOT NULL,
     PRIMARY KEY(id),
-    FOREIGN KEY(id) REFERENCES users(id)
+    FOREIGN KEY(id) REFERENCES users(id) ON DELETE CASCADE
 );
 
 INSERT INTO authentication(password)

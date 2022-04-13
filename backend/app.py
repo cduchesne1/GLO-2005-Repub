@@ -8,8 +8,10 @@ from exceptions.InvalidParameterException import InvalidParameterException
 from exceptions.ItemNotFoundException import ItemNotFoundException
 from exceptions.MissingParameterException import MissingParameterException
 from repositories.repositoryRepository import RepositoryRepository
+from repositories.taskRepository import TaskRepository
 from repositories.userRepository import UserRepository
 from services.repositoriesService import RepositoriesService
+from services.tasksService import TasksService
 from services.usersService import UsersService
 from services.login import Logger
 
@@ -24,10 +26,12 @@ cors = CORS(app, resources={r"/*": {"origins": "http://localhost:8080"}})
 connection = pymysql.connect(host='localhost', user='user', password='password', db='mydb')
 user_repository = UserRepository(connection)
 repository_repository = RepositoryRepository(connection)
+task_repository = TaskRepository(connection)
+
 users_service = UsersService(user_repository)
 repositories_service = RepositoriesService(repository_repository, users_service)
-logger = Logger()
-
+tasks_service = TasksService(task_repository, users_service, repositories_service)
+logger = Logger(user_repository)
 
 @app.route('/')
 def heartbeat():
@@ -36,8 +40,8 @@ def heartbeat():
 
 @app.route('/login', methods=['POST'])
 def login():
-    token = logger.log_user(request.get_json())
-    return token, 200
+    token_id = logger.log_user(request.get_json())
+    return token_id, 200
 
 
 @app.route('/logout', methods=['POST'])
@@ -84,7 +88,8 @@ def user_repositories(user_id):
 
 @app.route('/users/<int:user_id>/tasks', methods=['GET'])
 def user_tasks(user_id):
-    return 'User {} tasks'.format(user_id)
+    result = tasks_service.get_user_tasks(user_id)
+    return json.dumps({"tasks": list(result), "total": len(result)}, default=str), 200
 
 
 @app.route('/repositories', methods=['GET', 'POST'])
@@ -119,24 +124,61 @@ def repository(repository_id):
 
 @app.route('/repositories/<int:repository_id>/tasks', methods=['GET'])
 def repository_issues(repository_id):
-    return 'Repository {} issues'.format(repository_id)
+    result = tasks_service.get_repository_tasks(repository_id)
+    return json.dumps({"tasks": list(result), "total": len(result)}, default=str), 200
 
 
 @app.route('/tasks', methods=['GET', 'POST'])
 def tasks():
-    return 'Tasks list'
+    if request.method == 'GET':
+        result = tasks_service.get_all_tasks()
+        return json.dumps({"tasks": list(result), "total": len(result)}, default=str), 200
+    elif request.method == 'POST':
+        result = tasks_service.create_task(request.get_json())
+        response = make_response()
+        response.headers['Location'] = f'{request.url_root}tasks/{result}'
+        return response, 201
+    else:
+        return 'Method not allowed', 405
 
 
 @app.route('/tasks/<int:task_id>', methods=['GET', 'PUT', 'DELETE'])
 def task(task_id):
-    return 'Task {}'.format(task_id)
+    if request.method == 'GET':
+        result = tasks_service.get_task(task_id)
+        return json.dumps(result), 200
+    elif request.method == 'PUT':
+        tasks_service.update_task(task_id, request.get_json())
+        return 'Task with id {} updated'.format(task_id), 200
+    elif request.method == 'DELETE':
+        tasks_service.delete_task(task_id)
+        return 'Task with id {} deleted'.format(task_id), 200
 
 
 @app.route('/tasks/<int:task_id>/comments', methods=['GET', 'POST'])
 def task_comments(task_id):
-    return 'Task {} comments'.format(task_id)
+    if request.method == 'GET':
+        result = tasks_service.get_task_comments(task_id)
+        return json.dumps({"comments": list(result), "total": len(result)}, default=str), 200
+    elif request.method == 'POST':
+        result = tasks_service.create_comment(task_id, request.get_json())
+        response = make_response()
+        response.headers['Location'] = f'{request.url_root}comments/{result}'
+        return response, 201
+    else:
+        return 'Method not allowed', 405
 
 
-@app.route('/tasks/<int:task_id>/comments/<int:comment_id>', methods=['GET', 'PUT', 'DELETE'])
-def task_comment(task_id, comment_id):
-    return 'Task {} comment {}'.format(task_id, comment_id)
+@app.route('/comments/<int:comment_id>', methods=['GET', 'PUT', 'DELETE'])
+def task_comment(comment_id):
+    if request.method == 'GET':
+        result = tasks_service.get_comment(comment_id)
+        return json.dumps(result, default=str), 200
+    elif request.method == 'PUT':
+        tasks_service.update_comment(comment_id, request.get_json())
+        return 'Comment with id {} updated'.format(comment_id), 200
+    elif request.method == 'DELETE':
+        tasks_service.delete_comment(comment_id)
+        return 'Comment with id {} deleted'.format(comment_id), 200
+    else:
+        return 'Method not allowed', 405

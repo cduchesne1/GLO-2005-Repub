@@ -1,0 +1,74 @@
+<template>
+  <div class="bg-gray-800 w-full flex flex-col min-h-screen">
+    <LoggedTopBar />
+    <div class="flex justify-center flex-1">
+      <div class="flex flex-col px-16 pt-8 bg-gray-900">
+        <div
+          class="flex items-center border-b-2 border-solid border-white pb-8"
+        >
+          <img src="../assets/profileIcon.svg" />
+          <a class="text-base text-white font-bold ml-4">johdoe1</a>
+        </div>
+        <div class="flex flex-col mt-8">
+          <div class="flex items-center mb-4">
+            <a class="text-base text-white font-bold">Recent Repositories</a>
+            <button
+              class="bg-pink-600 hover:bg-pink-700 text-white text-sm font-bold py-1 px-4 rounded mx-4"
+            >
+              New
+            </button>
+          </div>
+          <a
+            v-for="repo in repositories"
+            :key="repo.name"
+            class="text-base text-white mt-2"
+          >
+            {{ repo.name }}
+          </a>
+        </div>
+      </div>
+      <div class="flex flex-col flex-1 pt-8 items-center">
+        <p class="text-base text-white font-bold">
+          Hi Jane, there is no news for you!
+        </p>
+        <FooterComponent class="mt-auto" />
+      </div>
+      <div class="flex flex-col pr-48 pt-8">
+        <a class="text-base text-white font-bold">Explore Repositories</a>
+        <div
+          v-for="repo in repositories"
+          :key="repo.name"
+          class="flex flex-col border-b-2 border-solid border-white mt-4"
+        >
+          <a class="text-base text-white mt-2">{{ repo.name }}</a>
+          <div v-for="tag in repo.tags" :key="tag" class="bg-pink-600 text-white text-xs font-bold py-1 px-1 rounded-xl inline-block mr-auto my-2">
+                {{ tag }}
+            </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+<script>
+import LoggedTopBar from "@/components/LoggedTopBar";
+import FooterComponent from "@/components/FooterComponent";
+
+export default {
+  components: {
+    LoggedTopBar,
+    FooterComponent,
+  },
+  data() {
+    return {
+      repositories: [
+        { name: "johdoe1/hello", tags: ["Java"] },
+        { name: "johdoe1/hello", tags: ["Java"] },
+        { name: "johdoe1/hello", tags: ["Java"] },
+        { name: "johdoe1/hello", tags: ["Java"] },
+        { name: "johdoe1/hello", tags: ["Java"] },
+        { name: "johdoe1/hello", tags: ["Java"] },
+      ],
+    };
+  },
+};
+</script>
