@@ -13,6 +13,7 @@ from repositories.userRepository import UserRepository
 from services.repositoriesService import RepositoriesService
 from services.tasksService import TasksService
 from services.usersService import UsersService
+from services.login import Logger
 
 app = Flask(__name__)
 app.config['CORS_HEADERS'] = 'Content-Type'
@@ -30,7 +31,7 @@ task_repository = TaskRepository(connection)
 users_service = UsersService(user_repository)
 repositories_service = RepositoriesService(repository_repository, users_service)
 tasks_service = TasksService(task_repository, users_service, repositories_service)
-
+logger = Logger(user_repository)
 
 @app.route('/')
 def heartbeat():
@@ -39,7 +40,8 @@ def heartbeat():
 
 @app.route('/login', methods=['POST'])
 def login():
-    return 'Login successful'
+    token_id = logger.log_user(request.get_json())
+    return token_id, 200
 
 
 @app.route('/logout', methods=['POST'])

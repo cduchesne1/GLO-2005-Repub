@@ -1,12 +1,14 @@
 from typing import Any, Optional
-
 import bcrypt
-
+from uuid import uuid4
+import datetime
+from exceptions import InvalidParameterException
 
 class UserRepository:
     def __init__(self, connection):
         self.connection = connection
         self.cursor = self.connection.cursor()
+        self.tokens = []
 
     def __to_dto(self, row: Any) -> dict[str, Any]:
         return {
@@ -67,3 +69,31 @@ class UserRepository:
     def email_exists(self, email: str) -> bool:
         self.cursor.execute("SELECT * FROM users WHERE email = %s;", email)
         return self.cursor.fetchone() is not None
+
+    def log_user(self, user_credential):
+        user_id = self.__get_user_id(user_credential["email"])
+        hashed_password_from_credential = bcrypt.hashpw(user_credential["password"], bcrypt.gensalt())
+        self.cursor.execute("SELECT password FROM authentication WHERE id = %s", user_id)
+        hashed_password_from_db = self.cursor.fetchone()
+        if hashed_password_from_db is None:
+            raise InvalidParameterException("Password and email combination doesn't exist")
+        
+        if bcrypt.checkpw(hashed_password_from_credential, hashed_password_from_db):
+            return self.create_token()
+        else:
+            raise InvalidParameterException("Password and email combination doesn't exist")
+
+    def create_token(self):
+        token_id = uuid4()
+        token_creation_time = datetime.datetime.now()
+        token_expire_time = datetime.datetime.now() + datetime.timedelta(days=1)
+        new_token = {"token_id": token_id, "token_creation_time": token_creation_time, "token_expire_time": token_expire_time }
+        self.tokens.append(new_token)
+        return new_token["token_id"]
+
+    def __get_user_id(self, email):
+        self.cursor.execute("SELECT id FROM users WHERE email = %s", email)
+        user_id = self.cursor.fetchone()
+        if user_id is None:
+            raise InvalidParameterException("email doesn't exist")
+        return user_id

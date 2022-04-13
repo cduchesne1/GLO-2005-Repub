@@ -10,3 +10,4 @@ pymysql
 
 #Encryption
 bcrypt
+cryptography
