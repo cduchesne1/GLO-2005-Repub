@@ -23,7 +23,7 @@ app.register_error_handler(MissingParameterException, lambda e: e)
 
 cors = CORS(app, resources={r"/*": {"origins": "http://localhost:8080"}})
 
-connection = pymysql.connect(host='localhost', user='user', password='password', db='mydb')
+connection = pymysql.connect(host='localhost', user='user', password='password', db='mydb', port=42069)
 user_repository = UserRepository(connection)
 repository_repository = RepositoryRepository(connection)
 task_repository = TaskRepository(connection)
