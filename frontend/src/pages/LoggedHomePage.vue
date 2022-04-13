@@ -4,10 +4,10 @@
     <div class="flex justify-center flex-1">
       <div class="flex flex-col px-16 pt-8 bg-gray-900">
         <div
-          class="flex items-center border-b-2 border-solid border-white pb-8"
+          class="flex items-center border-b border-solid border-gray-500 pb-8"
         >
           <img src="../assets/profileIcon.svg" />
-          <a class="text-base text-white font-bold ml-4">johdoe1</a>
+          <a class="text-base text-white font-bold ml-4">johndoe1</a>
         </div>
         <div class="flex flex-col mt-8">
           <div class="flex items-center mb-4">
@@ -38,7 +38,7 @@
         <div
           v-for="repo in repositories"
           :key="repo.name"
-          class="flex flex-col border-b-2 border-solid border-white mt-4"
+          class="flex flex-col border-b border-solid border-gray-500 mt-8"
         >
           <a class="text-base text-white mt-2">{{ repo.name }}</a>
           <div v-for="tag in repo.tags" :key="tag" class="bg-pink-600 text-white text-xs font-bold py-1 px-1 rounded-xl inline-block mr-auto my-2">
@@ -61,12 +61,12 @@ export default {
   data() {
     return {
       repositories: [
-        { name: "johdoe1/hello", tags: ["Java"] },
-        { name: "johdoe1/hello", tags: ["Java"] },
-        { name: "johdoe1/hello", tags: ["Java"] },
-        { name: "johdoe1/hello", tags: ["Java"] },
-        { name: "johdoe1/hello", tags: ["Java"] },
-        { name: "johdoe1/hello", tags: ["Java"] },
+        { name: "johndoe1/hello", tags: ["Java"] },
+        { name: "johndoe1/hello", tags: ["Java"] },
+        { name: "johndoe1/hello", tags: ["Java"] },
+        { name: "johndoe1/hello", tags: ["Java"] },
+        { name: "johndoe1/hello", tags: ["Java"] },
+        { name: "johndoe1/hello", tags: ["Java"] },
       ],
     };
   },
