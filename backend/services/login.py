@@ -30,3 +30,8 @@ class Logger:
         if token_id == "":
             raise InvalidParameterException("token_id is empty")
         return self.user_repository.check_if_token_is_valid(token_id)
+
+    def logout(self, token_id):
+        if "token_id" is None:
+            raise MissingParameterException("token_id is missing")
+        self.user_repository.logout(token_id)
