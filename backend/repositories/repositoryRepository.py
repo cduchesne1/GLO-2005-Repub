@@ -20,10 +20,10 @@ class RepositoryRepository:
 
     def get_repository(self, repository_id: int) -> Optional[dict[str, Any]]:
         self.cursor.execute(
-        """SELECT r.id AS id, r.owner, r.name, r.visibility, r.description, r.website, 
-            GROUP_CONCAT(DISTINCT c.user) AS collaborators, GROUP_CONCAT(DISTINCT t.tag) AS tags 
-            FROM repositories r INNER JOIN tagged rt ON r.id = rt.repository INNER JOIN tags t on rt.tag = t.id
-            LEFT OUTER JOIN collaborators c ON r.id = c.repository WHERE r.id = %s GROUP BY r.id;""",
+            """SELECT r.id AS id, r.owner, r.name, r.visibility, r.description, r.website, 
+                GROUP_CONCAT(DISTINCT c.user) AS collaborators, GROUP_CONCAT(DISTINCT t.tag) AS tags 
+                FROM repositories r INNER JOIN tagged rt ON r.id = rt.repository INNER JOIN tags t on rt.tag = t.id
+                LEFT OUTER JOIN collaborators c ON r.id = c.repository WHERE r.id = %s GROUP BY r.id;""",
             repository_id)
         result = self.cursor.fetchone()
         return self.__to_dto(result) if result else None
@@ -59,10 +59,13 @@ class RepositoryRepository:
         return repo_id
 
     def update_repository(self, repository_id: int, repository_data: dict[str, Any]) -> None:
-        self.cursor.execute(
-            "UPDATE repositories SET name = %s, visibility = %s, description = %s, website = %s WHERE id = %s;",
-            (repository_data["name"], repository_data["visibility"], repository_data["description"],
-             repository_data["website"], repository_id))
+        self.cursor.execute("""UPDATE repositories SET 
+        name = IFNULL(%s, name), visibility = IFNULL(%s, visibility), 
+        description = IFNULL(%s, description), website = IFNULL(%s, website) WHERE id = %s;""",
+                            (repository_data["name"] if "name" in repository_data else None,
+                             repository_data["visibility"] if "visibility" in repository_data else None,
+                             repository_data["description"] if "description" in repository_data else None,
+                             repository_data["website"] if "website" in repository_data else None, repository_id))
         self.connection.commit()
 
     def delete_repository(self, repository_id: int) -> None:

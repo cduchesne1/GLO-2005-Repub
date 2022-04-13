@@ -22,6 +22,12 @@ class TasksService:
             raise ItemNotFoundException("No tasks found")
         return result
 
+    def get_task(self, task_id: int) -> dict[str, Any]:
+        result = self.repository.get_task(task_id)
+        if result is None:
+            raise ItemNotFoundException(f"Task with id {task_id} not found")
+        return result
+
     def get_user_tasks(self, user_id: int) -> list[dict[str, Any]]:
         if self.users_service.is_valid_user(user_id):
             return self.repository.get_user_tasks(user_id)
@@ -36,6 +42,21 @@ class TasksService:
         self.__validate_task_data(task_data)
         return self.repository.create_task(task_data)
 
+    def update_task(self, task_id: int, task_data: dict[str, Any]) -> None:
+        if self.is_valid_task(task_id):
+            self.__validate_task_data_for_update(task_id, task_data)
+            return self.repository.update_task(task_id, task_data)
+        raise ItemNotFoundException(f"Task with id {task_id} not found")
+
+    def delete_task(self, task_id: int) -> None:
+        if self.is_valid_task(task_id):
+            return self.repository.delete_task(task_id)
+        raise ItemNotFoundException(f"Task with id {task_id} not found")
+
+    def is_valid_task(self, task_id: int) -> bool:
+        task = self.get_task(task_id)
+        return task is not None
+
     def __validate_task_data(self, task_data: Optional[dict[str, Any]]) -> None:
         if task_data is None:
             raise MissingParameterException("Body is missing")
@@ -47,3 +68,16 @@ class TasksService:
             raise ItemNotFoundException(f"User with id {task_data['creator']} not found")
         if not self.repositories_service.is_user_repository(task_data["repository"], task_data["creator"]):
             raise ItemNotFoundException(f"Repository with id {task_data['repository']} not found")
+
+    def __validate_task_data_for_update(self, task_id: int, task_data: Optional[dict[str, Any]]) -> None:
+        if "title" in task_data and task_data["title"] == '':
+            raise InvalidParameterException("Invalid title")
+        if "assigned" in task_data:
+            if not self.users_service.is_valid_user(task_data["assigned"]):
+                raise ItemNotFoundException(f"User with id {task_data['assigned']} not found")
+            repository = self.repository.get_task_repository(task_id)
+            if not self.repositories_service.is_user_repository(repository, task_data["assigned"]):
+                raise InvalidParameterException(f"Cannot assign task to user with id {task_data['assigned']}")
+        if "state" in task_data:
+            if task_data["state"] not in ["open", "closed"]:
+                raise InvalidParameterException("Invalid state")

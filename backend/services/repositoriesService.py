@@ -32,15 +32,14 @@ class RepositoriesService:
 
     def update_repository(self, repository_id: int, repository_data: Optional[dict[str, Any]]) -> None:
         if self.is_valid_repository(repository_id):
-            self.repository.update_repository(repository_id, repository_data)
-        else:
-            raise ItemNotFoundException(f"Repository with id {repository_id} not found")
+            self.__validate_repository_data_for_update(repository_data)
+            return self.repository.update_repository(repository_id, repository_data)
+        raise ItemNotFoundException(f"Repository with id {repository_id} not found")
 
     def delete_repository(self, repository_id: int) -> None:
         if self.is_valid_repository(repository_id):
-            self.repository.delete_repository(repository_id)
-        else:
-            raise ItemNotFoundException(f"Repository with id {repository_id} not found")
+            return self.repository.delete_repository(repository_id)
+        raise ItemNotFoundException(f"Repository with id {repository_id} not found")
 
     def is_valid_repository(self, repository_id: int) -> bool:
         repository = self.get_repository(repository_id)
@@ -62,3 +61,9 @@ class RepositoriesService:
             raise InvalidParameterException("Invalid parameter")
         if not self.users_service.is_valid_user(repository_data["owner"]):
             raise ItemNotFoundException(f"User with id {repository_data['owner']} not found")
+
+    def __validate_repository_data_for_update(self, repository_data: Optional[dict[str, Any]]) -> None:
+        if "name" in repository_data and repository_data["name"] == '':
+            raise InvalidParameterException("Invalid name")
+        if "visibility" in repository_data and repository_data["visibility"] not in ["public", "private"]:
+            raise InvalidParameterException("Invalid visibility")

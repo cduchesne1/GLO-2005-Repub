@@ -43,10 +43,17 @@ class UserRepository:
         return self.__to_dto(result) if result else None
 
     def update_user(self, user_id: int, user_data: dict[str, Any]) -> None:
-        self.cursor.execute(
-            "UPDATE users SET name = %s, username = %s, email = %s, bio = %s, website = %s, company = %s, location = %s WHERE id = %s;",
-            (user_data["name"], user_data["username"], user_data["email"], user_data["bio"], user_data["website"],
-             user_data["company"], user_data["location"], user_id))
+        self.cursor.execute("""UPDATE users SET 
+        name = IFNULL(%s, name), username = IFNULL(%s, username), 
+        email = IFNULL(%s, email), bio = IFNULL(%s, bio), website = IFNULL(%s, website), 
+        company = IFNULL(%s, company), location = IFNULL(%s, location) WHERE id = %s;""",
+                            (user_data["name"] if "name" in user_data else None,
+                             user_data["username"] if "username" in user_data else None,
+                             user_data["email"] if "email" in user_data else None,
+                             user_data["bio"] if "bio" in user_data else None,
+                             user_data["website"] if "website" in user_data else None,
+                             user_data["company"] if "company" in user_data else None,
+                             user_data["location"] if "location" in user_data else None, user_id))
         self.connection.commit()
 
     def delete_user(self, user_id: int) -> None:

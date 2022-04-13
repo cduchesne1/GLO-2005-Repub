@@ -25,6 +25,10 @@ class TaskRepository:
         """)
         return [self.__to_dto(row) for row in self.cursor.fetchall()]
 
+    def get_task(self, task_id: int) -> dict[str, Any]:
+        self.cursor.execute("SELECT * FROM tasks WHERE id = %s", task_id)
+        return self.__to_dto(self.cursor.fetchone())
+
     def get_user_tasks(self, user_id: int) -> list[dict[str, Any]]:
         self.cursor.execute("""
             SELECT * FROM tasks WHERE assigned = %s OR creator = %s
@@ -49,3 +53,22 @@ class TaskRepository:
              task_data["creator"], datetime.now().strftime('%Y-%m-%d %H:%M:%S'), number))
         self.connection.commit()
         return self.cursor.lastrowid
+
+    def update_task(self, task_id: int, task_data: dict[str, Any]) -> None:
+        self.cursor.execute("""UPDATE tasks SET 
+        title = IFNULL(%s, title), description = IFNULL(%s, description), 
+        assigned = IFNULL(%s, assigned), state = IFNULL(%s, state)  WHERE id = %s;""",
+                            (task_data["title"] if "title" in task_data else None,
+                             task_data["description"] if "description" in task_data else None,
+                             task_data["assigned"] if "assigned" in task_data else None,
+                             task_data["state"] if "state" in task_data else None,
+                             task_id))
+        self.connection.commit()
+
+    def delete_task(self, task_id: int) -> None:
+        self.cursor.execute("DELETE FROM tasks WHERE id = %s", task_id)
+        self.connection.commit()
+
+    def get_task_repository(self, task_id: int) -> int:
+        self.cursor.execute("SELECT repository FROM tasks WHERE id = %s", task_id)
+        return self.cursor.fetchone()[0]
