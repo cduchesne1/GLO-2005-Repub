@@ -161,12 +161,22 @@ def task_comments(task_id):
     elif request.method == 'POST':
         result = tasks_service.create_comment(task_id, request.get_json())
         response = make_response()
-        response.headers['Location'] = f'{request.url_root}tasks/{task_id}/comments/{result}'
+        response.headers['Location'] = f'{request.url_root}comments/{result}'
         return response, 201
     else:
         return 'Method not allowed', 405
 
 
-@app.route('/tasks/<int:task_id>/comments/<int:comment_id>', methods=['GET', 'PUT', 'DELETE'])
-def task_comment(task_id, comment_id):
-    return 'Task {} comment {}'.format(task_id, comment_id)
+@app.route('/comments/<int:comment_id>', methods=['GET', 'PUT', 'DELETE'])
+def task_comment(comment_id):
+    if request.method == 'GET':
+        result = tasks_service.get_comment(comment_id)
+        return json.dumps(result, default=str), 200
+    elif request.method == 'PUT':
+        tasks_service.update_comment(comment_id, request.get_json())
+        return 'Comment with id {} updated'.format(comment_id), 200
+    elif request.method == 'DELETE':
+        tasks_service.delete_comment(comment_id)
+        return 'Comment with id {} deleted'.format(comment_id), 200
+    else:
+        return 'Method not allowed', 405

@@ -88,9 +88,22 @@ class TaskRepository:
         """, task_id)
         return [self.__to_comment_dto(row) for row in self.cursor.fetchall()]
 
+    def get_comment(self, comment_id: int) -> dict[str, Any]:
+        self.cursor.execute("SELECT * FROM comments WHERE id = %s", comment_id)
+        return self.__to_comment_dto(self.cursor.fetchone())
+
     def create_comment(self, task_id: int, comment_data: dict[str, Any]) -> int:
         self.cursor.execute("INSERT INTO comments (task, comment, sender, timestamp) VALUES (%s, %s, %s, %s)",
                             (task_id, comment_data["comment"], comment_data["sender"],
                              datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
         self.connection.commit()
         return self.cursor.lastrowid
+
+    def update_comment(self, comment_id: int, comment_data: dict[str, Any]) -> None:
+        self.cursor.execute("UPDATE comments SET comment = IFNULL(%s, comment)  WHERE id = %s;",
+                            (comment_data["comment"] if "comment" in comment_data else None,
+                             comment_id))
+        self.connection.commit()
+
+    def delete_comment(self, comment_id: int) -> None:
+        self.cursor.execute("DELETE FROM comments WHERE id = %s", comment_id)
