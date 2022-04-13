@@ -8,8 +8,10 @@ from exceptions.InvalidParameterException import InvalidParameterException
 from exceptions.ItemNotFoundException import ItemNotFoundException
 from exceptions.MissingParameterException import MissingParameterException
 from repositories.repositoryRepository import RepositoryRepository
+from repositories.taskRepository import TaskRepository
 from repositories.userRepository import UserRepository
 from services.repositoriesService import RepositoriesService
+from services.tasksService import TasksService
 from services.usersService import UsersService
 
 app = Flask(__name__)
@@ -23,8 +25,11 @@ cors = CORS(app, resources={r"/*": {"origins": "http://localhost:8080"}})
 connection = pymysql.connect(host='localhost', user='user', password='password', db='mydb')
 user_repository = UserRepository(connection)
 repository_repository = RepositoryRepository(connection)
+task_repository = TaskRepository(connection)
+
 users_service = UsersService(user_repository)
 repositories_service = RepositoriesService(repository_repository, users_service)
+tasks_service = TasksService(task_repository, users_service)
 
 
 @app.route('/')
@@ -81,7 +86,8 @@ def user_repositories(user_id):
 
 @app.route('/users/<int:user_id>/tasks', methods=['GET'])
 def user_tasks(user_id):
-    return 'User {} tasks'.format(user_id)
+    result = tasks_service.get_user_tasks(user_id)
+    return json.dumps({"tasks": list(result), "total": len(result)}, default=str), 200
 
 
 @app.route('/repositories', methods=['GET', 'POST'])
