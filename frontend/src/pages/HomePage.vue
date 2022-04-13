@@ -9,7 +9,7 @@
           The best tool for the good developers!
         </h1>
         <p class="text-base text-white max-w-xl mt-4">
-          GitGud is the system by excellence for collaborating on software
+          RePub is the system by excellence for collaborating on software
           projects. It makes the development easier for everyone and helps
           create quality projects.
         </p>

@@ -1,6 +1,6 @@
 import Vue from "vue";
 import Router from "vue-router";
-import HomePage from "@/pages/HomePage";
+import LoggedHomePage from "@/pages/LoggedHomePage";
 import LoginPage from "@/pages/LoginPage";
 import SignUp from "@/pages/SignUp";
 import ProfilePage from "@/pages/ProfilePage";
@@ -12,7 +12,7 @@ export default new Router({
     {
       path: "/",
       name: "Home",
-      component: HomePage,
+      component: LoggedHomePage,
     },
     {
       path: "/login",
