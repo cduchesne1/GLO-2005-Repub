@@ -69,6 +69,11 @@ class RepositoryRepository:
         self.cursor.execute("DELETE FROM repositories WHERE id = %s;", repository_id)
         self.connection.commit()
 
+    def get_collaborators(self, repository_id: int) -> list[str]:
+        self.cursor.execute(
+            """SELECT user FROM collaborators WHERE repository = %s;""", repository_id)
+        return [row[0] for row in self.cursor.fetchall()]
+
     def convert_tags(self, tags: list[str]) -> list[int]:
         return [self.get_tag_id(tag) for tag in tags]
 

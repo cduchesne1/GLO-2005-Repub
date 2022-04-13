@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Any
 
 
@@ -18,6 +19,12 @@ class TaskRepository:
             "number": row[7],
         }
 
+    def get_all_tasks(self) -> list[dict[str, Any]]:
+        self.cursor.execute("""
+            SELECT * FROM tasks
+        """)
+        return [self.__to_dto(row) for row in self.cursor.fetchall()]
+
     def get_user_tasks(self, user_id: int) -> list[dict[str, Any]]:
         self.cursor.execute("""
             SELECT * FROM tasks WHERE assigned = %s OR creator = %s
@@ -29,3 +36,16 @@ class TaskRepository:
             SELECT * FROM tasks WHERE repository = %s
         """, repository_id)
         return [self.__to_dto(row) for row in self.cursor.fetchall()]
+
+    def create_task(self, task_data: dict[str, Any]) -> int:
+        self.cursor.execute("SELECT MAX(num) FROM tasks WHERE repository = %s", task_data["repository"])
+        result = self.cursor.fetchone()
+        number = result[0] + 1 if result[0] is not None else 1
+        self.cursor.execute(
+            "INSERT INTO tasks (repository, title, description, assigned, state, creator, timestamp, num) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)",
+            (task_data["repository"], task_data["title"],
+             task_data["description"] if "description" in task_data else None, None,
+             "open",
+             task_data["creator"], datetime.now().strftime('%Y-%m-%d %H:%M:%S'), number))
+        self.connection.commit()
+        return self.cursor.lastrowid
