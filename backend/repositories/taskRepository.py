@@ -9,7 +9,7 @@ class TaskRepository:
     def __to_dto(self, row: tuple) -> dict[str, Any]:
         return {
             "id": row[0],
-            "repository_id": row[1],
+            "repository": row[1],
             "title": row[2],
             "assigned": row[3],
             "state": row[4],
@@ -22,4 +22,10 @@ class TaskRepository:
         self.cursor.execute("""
             SELECT * FROM tasks WHERE assigned = %s OR creator = %s
         """, (user_id, user_id))
+        return [self.__to_dto(row) for row in self.cursor.fetchall()]
+
+    def get_repository_tasks(self, repository_id: int) -> list[dict[str, Any]]:
+        self.cursor.execute("""
+            SELECT * FROM tasks WHERE repository = %s
+        """, repository_id)
         return [self.__to_dto(row) for row in self.cursor.fetchall()]
