@@ -31,7 +31,7 @@ task_repository = TaskRepository(connection)
 users_service = UsersService(user_repository)
 repositories_service = RepositoriesService(repository_repository, users_service)
 tasks_service = TasksService(task_repository, users_service, repositories_service)
-logger = Logger()
+logger = Logger(user_repository)
 
 @app.route('/')
 def heartbeat():
