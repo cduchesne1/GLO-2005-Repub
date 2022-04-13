@@ -58,15 +58,35 @@ class TasksService:
             return self.repository.get_task_comments(task_id)
         raise ItemNotFoundException(f"Task with id {task_id} not found")
 
+    def get_comment(self, comment_id: int) -> dict[str, Any]:
+        result = self.repository.get_comment(comment_id)
+        if result is None:
+            raise ItemNotFoundException(f"Comment with id {comment_id} not found")
+        return result
+
     def create_comment(self, task_id: int, comment_data: dict[str, Any]) -> int:
         if self.is_valid_task(task_id):
             self.__validate_comment_data(task_id, comment_data)
             return self.repository.create_comment(task_id, comment_data)
         raise ItemNotFoundException(f"Task with id {task_id} not found")
 
+    def update_comment(self, comment_id: int, comment_data: dict[str, Any]) -> None:
+        if self.is_valid_comment(comment_id):
+            return self.repository.update_comment(comment_id, comment_data)
+        raise ItemNotFoundException(f"Comment with id {comment_id} not found")
+
+    def delete_comment(self, comment_id: int) -> None:
+        if self.is_valid_comment(comment_id):
+            return self.repository.delete_comment(comment_id)
+        raise ItemNotFoundException(f"Comment with id {comment_id} not found")
+
     def is_valid_task(self, task_id: int) -> bool:
         task = self.get_task(task_id)
         return task is not None
+
+    def is_valid_comment(self, comment_id: int) -> bool:
+        comment = self.get_comment(comment_id)
+        return comment is not None
 
     def __validate_task_data(self, task_data: Optional[dict[str, Any]]) -> None:
         if task_data is None:
