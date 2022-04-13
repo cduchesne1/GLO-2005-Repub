@@ -142,7 +142,15 @@ def tasks():
 
 @app.route('/tasks/<int:task_id>', methods=['GET', 'PUT', 'DELETE'])
 def task(task_id):
-    return 'Task {}'.format(task_id)
+    if request.method == 'GET':
+        result = tasks_service.get_task(task_id)
+        return json.dumps(result), 200
+    elif request.method == 'PUT':
+        tasks_service.update_task(task_id, request.get_json())
+        return 'Task with id {} updated'.format(task_id), 200
+    elif request.method == 'DELETE':
+        tasks_service.delete_task(task_id)
+        return 'Task with id {} deleted'.format(task_id), 200
 
 
 @app.route('/tasks/<int:task_id>/comments', methods=['GET', 'POST'])
