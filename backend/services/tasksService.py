@@ -53,6 +53,17 @@ class TasksService:
             return self.repository.delete_task(task_id)
         raise ItemNotFoundException(f"Task with id {task_id} not found")
 
+    def get_task_comments(self, task_id: int) -> list[dict[str, Any]]:
+        if self.is_valid_task(task_id):
+            return self.repository.get_task_comments(task_id)
+        raise ItemNotFoundException(f"Task with id {task_id} not found")
+
+    def create_comment(self, task_id: int, comment_data: dict[str, Any]) -> int:
+        if self.is_valid_task(task_id):
+            self.__validate_comment_data(task_id, comment_data)
+            return self.repository.create_comment(task_id, comment_data)
+        raise ItemNotFoundException(f"Task with id {task_id} not found")
+
     def is_valid_task(self, task_id: int) -> bool:
         task = self.get_task(task_id)
         return task is not None
@@ -81,3 +92,18 @@ class TasksService:
         if "state" in task_data:
             if task_data["state"] not in ["open", "closed"]:
                 raise InvalidParameterException("Invalid state")
+
+    def __validate_comment_data(self, task_id: int, comment_data: Optional[dict[str, Any]]) -> None:
+        if comment_data is None:
+            raise MissingParameterException("Body is missing")
+        if "comment" not in comment_data or "sender" not in comment_data:
+            raise MissingParameterException("One or more parameters are missing")
+        if comment_data["comment"] == '':
+            raise InvalidParameterException("Invalid comment")
+        if not self.users_service.is_valid_user(comment_data["sender"]):
+            raise ItemNotFoundException(f"User with id {comment_data['sender']} not found")
+        if not self.is_valid_task(task_id):
+            raise ItemNotFoundException(f"Task with id {task_id} not found")
+        repository = self.repository.get_task_repository(task_id)
+        if not self.repositories_service.is_user_repository(repository, comment_data["sender"]):
+            raise InvalidParameterException(f"Cannot comment on task from user with id {comment_data['sender']}")

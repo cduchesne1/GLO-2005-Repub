@@ -155,7 +155,16 @@ def task(task_id):
 
 @app.route('/tasks/<int:task_id>/comments', methods=['GET', 'POST'])
 def task_comments(task_id):
-    return 'Task {} comments'.format(task_id)
+    if request.method == 'GET':
+        result = tasks_service.get_task_comments(task_id)
+        return json.dumps({"comments": list(result), "total": len(result)}, default=str), 200
+    elif request.method == 'POST':
+        result = tasks_service.create_comment(task_id, request.get_json())
+        response = make_response()
+        response.headers['Location'] = f'{request.url_root}tasks/{task_id}/comments/{result}'
+        return response, 201
+    else:
+        return 'Method not allowed', 405
 
 
 @app.route('/tasks/<int:task_id>/comments/<int:comment_id>', methods=['GET', 'PUT', 'DELETE'])
