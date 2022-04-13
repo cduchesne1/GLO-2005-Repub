@@ -29,7 +29,7 @@ task_repository = TaskRepository(connection)
 
 users_service = UsersService(user_repository)
 repositories_service = RepositoriesService(repository_repository, users_service)
-tasks_service = TasksService(task_repository, users_service)
+tasks_service = TasksService(task_repository, users_service, repositories_service)
 
 
 @app.route('/')
@@ -122,7 +122,8 @@ def repository(repository_id):
 
 @app.route('/repositories/<int:repository_id>/tasks', methods=['GET'])
 def repository_issues(repository_id):
-    return 'Repository {} issues'.format(repository_id)
+    result = tasks_service.get_repository_tasks(repository_id)
+    return json.dumps({"tasks": list(result), "total": len(result)}, default=str), 200
 
 
 @app.route('/tasks', methods=['GET', 'POST'])
