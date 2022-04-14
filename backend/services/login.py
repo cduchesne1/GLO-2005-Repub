@@ -23,9 +23,6 @@ class Logger:
         if not re.fullmatch(r'[^@]+@[^@]+\.[^@]+', user_credential['email']):
             raise InvalidParameterException('Invalid email')
 
-        if self.user_repository.email_exists(user_credential['email']):
-            raise InvalidParameterException('Email already exists')
-
     def check_if_token_is_valid(self, token_id):
         if token_id == "":
             raise InvalidParameterException("token_id is empty")
