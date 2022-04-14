@@ -46,7 +46,8 @@ def login():
 
 @app.route('/logout', methods=['POST'])
 def logout():
-    return 'Logout successful'
+    logger.logout(request.headers.get("X-token_id"))
+    return 'Logout successful', 200
 
 
 @app.route('/signup', methods=['POST'])
