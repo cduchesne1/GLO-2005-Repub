@@ -74,7 +74,12 @@ export default new Router({
     {
       path: "/settings",
       name: "Settings",
-      component: SettingsPage,
+      component:SettingsPage,
+    },
+    {
+      path:"/settings/profile",
+      name: "SettingsProfile",
+      component:SettingsPage,
     },
     {
       path: "/repository/new",

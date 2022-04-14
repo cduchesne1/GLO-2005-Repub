@@ -31,7 +31,7 @@
           Change email
         </button>
       </div>
-      <label class="text-md text-white mb-2 mt-8">UserName</label>
+      <label class="text-md text-white mb-2 mt-8">Username</label>
       <div class="flex">
         <input
             type="text"
@@ -41,7 +41,7 @@
         <button
             class="bg-pink-600 hover:bg-pink-700 text-white text-sm font-bold py-1 px-4 rounded mx-4"
         >
-          Change UserName
+          Change username
         </button>
       </div>
       <label class="text-md text-white mt-8 mb-2">Bio</label>
