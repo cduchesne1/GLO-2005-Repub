@@ -59,13 +59,25 @@
         </button>
       </div>
       <label class="text-md text-white mb-2 mt-8">Tags</label>
-      <div class="flex mt-2">
-        <div v-for="tag in tags" :key="tag" class="bg-pink-600 text-white text-xs font-bold py-1 px-2 rounded-xl mr-4">
-          {{ tag }}
-        </div>
-        <button class="border-gray-500 text-gray-500 text-xs font-bold py-1 px-2 rounded-xl border-2 border-solid hover:bg-gray-700">
+      <div class="flex">
+        <input
+            id="AddTagBar"
+            type="text"
+            class="bg-gray-900 text-white w-96 py-2 px-2 rounded-lg"
+            placeholder="Search"
+        />
+        <button class="border-gray-500 text-gray-500 text-xs font-bold py-1 px-1 rounded-xl border-2 border-solid hover:bg-gray-700"
+                @click="addTag()">
           Add tag
         </button>
+      </div>
+      <div class="flex mt-2 pt-2">
+        <div v-for="tag in tags" :key="tag" class="relative bg-pink-600 text-white text-xs font-bold py-1 px-3 rounded-xl mr-4" >
+          {{ tag }}
+          <button class="absolute bottom-3 right-0 bg-white border-whitex border-2 border-solid hover:bg-gray-300 text-gray-800 font-bold rounded py--1"
+          @click="deleteTag(tag)"
+          >x</button>
+        </div>
       </div>
       <div
           class="flex justify-between border-b border-solid- border-gray-500 w-full pb-4 mt-16"
@@ -133,6 +145,23 @@ export default {
     },
     setPrivate(){
       this.visibility='Private';
+    },
+    openAddTagBar(){
+      this.addingTag = true;
+    },
+    closeAddTagBar(){
+      this.addingTag = false;
+    },
+    addTag(){
+      if(document.getElementById("AddTagBar").value !== ""){
+        this.tags.push(document.getElementById("AddTagBar").value);
+      }
+    },
+    deleteTag(tag){
+      const myIndex = this.tags.indexOf(tag);
+      if (myIndex !== -1) {
+        this.tags.splice(myIndex, 1);
+      }
     },
     confirm(){
 
