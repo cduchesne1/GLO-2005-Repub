@@ -88,7 +88,7 @@ export default new Router({
       component:SettingsPage,
     },
     {
-      path: "/repository/new",
+      path: "/new",
       name: "NewRepository",
       component: CreationRepositoryPage,
     }
