@@ -3,19 +3,59 @@
         <img class="w-24" src="../assets/rePubIcon.svg" />
         <h1 class="text-3xl text-white font-bold max-w-xl mt-8">Sign in to RePub</h1>
         <div class="flex flex-col bg-white bg-opacity-10 border-2 border-gray-300 rounded-xl p-8 mt-8">
-            <label class="text-md text-white mb-2">Username or email address</label>
-            <input type="text" v-model="username" class="bg-gray-800 text-white w-96 py-2 px-2 rounded-lg"/>
+            <label class="text-md text-white mb-2">Email address</label>
+            <input type="text" v-model="email" class="bg-gray-800 text-white w-96 py-2 px-2 rounded-lg"/>
             <label class="text-md text-white mt-8 mb-2">Password</label>
             <input type="password" v-model="password" class="bg-gray-800 text-white w-96 py-2 px-2 rounded-lg"/>
             <button
             class="bg-pink-600 hover:bg-pink-700 text-white text-sm font-bold py-2 px-8 rounded mt-8"
+            @click="sendCredentials"
           >
             Sign In
           </button>
         </div>
         <div class="flex bg-white bg-opacity-10 border-2 border-gray-300 rounded-xl p-4 mt-8">
-            <a class="text-md text-white mr-2">Don't have an account?</a>
-            <a class="text-md text-pink-600">Sign Up</a>
+            <div class="text-md text-white mr-2">Don't have an account?</div>
+            <div @click="goToSignUp" class="text-md text-pink-600">Sign Up</div>
         </div>
     </div>
 </template>
+
+
+<script>
+
+export default {
+  data() {
+    return {
+      email: this.email,
+      password: this.password
+    }
+  },
+  methods: {
+    goToSignUp: function () {
+      this.$router.push({ path: "/signup/" });
+    },
+    sendCredentials: async function() {
+      try {
+        const response = await fetch(
+      `${process.env.VUE_APP_API_URL}/login`,
+      {
+        method: "POST",
+        body: JSON.stringify({
+          "email": this.email,
+          "password": this.password,
+        }),
+        headers: new Headers({ "Content-Type": "application/json" }),
+      }
+    );
+    
+    const data = await response.json();
+    console.log(data);
+    //stock data en cookie
+  } catch (e) {
+    console.log(e);
+  }
+    },
+  }
+}
+</script>
