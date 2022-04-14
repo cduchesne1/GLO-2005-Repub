@@ -59,7 +59,7 @@ export default {
   },
   methods:{
     goToSettings(){
-      this.$router.push("/settings/profil");
+      this.$router.push("/settings");
     }
   }
 };

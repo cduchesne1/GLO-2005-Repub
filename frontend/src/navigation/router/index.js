@@ -49,11 +49,6 @@ export default new Router({
       component:SettingsPage,
     },
     {
-      path:"/settings/profil",
-      name: "SettingsProfil",
-      component:SettingsPage,
-    },
-    {
       path: "/repository/new",
       name: "NewRepository",
       component: CreationRepositoryPage,
