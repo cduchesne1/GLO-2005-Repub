@@ -14,6 +14,7 @@
             <a class="text-base text-white font-bold">Recent Repositories</a>
             <button
               class="bg-pink-600 hover:bg-pink-700 text-white text-sm font-bold py-1 px-4 rounded mx-4"
+              @click="goToCreationRepository()"
             >
               New
             </button>
@@ -70,5 +71,10 @@ export default {
       ],
     };
   },
+  methods:{
+    goToCreationRepository(){
+      this.$router.push("/repository/new")
+    }
+  }
 };
 </script>
