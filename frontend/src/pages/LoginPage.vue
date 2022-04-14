@@ -13,10 +13,9 @@
           >
             Sign In
           </button>
-        </div v-if="showInvalidCredential">
-        Invalid password and email combination
-        <div>
-           
+        </div>
+        <div v-if="showInvalidCredential">
+          Invalid password and email combination
         </div>
         <div class="flex bg-white bg-opacity-10 border-2 border-gray-300 rounded-xl p-4 mt-8">
             <div class="text-md text-white mr-2">Don't have an account?</div>
@@ -58,7 +57,6 @@ export default {
     } else {
       this.showInvalidCredential = true
     }    
-    console.log(data);
   } catch (e) {
     console.log(e);
   }
