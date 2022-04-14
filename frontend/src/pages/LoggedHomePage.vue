@@ -73,7 +73,7 @@ export default {
   },
   methods:{
     goToCreationRepository(){
-      this.$router.push("/repository/new")
+      this.$router.push("/new-repository")
     }
   }
 };

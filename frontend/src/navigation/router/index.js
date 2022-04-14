@@ -71,7 +71,7 @@ export default new Router({
       component: UserTasksPage,
     },
     {
-      path: "/new",
+      path: "/new-repository",
       name: "NewRepository",
       component: CreationRepositoryPage,
     }
