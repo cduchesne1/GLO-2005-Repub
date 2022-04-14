@@ -21,7 +21,7 @@
         <div class="flex flex-col">
           <div class="flex items-center">
             <div class="w-4 h-4 bg-green-500 rounded-full mr-4"></div>
-            <h3 class="text-lg font-bold text-white max-w-5xl">
+            <h3 class="text-lg font-bold text-white max-w-5xl" @click="onClick()">
               This is the task title
             </h3>
           </div>
@@ -38,6 +38,11 @@ export default {
     return {
       tasks: ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"],
     };
+  },
+  methods: {
+    onClick() {
+      this.$router.push("/repository/tasks/task");
+    },
   },
 };
 </script>
