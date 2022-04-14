@@ -6,6 +6,7 @@ import SignUp from "@/pages/SignUp";
 import ProfilePage from "@/pages/ProfilePage";
 import RepositoryPage from "@/pages/RepositoryPage";
 import UserTasksPage from "@/pages/UserTasksPage";
+import CreationRepositoryPage from "@/pages/CreationRepositoryPage";
 
 Vue.use(Router);
 
@@ -40,6 +41,11 @@ export default new Router({
       path: "/tasks",
       name: "Tasks",
       component: UserTasksPage,
+    },
+    {
+      path: "/repository/new",
+      name: "NewRepository",
+      component: CreationRepositoryPage,
     }
   ],
 });
