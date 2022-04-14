@@ -23,7 +23,7 @@ app.register_error_handler(MissingParameterException, lambda e: e)
 
 cors = CORS(app, resources={r"/*": {"origins": "http://localhost:8080"}})
 
-connection = pymysql.connect(host='localhost', user='user', password='password', db='mydb')
+connection = pymysql.connect(host='localhost', user='user', password='password', db='mydb', port=42069)
 user_repository = UserRepository(connection)
 repository_repository = RepositoryRepository(connection)
 task_repository = TaskRepository(connection)
@@ -41,12 +41,15 @@ def heartbeat():
 @app.route('/login', methods=['POST'])
 def login():
     token_id = logger.log_user(request.get_json())
-    return token_id, 200
+    reponse = make_response()
+    reponse.set_cookie("X-token-id", token_id)
+    return reponse, 200
 
 
 @app.route('/logout', methods=['POST'])
 def logout():
-    return 'Logout successful'
+    logger.logout(request.cookies.get("X-token-id"))
+    return 'Logout successful', 200
 
 
 @app.route('/signup', methods=['POST'])

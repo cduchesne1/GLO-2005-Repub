@@ -10,6 +10,7 @@ import CodeTab from "@/components/repository/CodeTab";
 import TasksTab from "@/components/repository/TasksTab";
 import SingleTaskTab from "@/components/repository/SingleTaskTab";
 import SettingsTab from "@/components/repository/SettingsTab";
+import CreationRepositoryPage from "@/pages/CreationRepositoryPage";
 
 Vue.use(Router);
 
@@ -68,6 +69,11 @@ export default new Router({
       path: "/tasks",
       name: "Tasks",
       component: UserTasksPage,
+    },
+    {
+      path: "/new",
+      name: "NewRepository",
+      component: CreationRepositoryPage,
     }
   ],
 });

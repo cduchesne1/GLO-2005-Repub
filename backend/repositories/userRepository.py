@@ -2,7 +2,7 @@ from typing import Any, Optional
 import bcrypt
 from uuid import uuid4
 import datetime
-from exceptions import InvalidParameterException
+from exceptions.InvalidParameterException import InvalidParameterException
 
 class UserRepository:
     def __init__(self, connection):
@@ -97,3 +97,24 @@ class UserRepository:
         if user_id is None:
             raise InvalidParameterException("email doesn't exist")
         return user_id
+
+    def check_if_token_is_valid(self, token_id):
+        token_is_valid = False
+        for stocked_token in self.tokens:
+            if stocked_token["token_expire_time"] < datetime.datetime.now():
+                self.tokens.remove(stocked_token)
+                continue
+            if stocked_token["token_id"] == token_id:
+                token_index = self.tokens.index(stocked_token)
+                self.update_token(token_index)
+                token_is_valid = True
+        return token_is_valid
+
+    def update_token(self, token_index):
+        self.tokens[token_index]["token_expire_time"] = datetime.datetime.now()
+
+    def logout(self, token_id):
+        for stocked_token in self.tokens:
+            if stocked_token["token_id"] == token_id:
+                self.tokens.remove(stocked_token)
+                break
