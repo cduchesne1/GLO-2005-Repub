@@ -2,6 +2,7 @@
   <div class="flex flex-col items-center mt-16 flex-1">
     <div class="flex justify-end w-full">
       <button
+        @click="createNewTask()"
         class="bg-pink-600 hover:bg-pink-700 text-white text-sm font-bold py-1 px-4 rounded mx-4"
       >
         New task
@@ -21,7 +22,10 @@
         <div class="flex flex-col">
           <div class="flex items-center">
             <div class="w-4 h-4 bg-green-500 rounded-full mr-4"></div>
-            <h3 class="text-lg font-bold text-white max-w-5xl" @click="onClick()">
+            <h3
+              class="text-lg font-bold text-white max-w-5xl"
+              @click="onClick()"
+            >
               This is the task title
             </h3>
           </div>
@@ -42,6 +46,9 @@ export default {
   methods: {
     onClick() {
       this.$router.push("/repository/tasks/task");
+    },
+    createNewTask() {
+      this.$router.push("/repository/tasks/new");
     },
   },
 };
