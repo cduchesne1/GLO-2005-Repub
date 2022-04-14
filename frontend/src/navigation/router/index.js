@@ -7,6 +7,7 @@ import ProfilePage from "@/pages/ProfilePage";
 import RepositoryPage from "@/pages/RepositoryPage";
 import UserTasksPage from "@/pages/UserTasksPage";
 import SettingsPage from "@/pages/SettingsPage";
+import CreationRepositoryPage from "@/pages/CreationRepositoryPage";
 
 Vue.use(Router);
 
@@ -51,6 +52,11 @@ export default new Router({
       path:"/settings/profil",
       name: "SettingsProfil",
       component:SettingsPage,
+    },
+    {
+      path: "/repository/new",
+      name: "NewRepository",
+      component: CreationRepositoryPage,
     }
   ],
 });

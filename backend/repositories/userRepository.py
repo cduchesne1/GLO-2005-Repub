@@ -2,7 +2,7 @@ from typing import Any, Optional
 import bcrypt
 from uuid import uuid4
 import datetime
-from exceptions import InvalidParameterException
+from exceptions.InvalidParameterException import InvalidParameterException
 
 class UserRepository:
     def __init__(self, connection):
@@ -112,3 +112,9 @@ class UserRepository:
 
     def update_token(self, token_index):
         self.tokens[token_index]["token_expire_time"] = datetime.datetime.now()
+
+    def logout(self, token_id):
+        for stocked_token in self.tokens:
+            if stocked_token["token_id"] == token_id:
+                self.tokens.remove(stocked_token)
+                break
