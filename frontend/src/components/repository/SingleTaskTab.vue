@@ -16,6 +16,7 @@
           </button>
           <button
             class="bg-pink-600 hover:bg-pink-700 text-white text-sm font-bold py-1 px-4 rounded h-8 w-24"
+            @click="createNewTask()"
           >
             New task
           </button>
@@ -82,3 +83,12 @@
     </div>
   </div>
 </template>
+<script>
+export default {
+  methods: {
+    createNewTask() {
+      this.$router.push("/repository/tasks/new");
+    },
+  },
+};
+</script>

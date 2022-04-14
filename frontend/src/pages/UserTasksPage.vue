@@ -16,10 +16,16 @@
             <div class="flex items-center">
               <div class="w-4 h-4 bg-green-500 rounded-full mr-4"></div>
               <div class="flex">
-                <h3 class="text-lg font-bold text-gray-500 max-w-2xl mr-2">
+                <h3
+                  @click="goToRepository()"
+                  class="text-lg font-bold text-gray-500 max-w-2xl mr-2 cursor-pointer hover:text-pink-600"
+                >
                   johndoe1/hello
                 </h3>
-                <h3 class="text-lg font-bold text-white max-w-3xl">
+                <h3
+                  @click="goToTask()"
+                  class="text-lg font-bold text-white max-w-3xl cursor-pointer hover:text-pink-600"
+                >
                   This is the task title
                 </h3>
               </div>
@@ -47,6 +53,14 @@ export default {
     return {
       tasks: ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"],
     };
+  },
+  methods: {
+    goToTask() {
+      this.$router.push("/repository/tasks/task");
+    },
+    goToRepository() {
+      this.$router.push("/repository");
+    },
   },
 };
 </script>

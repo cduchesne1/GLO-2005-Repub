@@ -7,7 +7,11 @@
           class="flex items-center border-b border-solid border-gray-500 pb-8"
         >
           <img src="../assets/profileIcon.svg" />
-          <a class="text-base text-white font-bold ml-4">johndoe1</a>
+          <a
+            @click="goToProfile()"
+            class="text-base text-white font-bold ml-4 cursor-pointer hover:text-pink-600"
+            >johndoe1</a
+          >
         </div>
         <div class="flex flex-col mt-8">
           <div class="flex items-center mb-4">
@@ -22,7 +26,8 @@
           <a
             v-for="repo in repositories"
             :key="repo.name"
-            class="text-base text-white mt-2"
+            @click="goToRepository()"
+            class="text-base text-white mt-2 cursor-pointer hover:text-pink-600"
           >
             {{ repo.name }}
           </a>
@@ -41,10 +46,18 @@
           :key="repo.name"
           class="flex flex-col border-b border-solid border-gray-500 mt-8"
         >
-          <a class="text-base text-white mt-2">{{ repo.name }}</a>
-          <div v-for="tag in repo.tags" :key="tag" class="bg-pink-600 text-white text-xs font-bold py-1 px-1 rounded-xl inline-block mr-auto my-2">
-                {{ tag }}
-            </div>
+          <a
+            @click="goToRepository()"
+            class="text-base text-white mt-2 cursor-pointer hover:text-pink-600"
+            >{{ repo.name }}</a
+          >
+          <div
+            v-for="tag in repo.tags"
+            :key="tag"
+            class="bg-pink-600 text-white text-xs font-bold py-1 px-1 rounded-xl inline-block mr-auto my-2"
+          >
+            {{ tag }}
+          </div>
         </div>
       </div>
     </div>
@@ -71,10 +84,16 @@ export default {
       ],
     };
   },
-  methods:{
-    goToCreationRepository(){
-      this.$router.push("/repository/new")
-    }
-  }
+  methods: {
+    goToCreationRepository() {
+      this.$router.push("/new");
+    },
+    goToRepository() {
+      this.$router.push("/repository");
+    },
+    goToProfile() {
+      this.$router.push("/profile");
+    },
+  },
 };
 </script>
