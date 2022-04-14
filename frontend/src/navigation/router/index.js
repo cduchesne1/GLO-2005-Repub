@@ -6,8 +6,12 @@ import SignUp from "@/pages/SignUp";
 import ProfilePage from "@/pages/ProfilePage";
 import RepositoryPage from "@/pages/RepositoryPage";
 import UserTasksPage from "@/pages/UserTasksPage";
-import SettingsPage from "@/pages/SettingsPage";
+import CodeTab from "@/components/repository/CodeTab";
+import TasksTab from "@/components/repository/TasksTab";
+import SingleTaskTab from "@/components/repository/SingleTaskTab";
+import SettingsTab from "@/components/repository/SettingsTab";
 import CreationRepositoryPage from "@/pages/CreationRepositoryPage";
+import SettingsPage from "@/pages/SettingsPage";
 
 Vue.use(Router);
 
@@ -35,8 +39,32 @@ export default new Router({
     },
     {
       path: "/repository",
+      alias: "/repository/*",
       name: "Repository",
+      meta: {basePath: "/repository"},
       component: RepositoryPage,
+      children: [
+        {
+          path: "/repository",
+          name: "Code",
+          component: CodeTab,
+        },
+        {
+          path: "/repository/tasks",
+          name: "Repository Tasks",
+          component: TasksTab,
+        },
+        {
+          path: "/repository/tasks/task",
+          name: "Single Task",
+          component: SingleTaskTab,
+        },
+        {
+          path: "/repository/settings",
+          name: "Repository Settings",
+          component: SettingsTab,
+        }
+      ]
     },
     {
       path: "/tasks",
@@ -44,9 +72,9 @@ export default new Router({
       component: UserTasksPage,
     },
     {
-      path:"/settings",
+      path: "/settings",
       name: "Settings",
-      component:SettingsPage,
+      component: SettingsPage,
     },
     {
       path: "/repository/new",

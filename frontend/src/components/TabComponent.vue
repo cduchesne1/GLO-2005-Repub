@@ -1,7 +1,5 @@
 <template>
-  <div v-show="isActive">
-    <slot></slot>
-  </div>
+  <div v-show="isActive" />
 </template>
 <script>
 export default {
@@ -13,6 +11,10 @@ export default {
     selected: {
       type: Boolean,
       default: false,
+    },
+    href: {
+      type: String,
+      required: true,
     },
   },
   data() {

@@ -10,7 +10,7 @@
           class="flex items-center justify-center border-b border-solid border-gray-500 px-8 cursor-pointer"
           :class="tab.isActive ? 'border-pink-600 font-bold cursor-default' : ''"
         >
-          <a @click="selectTab(tab)">
+          <a :href="tab.href" @click="selectTab(tab)">
             {{ tab.name }}
           </a>
         </li>

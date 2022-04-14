@@ -13,16 +13,28 @@
         </div>
       </div>
       <TabsComponent class="mt-8">
-          <TabComponent name="Code" :selected="true">
-              <CodeTab />
-          </TabComponent>
-          <TabComponent name="Tasks" :selected="false">
-              <TasksTab />
-          </TabComponent>
-          <TabComponent name="Settings" :selected="false">
-              <SettingsTab />
-          </TabComponent>
+        <TabComponent
+          name="Code"
+          :selected="$route.name == 'Code'"
+          href="#/repository"
+        >
+        </TabComponent>
+        <TabComponent
+          name="Tasks"
+          :selected="
+            $route.name == 'Repository Tasks' || $route.name == 'Single Task'
+          "
+          href="#/repository/tasks"
+        >
+        </TabComponent>
+        <TabComponent
+          name="Settings"
+          :selected="$route.name == 'Repository Settings'"
+          href="#/repository/settings"
+        >
+        </TabComponent>
       </TabsComponent>
+      <router-view></router-view>
     </div>
     <FooterComponent />
   </div>
@@ -32,9 +44,6 @@ import LoggedTopBar from "@/components/LoggedTopBar";
 import FooterComponent from "@/components/FooterComponent";
 import TabsComponent from "@/components/TabsComponent";
 import TabComponent from "@/components/TabComponent";
-import CodeTab from "@/components/repository/CodeTab";
-import TasksTab from "@/components/repository/TasksTab";
-import SettingsTab from "@/components/repository/SettingsTab";
 
 export default {
   components: {
@@ -42,9 +51,6 @@ export default {
     FooterComponent,
     TabsComponent,
     TabComponent,
-    CodeTab,
-    TasksTab,
-    SettingsTab,
   },
   data() {
     return {};
