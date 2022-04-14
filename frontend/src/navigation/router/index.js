@@ -6,6 +6,7 @@ import SignUp from "@/pages/SignUp";
 import ProfilePage from "@/pages/ProfilePage";
 import RepositoryPage from "@/pages/RepositoryPage";
 import UserTasksPage from "@/pages/UserTasksPage";
+import SettingsPage from "@/pages/SettingsPage";
 
 Vue.use(Router);
 
@@ -40,6 +41,16 @@ export default new Router({
       path: "/tasks",
       name: "Tasks",
       component: UserTasksPage,
+    },
+    {
+      path:"/settings",
+      name: "Settings",
+      component:SettingsPage,
+    },
+    {
+      path:"/settings/profil",
+      name: "SettingsProfil",
+      component:SettingsPage,
     }
   ],
 });

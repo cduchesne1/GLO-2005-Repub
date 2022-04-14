@@ -25,6 +25,7 @@
           </div>
           <button
             class="bg-pink-600 hover:bg-pink-700 text-white text-sm font-bold py-2 px-8 rounded mx-4 mt-4"
+            @click="goToSettings()"
           >
             Edit Profile
           </button>
@@ -56,5 +57,10 @@ export default {
       repositories: ["1", "2", "3", "4", "5", "6"],
     };
   },
+  methods:{
+    goToSettings(){
+      this.$router.push("/settings/profil");
+    }
+  }
 };
 </script>
