@@ -13,6 +13,10 @@
           >
             Sign In
           </button>
+        </div v-if="showInvalidCredential">
+        Invalid password and email combination
+        <div>
+           
         </div>
         <div class="flex bg-white bg-opacity-10 border-2 border-gray-300 rounded-xl p-4 mt-8">
             <div class="text-md text-white mr-2">Don't have an account?</div>
@@ -28,7 +32,8 @@ export default {
   data() {
     return {
       email: this.email,
-      password: this.password
+      password: this.password,
+      showInvalidCredential: false
     }
   },
   methods: {
@@ -48,10 +53,12 @@ export default {
         headers: new Headers({ "Content-Type": "application/json" }),
       }
     );
-    
-    const data = await response.json();
+    if (response.status == 200) {
+      this.$router.push({ path: "/" });
+    } else {
+      this.showInvalidCredential = true
+    }    
     console.log(data);
-    //stock data en cookie
   } catch (e) {
     console.log(e);
   }

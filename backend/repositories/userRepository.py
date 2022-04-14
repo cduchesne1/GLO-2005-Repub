@@ -2,7 +2,7 @@ from typing import Any, Optional
 import bcrypt
 from uuid import uuid4
 import datetime
-from exceptions import InvalidParameterException
+from exceptions.InvalidParameterException import InvalidParameterException
 
 class UserRepository:
     def __init__(self, connection):
