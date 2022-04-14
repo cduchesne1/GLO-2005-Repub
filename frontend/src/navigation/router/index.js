@@ -11,6 +11,7 @@ import TasksTab from "@/components/repository/TasksTab";
 import SingleTaskTab from "@/components/repository/SingleTaskTab";
 import SettingsTab from "@/components/repository/SettingsTab";
 import CreationRepositoryPage from "@/pages/CreationRepositoryPage";
+import SettingsPage from "@/pages/SettingsPage";
 
 Vue.use(Router);
 
@@ -71,7 +72,17 @@ export default new Router({
       component: UserTasksPage,
     },
     {
-      path: "/new",
+      path: "/settings",
+      name: "Settings",
+      component:SettingsPage,
+    },
+    {
+      path:"/settings/profile",
+      name: "SettingsProfile",
+      component:SettingsPage,
+    },
+    {
+      path: "/repository/new",
       name: "NewRepository",
       component: CreationRepositoryPage,
     }
