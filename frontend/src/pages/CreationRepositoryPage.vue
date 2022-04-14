@@ -146,15 +146,11 @@ export default {
     setPrivate(){
       this.visibility='Private';
     },
-    openAddTagBar(){
-      this.addingTag = true;
-    },
-    closeAddTagBar(){
-      this.addingTag = false;
-    },
     addTag(){
-      if(document.getElementById("AddTagBar").value !== ""){
-        this.tags.push(document.getElementById("AddTagBar").value);
+      const addTagBar = document.getElementById("AddTagBar");
+      if(addTagBar.value !== ""){
+        this.tags.push(addTagBar.value);
+        addTagBar.value="";
       }
     },
     deleteTag(tag){
