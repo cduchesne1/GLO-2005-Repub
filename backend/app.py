@@ -1,7 +1,7 @@
 import json
 
 from flask import Flask, request, make_response
-from flask_cors import CORS
+from flask_cors import CORS, cross_origin
 
 from exceptions.InvalidParameterException import InvalidParameterException
 from exceptions.ItemNotFoundException import ItemNotFoundException
@@ -19,13 +19,7 @@ app.register_error_handler(InvalidParameterException, lambda e: e)
 app.register_error_handler(ItemNotFoundException, lambda e: e)
 app.register_error_handler(MissingParameterException, lambda e: e)
 
-api_cors_config = {
-    "origins": ["http://localhost:8080"],
-    "methods": ["GET", "PUT", "POST", "PATCH", "DELETE", "UPDATE"],
-    "allow_headers": ["Authorization", "Content-Type", "Access-Control-Allow-Origin"]
-}
-
-cors = CORS(app, resources={"*": api_cors_config})
+cors = CORS(app)
 
 user_repository = UserRepository()
 repository_repository = RepositoryRepository(user_repository)
@@ -86,6 +80,7 @@ def profile(user_id):
 
 
 @app.route('/users/<int:user_id>/repositories', methods=['GET'])
+@cross_origin()
 def user_repositories(user_id):
     result = repositories_service.get_user_repositories(user_id)
     return json.dumps({"repositories": list(result), "total": len(result)}, default=str), 200
@@ -98,6 +93,7 @@ def user_tasks(user_id):
 
 
 @app.route('/repositories', methods=['GET', 'POST'])
+@cross_origin()
 def repositories():
     if request.method == 'GET':
         result = repositories_service.get_public_repositories()
