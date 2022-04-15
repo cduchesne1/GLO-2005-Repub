@@ -1,22 +1,32 @@
 from typing import Any, Optional
 
+import pymysql
+
+from repositories.userRepository import UserRepository
+
 
 class RepositoryRepository:
-    def __init__(self, connection):
-        self.connection = connection
+    def __init__(self, user_repository: UserRepository):
+        self.connection = pymysql.connect(host='localhost', user='user', password='password', db='mydb', port=42069)
+        self.user_repository = user_repository
         self.cursor = self.connection.cursor()
 
     def __to_dto(self, row: Any) -> dict[str, Any]:
         return {
             "id": row[0],
-            "owner": row[1],
+            "owner": self.user_repository.get_user(row[1]),
             "name": row[2],
             "visibility": row[3],
             "description": row[4],
             "website": row[5],
-            "collaborators": row[6].split(",") if row[6] else [],
+            "collaborators": self.__collaborators_to_dto(row[6]),
             "tags": row[7].split(",") if row[7] else []
         }
+
+    def __collaborators_to_dto(self, row: Any) -> list[dict[str, Any]]:
+        collaborators = row.split(",") if row else []
+        return list(
+            map(lambda collaborator: self.user_repository.get_user(collaborator), collaborators))
 
     def get_repository(self, repository_id: int) -> Optional[dict[str, Any]]:
         self.cursor.execute(

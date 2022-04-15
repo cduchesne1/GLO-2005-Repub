@@ -34,45 +34,6 @@ export default new Router({
       component: SignUp,
     },
     {
-        path: "/profile",
-        name: "Profile",
-        component: ProfilePage,
-    },
-    {
-      path: "/repository",
-      alias: "/repository/*",
-      name: "Repository",
-      meta: {basePath: "/repository"},
-      component: RepositoryPage,
-      children: [
-        {
-          path: "/repository",
-          name: "Code",
-          component: CodeTab,
-        },
-        {
-          path: "/repository/tasks",
-          name: "Repository Tasks",
-          component: TasksTab,
-        },
-        {
-          path: "/repository/tasks/task",
-          name: "Single Task",
-          component: SingleTaskTab,
-        },
-        {
-          path: "/repository/settings",
-          name: "Repository Settings",
-          component: SettingsTab,
-        },
-        {
-          path: "/repository/tasks/new",
-          name: "New Task",
-          component: CreateTaskTab,
-        }
-      ]
-    },
-    {
       path: "/tasks",
       name: "Tasks",
       component: UserTasksPage,
@@ -91,6 +52,44 @@ export default new Router({
       path: "/new",
       name: "NewRepository",
       component: CreationRepositoryPage,
+    },
+    {
+        path: "/:username",
+        name: "Profile",
+        component: ProfilePage,
+    },
+    {
+      path: "/:username/:repository",
+      name: "Repository",
+      meta: {basePath: "/:username/:repository"},
+      component: RepositoryPage,
+      children: [
+        {
+          path: "/:username/:repository",
+          name: "Code",
+          component: CodeTab,
+        },
+        {
+          path: "/:username/:repository/tasks",
+          name: "Repository Tasks",
+          component: TasksTab,
+        },
+        {
+          path: "/:username/:repository/tasks/task",
+          name: "Single Task",
+          component: SingleTaskTab,
+        },
+        {
+          path: "/:username/:repository/settings",
+          name: "Repository Settings",
+          component: SettingsTab,
+        },
+        {
+          path: "/:username/:repository/tasks/new",
+          name: "New Task",
+          component: CreateTaskTab,
+        }
+      ]
     }
   ],
 });

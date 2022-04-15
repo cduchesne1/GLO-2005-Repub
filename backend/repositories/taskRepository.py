@@ -1,10 +1,12 @@
 from datetime import datetime
 from typing import Any
 
+import pymysql
+
 
 class TaskRepository:
-    def __init__(self, connection):
-        self.connection = connection
+    def __init__(self):
+        self.connection = pymysql.connect(host='localhost', user='user', password='password', db='mydb', port=42069)
         self.cursor = self.connection.cursor()
 
     def __to_dto(self, row: tuple) -> dict[str, Any]:

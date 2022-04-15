@@ -19,21 +19,22 @@
       >
       <a class="text-base text-gray-500">Explore</a>
     </div>
-    <img
-      @click="goToProfile()"
-      src="../assets/profileIcon.svg"
-      class="cursor-pointer"
-    />
+    <ProfilePicture class="cursor-pointer" :action="goToProfile" :name="$store.user.name" />
   </div>
 </template>
 <script>
+import ProfilePicture from "@/components/ProfilePicture";
+
 export default {
+  components: {
+    ProfilePicture,
+  },
   methods: {
     goToHome() {
       this.$router.push("/");
     },
     goToProfile() {
-      this.$router.push("/profile");
+      this.$router.push(`/${this.$store.user.username}`);
     },
     goToUserTasks() {
       this.$router.push({
