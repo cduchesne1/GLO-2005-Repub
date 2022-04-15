@@ -26,7 +26,7 @@
           <a
             v-for="repo in recentRepositories"
             :key="repo.id"
-            @click="goToRepository()"
+            @click="goToRepository(repo.owner.username, repo.name)"
             class="text-base text-white mt-2 cursor-pointer hover:text-pink-600"
           >
             {{ `${repo.owner.username}/${repo.name}` }}
@@ -47,7 +47,7 @@
           class="flex flex-col border-b border-solid border-gray-500 mt-8"
         >
           <a
-            @click="goToRepository()"
+            @click="goToRepository(repo.owner.username, repo.name)"
             class="text-base text-white mt-2 cursor-pointer hover:text-pink-600"
             >{{ `${repo.owner.username}/${repo.name}` }}</a
           >
@@ -89,11 +89,11 @@ export default {
     goToCreationRepository() {
       this.$router.push("/new");
     },
-    goToRepository() {
-      this.$router.push("/repository");
+    goToRepository(username, repository) {
+      this.$router.push(`/${username}/${repository}`);
     },
     goToProfile() {
-      this.$router.push("/profile");
+      this.$router.push(`/${this.$store.user.username}`);
     },
   },
 };

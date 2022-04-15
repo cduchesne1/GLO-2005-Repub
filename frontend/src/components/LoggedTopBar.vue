@@ -34,7 +34,7 @@ export default {
       this.$router.push("/");
     },
     goToProfile() {
-      this.$router.push("/profile");
+      this.$router.push(`/${this.$store.user.username}`);
     },
     goToUserTasks() {
       this.$router.push({
