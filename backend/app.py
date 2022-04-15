@@ -1,8 +1,7 @@
 import json
 
-import pymysql
 from flask import Flask, request, make_response
-from flask_cors import CORS, cross_origin
+from flask_cors import CORS
 
 from exceptions.InvalidParameterException import InvalidParameterException
 from exceptions.ItemNotFoundException import ItemNotFoundException
@@ -10,28 +9,33 @@ from exceptions.MissingParameterException import MissingParameterException
 from repositories.repositoryRepository import RepositoryRepository
 from repositories.taskRepository import TaskRepository
 from repositories.userRepository import UserRepository
+from services.login import Logger
 from services.repositoriesService import RepositoriesService
 from services.tasksService import TasksService
 from services.usersService import UsersService
-from services.login import Logger
 
 app = Flask(__name__)
-app.config['CORS_HEADERS'] = 'Content-Type'
 app.register_error_handler(InvalidParameterException, lambda e: e)
 app.register_error_handler(ItemNotFoundException, lambda e: e)
 app.register_error_handler(MissingParameterException, lambda e: e)
 
-cors = CORS(app, resources={r"/*": {"origins": "http://localhost:8080"}})
+api_cors_config = {
+    "origins": ["http://localhost:8080"],
+    "methods": ["GET", "PUT", "POST", "PATCH", "DELETE", "UPDATE"],
+    "allow_headers": ["Authorization", "Content-Type", "Access-Control-Allow-Origin"]
+}
 
-connection = pymysql.connect(host='localhost', user='user', password='password', db='mydb', port=42069)
-user_repository = UserRepository(connection)
-repository_repository = RepositoryRepository(connection)
-task_repository = TaskRepository(connection)
+cors = CORS(app, resources={"*": api_cors_config})
+
+user_repository = UserRepository()
+repository_repository = RepositoryRepository(user_repository)
+task_repository = TaskRepository()
 
 users_service = UsersService(user_repository)
 repositories_service = RepositoriesService(repository_repository, users_service)
 tasks_service = TasksService(task_repository, users_service, repositories_service)
 logger = Logger(user_repository)
+
 
 @app.route('/')
 def heartbeat():
@@ -53,7 +57,6 @@ def logout():
 
 
 @app.route('/signup', methods=['POST'])
-@cross_origin(origin='localhost', headers=['Content-Type', 'Authorization'])
 def signup():
     result = users_service.create_user(request.get_json())
     response = make_response()
@@ -68,7 +71,6 @@ def users():
 
 
 @app.route('/users/<int:user_id>', methods=['GET', 'PUT', 'DELETE'])
-@cross_origin(origin='localhost', headers=['Content-Type', 'Authorization'])
 def profile(user_id):
     if request.method == 'GET':
         result = users_service.get_user(user_id)
@@ -86,7 +88,7 @@ def profile(user_id):
 @app.route('/users/<int:user_id>/repositories', methods=['GET'])
 def user_repositories(user_id):
     result = repositories_service.get_user_repositories(user_id)
-    return json.dumps({"repositories": list(result), "total": len(result)}), 200
+    return json.dumps({"repositories": list(result), "total": len(result)}, default=str), 200
 
 
 @app.route('/users/<int:user_id>/tasks', methods=['GET'])
@@ -96,7 +98,6 @@ def user_tasks(user_id):
 
 
 @app.route('/repositories', methods=['GET', 'POST'])
-@cross_origin(origin='localhost', headers=['Content- Type', 'Authorization'])
 def repositories():
     if request.method == 'GET':
         result = repositories_service.get_public_repositories()

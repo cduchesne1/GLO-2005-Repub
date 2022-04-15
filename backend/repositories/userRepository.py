@@ -1,12 +1,16 @@
-from typing import Any, Optional
-import bcrypt
-from uuid import uuid4
 import datetime
+from typing import Any, Optional
+from uuid import uuid4
+
+import bcrypt
+import pymysql
+
 from exceptions.InvalidParameterException import InvalidParameterException
 
+
 class UserRepository:
-    def __init__(self, connection):
-        self.connection = connection
+    def __init__(self):
+        self.connection = pymysql.connect(host='localhost', user='user', password='password', db='mydb', port=42069)
         self.cursor = self.connection.cursor()
         self.tokens = []
 
@@ -22,10 +26,21 @@ class UserRepository:
             "location": row[7],
         }
 
+    def to_public_dto(self, row: Any) -> dict[str, Any]:
+        return {
+            "id": row[0],
+            "name": row[1],
+            "username": row[2],
+            "bio": row[4],
+            "website": row[5],
+            "company": row[6],
+            "location": row[7],
+        }
+
     def get_all_users(self) -> list[dict[str, Any]]:
         self.cursor.execute("SELECT * FROM users;")
         result = self.cursor.fetchall()
-        return [self.__to_dto(row) for row in result]
+        return [self.to_public_dto(row) for row in result]
 
     def create_user(self, user_data: dict[str, Any]) -> int:
         self.cursor.execute(
@@ -39,10 +54,14 @@ class UserRepository:
     def __encrypt_password(self, password: str) -> str:
         return bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
 
-    def get_user(self, user_id: int) -> Optional[dict[str, Any]]:
+    def get_user(self, user_id: int, public=True) -> Optional[dict[str, Any]]:
         self.cursor.execute("SELECT * FROM users WHERE id = %s;", (user_id,))
         result = self.cursor.fetchone()
-        return self.__to_dto(result) if result else None
+        if result is None:
+            return None
+        if public:
+            return self.to_public_dto(result)
+        return self.__to_dto(result)
 
     def update_user(self, user_id: int, user_data: dict[str, Any]) -> None:
         self.cursor.execute("""UPDATE users SET 
@@ -77,7 +96,7 @@ class UserRepository:
         hashed_password_from_db = self.cursor.fetchone()
         if hashed_password_from_db is None:
             raise InvalidParameterException("Password and email combination doesn't exist")
-        
+
         if bcrypt.checkpw(hashed_password_from_credential, hashed_password_from_db):
             return self.create_token()
         else:
@@ -87,7 +106,8 @@ class UserRepository:
         token_id = uuid4()
         token_creation_time = datetime.datetime.now()
         token_expire_time = datetime.datetime.now() + datetime.timedelta(days=1)
-        new_token = {"token_id": token_id, "token_creation_time": token_creation_time, "token_expire_time": token_expire_time }
+        new_token = {"token_id": token_id, "token_creation_time": token_creation_time,
+                     "token_expire_time": token_expire_time}
         self.tokens.append(new_token)
         return new_token["token_id"]
 
