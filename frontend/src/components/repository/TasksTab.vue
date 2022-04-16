@@ -23,8 +23,8 @@
           <div class="flex items-center">
             <div class="w-4 h-4 rounded-full bg-green-500 mr-4" :class="task.state == 'closed' ? 'bg-purple-500': ''"></div>
             <h3
-              class="text-lg font-bold text-white max-w-5xl"
-              @click="onClick()"
+              class="text-lg font-bold text-white max-w-5xl cursor-pointer hover:text-pink-600"
+              @click="onClick(task.number)"
             >
               {{ task.title }}
             </h3>
@@ -61,11 +61,11 @@ export default {
     this.tasks = await fetchRepositoryTasks(this.repository.id);
   },
   methods: {
-    onClick() {
-      this.$router.push("/repository/tasks/task");
+    onClick(number) {
+      this.$router.push(`/${this.$route.params.username}/${this.$route.params.repository}/tasks/${number}`);
     },
     createNewTask() {
-      this.$router.push("/repository/tasks/new");
+      this.$router.push(`/${this.$route.params.username}/${this.$route.params.repository}/tasks/new`);
     },
     timeAgo(timestamp) {
       return moment(Date.parse(timestamp)).fromNow();

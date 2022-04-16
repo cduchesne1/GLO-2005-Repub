@@ -75,7 +75,12 @@ export default new Router({
           component: TasksTab,
         },
         {
-          path: "/:username/:repository/tasks/task",
+          path: "/:username/:repository/tasks/new",
+          name: "New Task",
+          component: CreateTaskTab,
+        },
+        {
+          path: "/:username/:repository/tasks/:number",
           name: "Single Task",
           component: SingleTaskTab,
         },
@@ -84,11 +89,6 @@ export default new Router({
           name: "Repository Settings",
           component: SettingsTab,
         },
-        {
-          path: "/:username/:repository/tasks/new",
-          name: "New Task",
-          component: CreateTaskTab,
-        }
       ]
     }
   ],
