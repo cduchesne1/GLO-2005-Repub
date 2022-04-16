@@ -1,3 +1,4 @@
+# Inspired from https://linuxhint.com/setup_git_http_server_docker/
 version: "3.7"
 services:
   git-server:

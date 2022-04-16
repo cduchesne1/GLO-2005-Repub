@@ -1,3 +1,5 @@
+# Inspired from https://linuxhint.com/setup_git_http_server_docker/
+
 FROM ubuntu:18.04
 
 RUN apt update 2>/dev/null

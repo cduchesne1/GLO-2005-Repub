@@ -1,4 +1,5 @@
 #!/bin/bash
+# Inspired from https://linuxhint.com/setup_git_http_server_docker/
  
 GIT_DIR="/var/www/git"
 USERNAME=$1
