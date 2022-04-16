@@ -6,7 +6,7 @@
         <div
           class="flex items-center border-b border-solid border-gray-500 pb-8"
         >
-          <ProfilePicture class="cursor-pointer" :action="goToProfile" :name="$store.user.name" />
+          <ProfilePicture class="cursor-pointer" :path="`/${this.$store.user.username}`" :name="$store.user.name" />
           <a
             @click="goToProfile()"
             class="text-base text-white font-bold ml-4 cursor-pointer hover:text-pink-600"

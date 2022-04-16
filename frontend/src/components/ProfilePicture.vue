@@ -14,9 +14,14 @@ export default {
             type: String,
             required: true,
         },
-        action: {
-            type: Function,
+        path: {
+            type: String,
             required: true,
+        },
+    },
+    methods: {
+        action() {
+            this.$router.push(this.path);
         },
     },
 }

@@ -31,6 +31,20 @@ const fetchExploreRepositories = async () => {
     }
 };
 
+const fetchRepositoryByUsernameAndName = async (username, name) => {
+    try {
+        const response = await fetch(
+            `${process.env.VUE_APP_API_URL}/users/${username}/repositories/${name}`,
+        );
+
+        const repository = await response.json();
+
+        return repository;
+    } catch (error) {
+        console.error(error);
+    }
+};
+
 // From https://stackoverflow.com/questions/2450954/how-to-randomize-shuffle-a-javascript-array?page=1&tab=trending#tab-top
 function shuffle(array) {
     let currentIndex = array.length,  randomIndex;
@@ -50,4 +64,4 @@ function shuffle(array) {
     return array;
   }
 
-export { fetchUserRecentRepositories, fetchExploreRepositories };
+export { fetchUserRecentRepositories, fetchExploreRepositories, fetchRepositoryByUsernameAndName };
