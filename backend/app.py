@@ -79,6 +79,12 @@ def profile(user_id):
         return 'Method not allowed', 405
 
 
+@app.route('/users/<string:username>', methods=['GET'])
+def username_profile(username):
+    result = users_service.get_user_by_username(username)
+    return json.dumps(result), 200
+
+
 @app.route('/users/<int:user_id>/repositories', methods=['GET'])
 def user_repositories(user_id):
     result = repositories_service.get_user_repositories(user_id)
