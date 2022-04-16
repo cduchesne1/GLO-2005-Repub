@@ -61,8 +61,8 @@ export default new Router({
     {
       path: "/:username/:repository",
       name: "Repository",
-      meta: {basePath: "/:username/:repository"},
       component: RepositoryPage,
+      props: true,
       children: [
         {
           path: "/:username/:repository",
