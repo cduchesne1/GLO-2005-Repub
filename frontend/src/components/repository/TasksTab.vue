@@ -10,7 +10,9 @@
     </div>
     <div class="border border-solid border-gray-500 rounded-lg w-full mt-4">
       <div class="flex bg-gray-500 bg-opacity-25 px-8 py-4 justify-between">
-        <a class="text-base text-white font-bold">{{ `${tasks.length} tasks` }}</a>
+        <a class="text-base text-white font-bold">{{
+          `${tasks.length} tasks`
+        }}</a>
         <a class="text-base text-gray-500">Assignee</a>
       </div>
       <div
@@ -21,7 +23,10 @@
       >
         <div class="flex flex-col">
           <div class="flex items-center">
-            <div class="w-4 h-4 rounded-full bg-green-500 mr-4" :class="task.state == 'closed' ? 'bg-purple-500': ''"></div>
+            <div
+              class="w-4 h-4 rounded-full bg-green-500 mr-4"
+              :class="task.state == 'closed' ? 'bg-purple-500' : ''"
+            ></div>
             <h3
               class="text-lg font-bold text-white max-w-5xl cursor-pointer hover:text-pink-600"
               @click="onClick(task.number)"
@@ -29,14 +34,18 @@
               {{ task.title }}
             </h3>
           </div>
-          <a class="text-md text-gray-500">{{ `#${task.number} opened ${timeAgo(task.timestamp)} by ${task.creator.username}` }}</a>
+          <a class="text-md text-gray-500">{{
+            `#${task.number} opened ${timeAgo(task.timestamp)} by ${
+              task.creator.username
+            }`
+          }}</a>
         </div>
         <ProfilePicture
-        v-if="task.assigned"
-            class="cursor-pointer"
-            :path="`/${task.assigned.username}`"
-            :name="task.assigned.name"
-          />
+          v-if="task.assigned"
+          class="cursor-pointer"
+          :path="`/${task.assigned.username}`"
+          :name="task.assigned.name"
+        />
       </div>
     </div>
   </div>
@@ -62,10 +71,14 @@ export default {
   },
   methods: {
     onClick(number) {
-      this.$router.push(`/${this.$route.params.username}/${this.$route.params.repository}/tasks/${number}`);
+      this.$router.push(
+        `/${this.$route.params.username}/${this.$route.params.repository}/tasks/${number}`
+      );
     },
     createNewTask() {
-      this.$router.push(`/${this.$route.params.username}/${this.$route.params.repository}/tasks/new`);
+      this.$router.push(
+        `/${this.$route.params.username}/${this.$route.params.repository}/tasks/new`
+      );
     },
     timeAgo(timestamp) {
       return moment(Date.parse(timestamp)).fromNow();

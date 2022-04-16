@@ -97,6 +97,12 @@ def user_repository(username, repository_name):
     return json.dumps(result, default=str), 200
 
 
+@app.route('/users/<string:username>/repositories/<string:repository_name>/tasks/<int:task_number>', methods=['GET'])
+def specific_task_in_repository(username, repository_name, task_number):
+    result = tasks_service.get_task_in_repository_by_username_name_and_number(username, repository_name, task_number)
+    return json.dumps(result, default=str), 200
+
+
 @app.route('/repositories', methods=['GET', 'POST'])
 def repositories():
     if request.method == 'GET':
