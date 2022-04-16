@@ -18,8 +18,8 @@ class UsersService:
             raise ItemNotFoundException("No users found")
         return result
 
-    def get_user(self, user_id: int) -> dict[str, Any]:
-        result = self.repository.get_user(user_id)
+    def get_user(self, user_id: int, public=True) -> dict[str, Any]:
+        result = self.repository.get_user(user_id, public=public)
         if result is None:
             raise ItemNotFoundException(f"User with id {user_id} not found")
         return result

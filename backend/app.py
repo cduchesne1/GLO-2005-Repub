@@ -67,7 +67,7 @@ def users():
 @app.route('/users/<int:user_id>', methods=['GET', 'PUT', 'DELETE'])
 def profile(user_id):
     if request.method == 'GET':
-        result = users_service.get_user(user_id)
+        result = users_service.get_user(user_id, public=False)
         return json.dumps(result), 200
     elif request.method == 'PUT':
         users_service.update_user(user_id, request.get_json())
