@@ -30,12 +30,19 @@ class RepositoryRepository:
             "tags": row[7].split(",") if row[7] else []
         }
 
+    def __to_simple_dto(self, row: Any) -> dict[str, Any]:
+        return {
+            "id": row[0],
+            "owner": self.user_repository.get_user(row[1]),
+            "name": row[2],
+        }
+
     def __collaborators_to_dto(self, row: Any) -> list[dict[str, Any]]:
         collaborators = row.split(",") if row else []
         return list(
             map(lambda collaborator: self.user_repository.get_user(collaborator), collaborators))
 
-    def get_repository(self, repository_id: int) -> Optional[dict[str, Any]]:
+    def get_repository(self, repository_id: int, simple=False) -> Optional[dict[str, Any]]:
         connection = self.__create_connection()
         try:
             cursor = connection.cursor()
@@ -46,7 +53,9 @@ class RepositoryRepository:
                     LEFT OUTER JOIN collaborators c ON r.id = c.repository WHERE r.id = %s GROUP BY r.id;""",
                 repository_id)
             result = cursor.fetchone()
-            return self.__to_dto(result) if result else None
+            if result:
+                return self.__to_dto(result) if not simple else self.__to_simple_dto(result)
+            return None
         finally:
             connection.close()
 

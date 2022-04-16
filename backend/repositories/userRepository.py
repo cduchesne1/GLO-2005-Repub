@@ -33,7 +33,7 @@ class UserRepository:
             "location": row[7],
         }
 
-    def to_public_dto(self, row: Any) -> dict[str, Any]:
+    def __to_public_dto(self, row: Any) -> dict[str, Any]:
         return {
             "id": row[0],
             "name": row[1],
@@ -50,7 +50,7 @@ class UserRepository:
             cursor = connection.cursor()
             cursor.execute("SELECT * FROM users;")
             result = cursor.fetchall()
-            return [self.to_public_dto(row) for row in result]
+            return [self.__to_public_dto(row) for row in result]
         finally:
             connection.close()
 
@@ -80,7 +80,7 @@ class UserRepository:
             if result is None:
                 return None
             if public:
-                return self.to_public_dto(result)
+                return self.__to_public_dto(result)
             return self.__to_dto(result)
         finally:
             connection.close()
@@ -94,7 +94,7 @@ class UserRepository:
             if result is None:
                 return None
             if public:
-                return self.to_public_dto(result)
+                return self.__to_public_dto(result)
             return self.__to_dto(result)
         finally:
             connection.close()
