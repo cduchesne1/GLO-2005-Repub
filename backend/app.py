@@ -23,7 +23,7 @@ CORS(app)
 
 user_repository = UserRepository()
 repository_repository = RepositoryRepository(user_repository)
-task_repository = TaskRepository(user_repository)
+task_repository = TaskRepository(user_repository, repository_repository)
 
 users_service = UsersService(user_repository)
 repositories_service = RepositoriesService(repository_repository, users_service)
@@ -186,3 +186,7 @@ def task_comment(comment_id):
         return 'Comment with id {} deleted'.format(comment_id), 200
     else:
         return 'Method not allowed', 405
+
+
+if __name__ == '__main__':
+    app.run(debug=True, host='0.0.0.0', port=3000)

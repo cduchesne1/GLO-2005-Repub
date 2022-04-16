@@ -3,12 +3,14 @@ from typing import Any
 
 import pymysql
 
+from repositories.repositoryRepository import RepositoryRepository
 from repositories.userRepository import UserRepository
 
 
 class TaskRepository:
-    def __init__(self, user_repository: UserRepository):
+    def __init__(self, user_repository: UserRepository, repository_repository: RepositoryRepository):
         self.user_repository = user_repository
+        self.repository_repository = repository_repository
 
     def __create_connection(self) -> pymysql.Connection:
         return pymysql.connect(
@@ -22,7 +24,7 @@ class TaskRepository:
     def __to_dto(self, row: tuple) -> dict[str, Any]:
         return {
             "id": row[0],
-            "repository": row[1],
+            "repository": self.repository_repository.get_repository(row[1], simple=True),
             "title": row[2],
             "description": row[3],
             "assigned": self.user_repository.get_user(row[4]) if row[4] is not None else None,
