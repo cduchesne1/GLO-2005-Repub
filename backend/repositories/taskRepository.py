@@ -39,7 +39,7 @@ class TaskRepository:
             "id": row[0],
             "task": row[1],
             "comment": row[2],
-            "sender": row[3],
+            "sender": self.user_repository.get_user(row[3]),
             "timestamp": row[4],
         }
 
@@ -59,6 +59,17 @@ class TaskRepository:
         try:
             cursor = connection.cursor()
             cursor.execute("SELECT * FROM tasks WHERE id = %s", task_id)
+            return self.__to_dto(cursor.fetchone())
+        finally:
+            connection.close()
+
+    def get_repository_by_repository_id_and_number(self, repository_id: int, number: int) -> dict[str, Any]:
+        connection = self.__create_connection()
+        try:
+            cursor = connection.cursor()
+            cursor.execute("""
+                        SELECT * FROM tasks WHERE repository = %s AND num = %s
+                    """, (repository_id, number))
             return self.__to_dto(cursor.fetchone())
         finally:
             connection.close()
