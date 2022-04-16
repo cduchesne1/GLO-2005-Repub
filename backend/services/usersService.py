@@ -43,6 +43,12 @@ class UsersService:
         user = self.get_user(user_id)
         return user is not None
 
+    def get_user_by_username(self, username: str) -> dict[str, Any]:
+        result = self.repository.get_user_by_username(username)
+        if result is None:
+            raise ItemNotFoundException(f"User with username {username} not found")
+        return result
+
     def __validate_user_data(self, user_data: Optional[dict[str, Any]]) -> None:
         if 'email' not in user_data or 'username' not in user_data or 'name' not in user_data \
                 or 'password' not in user_data:
