@@ -41,3 +41,29 @@ To stop the database, you can exit in the terminal with CTRL+C and run the follo
 ```bash
 docker compose down
 ```
+
+## Git Server
+
+- Docker
+- Docker Compose
+
+To setup the server for the first time:
+
+1) Open a terminal in the `gitserver` folder
+
+2) Run the following command:
+```bash
+docker compose build
+docker compose up -d
+```
+
+To stop the server, you can run the command:
+```bash
+docker compose down
+```
+
+### Clone a repository
+To clone a repository run the following command:
+```bash
+git clone http://localhost:8000/username/repo.git
+```

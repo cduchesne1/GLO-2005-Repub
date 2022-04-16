@@ -1,0 +1,11 @@
+version: "3.7"
+services:
+  git-server:
+    build:
+      dockerfile: Dockerfile
+      context: .
+    restart: unless-stopped
+    ports:
+      - "8000:80"
+    volumes:
+      - ./repos:/var/www/git
