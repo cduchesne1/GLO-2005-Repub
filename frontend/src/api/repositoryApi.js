@@ -15,6 +15,23 @@ const fetchUserRecentRepositories = async (userId) => {
     }
 };
 
+const fetchUserRepositories = async (userId) => {
+    try {
+        const response = await fetch(
+            `${process.env.VUE_APP_API_URL}/users/${userId}/repositories`,
+        );
+
+        const data = await response.json();
+
+        const repositories = data.repositories;
+        repositories.sort((a, b) => a.id - b.id);
+
+        return repositories;
+    } catch (error) {
+        console.error(error);
+    }
+};
+
 const fetchExploreRepositories = async () => {
     try {
         const response = await fetch(
@@ -26,6 +43,20 @@ const fetchExploreRepositories = async () => {
         const repositories = data.repositories;
 
         return shuffle(repositories);
+    } catch (error) {
+        console.error(error);
+    }
+};
+
+const fetchRepository = async (repositoryId) => {
+    try {
+        const response = await fetch(
+            `${process.env.VUE_APP_API_URL}/repositories/${repositoryId}`,
+        );
+
+        const repository = await response.json();
+
+        return repository;
     } catch (error) {
         console.error(error);
     }
@@ -64,4 +95,4 @@ function shuffle(array) {
     return array;
   }
 
-export { fetchUserRecentRepositories, fetchExploreRepositories, fetchRepositoryByUsernameAndName };
+export { fetchUserRecentRepositories, fetchUserRepositories, fetchExploreRepositories, fetchRepository, fetchRepositoryByUsernameAndName };
