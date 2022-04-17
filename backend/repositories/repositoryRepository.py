@@ -139,12 +139,19 @@ class RepositoryRepository:
         try:
             cursor = connection.cursor()
             cursor.execute("""UPDATE repositories SET 
-                    name = IFNULL(%s, name), visibility = IFNULL(%s, visibility), 
+                    visibility = IFNULL(%s, visibility), 
                     description = IFNULL(%s, description), website = IFNULL(%s, website) WHERE id = %s;""",
-                           (repository_data["name"] if "name" in repository_data else None,
-                            repository_data["visibility"] if "visibility" in repository_data else None,
+                           (repository_data["visibility"] if "visibility" in repository_data else None,
                             repository_data["description"] if "description" in repository_data else None,
                             repository_data["website"] if "website" in repository_data else None, repository_id))
+            if "tags" in repository_data:
+                cursor.execute("DELETE FROM tagged WHERE repository = %s", (repository_id,))
+                cursor.executemany("INSERT INTO tagged (repository, tag) VALUES (%s, %s)",
+                                   [(repository_id, tag) for tag in self.convert_tags(repository_data["tags"])])
+            if "collaborators" in repository_data:
+                cursor.execute("DELETE FROM collaborators WHERE repository = %s", (repository_id,))
+                cursor.executemany("INSERT INTO collaborators (repository, user) VALUES (%s, %s)",
+                                   [(repository_id, user) for user in self.convert_collaborators(repository_data["collaborators"])])
             connection.commit()
         finally:
             connection.close()
@@ -170,6 +177,11 @@ class RepositoryRepository:
 
     def convert_tags(self, tags: list[str]) -> list[int]:
         return [self.get_tag_id(tag) for tag in tags]
+
+    def convert_collaborators(self, collaborators: list[str]) -> list[int]:
+        collaborators = [self.user_repository.get_user_by_username(user)["id"] for user in collaborators]
+        print(collaborators)
+        return collaborators
 
     def get_tag_id(self, tag: str) -> int:
         connection = self.__create_connection()
