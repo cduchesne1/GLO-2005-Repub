@@ -113,7 +113,6 @@ class RepositoryRepository:
         response = ""
         for data in stream:
             response += data.decode("utf-8")
-        print(response)
         if "created" not in response:
             raise Exception("Error creating repository")
 
