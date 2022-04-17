@@ -72,13 +72,13 @@ class UserRepository:
 
     def log_user(self, user_credential):
         user_id = self.__get_user_id(user_credential["email"])
-        hashed_password_from_credential = bcrypt.hashpw(user_credential["password"], bcrypt.gensalt())
         self.cursor.execute("SELECT password FROM authentication WHERE id = %s", user_id)
-        hashed_password_from_db = self.cursor.fetchone()
+        hashed_password_from_db = self.cursor.fetchone()[0]
+        passwd_to_check = bytes(hashed_password_from_db, 'utf-8')
         if hashed_password_from_db is None:
             raise InvalidParameterException("Password and email combination doesn't exist")
         
-        if bcrypt.checkpw(hashed_password_from_credential, hashed_password_from_db):
+        if bcrypt.checkpw(user_credential["password"].encode(), passwd_to_check):
             return self.create_token()
         else:
             raise InvalidParameterException("Password and email combination doesn't exist")

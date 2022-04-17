@@ -16,12 +16,13 @@ from services.usersService import UsersService
 from services.login import Logger
 
 app = Flask(__name__)
+
 app.config['CORS_HEADERS'] = 'Content-Type'
 app.register_error_handler(InvalidParameterException, lambda e: e)
 app.register_error_handler(ItemNotFoundException, lambda e: e)
 app.register_error_handler(MissingParameterException, lambda e: e)
 
-cors = CORS(app, resources={r"/*": {"origins": "http://localhost:8080"}})
+cors = CORS(app, resources={r"/*": {"origins": "http://localhost"}})
 
 connection = pymysql.connect(host='localhost', user='user', password='password', db='mydb', port=42069)
 user_repository = UserRepository(connection)
@@ -41,14 +42,13 @@ def heartbeat():
 @app.route('/login', methods=['POST'])
 def login():
     token_id = logger.log_user(request.get_json())
-    reponse = make_response()
-    reponse.set_cookie("X-token-id", token_id)
-    return reponse, 200
+    return json.dumps({"X-token-id": str(token_id)}), 200
 
 
 @app.route('/logout', methods=['POST'])
 def logout():
-    logger.logout(request.cookies.get("X-token-id"))
+    print(request.headers.get("X-token-id"))
+    logger.logout(request.headers.get("X-token-id"))
     return 'Logout successful', 200
 
 
@@ -185,3 +185,6 @@ def task_comment(comment_id):
         return 'Comment with id {} deleted'.format(comment_id), 200
     else:
         return 'Method not allowed', 405
+
+app.debug = True
+app.run()

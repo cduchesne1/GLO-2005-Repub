@@ -14,7 +14,9 @@
             Sign In
           </button>
         </div>
-        <div v-if="showInvalidCredential">
+        <div v-if="showInvalidCredential"
+          class="text-lg text-pink-600 pt-6"
+        >
           Invalid password and email combination
         </div>
         <div class="flex bg-white bg-opacity-10 border-2 border-gray-300 rounded-xl p-4 mt-8">
@@ -36,11 +38,7 @@ export default {
     }
   },
   methods: {
-    goToSignUp: function () {
-      this.$router.push({ path: "/signup/" });
-    },
     sendCredentials: async function() {
-      try {
         const response = await fetch(
       `${process.env.VUE_APP_API_URL}/login`,
       {
@@ -52,14 +50,25 @@ export default {
         headers: new Headers({ "Content-Type": "application/json" }),
       }
     );
-    if (response.status == 200) {
-      this.$router.push({ path: "/" });
-    } else {
-      this.showInvalidCredential = true
-    }    
-  } catch (e) {
-    console.log(e);
-  }
+      if (response.status == 200) {
+        console.log(response)
+        const data = await response.json()
+        console.log(data)
+        this.$actions.setToken(data.X-token-id)
+        //this.$router.push({ path: "/" });
+      } else {
+        this.showInvalidCredential = true
+      }    
+    },
+    goToSignUp: async function () {
+       const response = await fetch(
+      `${process.env.VUE_APP_API_URL}/logout`,
+      {
+        method: "POST",
+        headers: new Headers({ "Content-Type": "application/json" }),
+      })
+      console.log(response)
+      //this.$router.push({ path: "/signup/" });
     },
   }
 }
