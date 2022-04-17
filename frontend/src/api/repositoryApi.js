@@ -126,16 +126,39 @@ const createRepository = async (body) => {
   clean(body);
   if (Object.keys(body).length > 0) {
     try {
-      const response = await fetch(`${process.env.VUE_APP_API_URL}/repositories`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(body),
-      });
+      const response = await fetch(
+        `${process.env.VUE_APP_API_URL}/repositories`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(body),
+        }
+      );
       return response.status;
     } catch (error) {
-        console.error(error);
+      console.error(error);
+    }
+  }
+};
+
+const updateRepository = async (repositoryId, body) => {
+  clean(body);
+  if (Object.keys(body).length > 0) {
+    try {
+      await fetch(
+        `${process.env.VUE_APP_API_URL}/repositories/${repositoryId}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(body),
+        }
+      );
+    } catch (error) {
+      console.error(error);
     }
   }
 };
@@ -181,4 +204,5 @@ export {
   fetchFileContent,
   fetchRepositoryBranches,
   createRepository,
+  updateRepository,
 };

@@ -54,7 +54,7 @@ class RepositoriesService:
 
     def update_repository(self, repository_id: int, repository_data: Optional[dict[str, Any]]) -> None:
         if self.is_valid_repository(repository_id):
-            self.__validate_repository_data_for_update(repository_data)
+            self.__validate_repository_data_for_update(repository_id, repository_data)
             return self.repository.update_repository(repository_id, repository_data)
         raise ItemNotFoundException(f"Repository with id {repository_id} not found")
 
@@ -86,8 +86,13 @@ class RepositoriesService:
         if self.repository.name_already_exists(repository_data["owner"], repository_data["name"]):
             raise InvalidParameterException(f"Repository with name {repository_data['name']} already exists")
 
-    def __validate_repository_data_for_update(self, repository_data: Optional[dict[str, Any]]) -> None:
-        if "name" in repository_data and repository_data["name"] == '':
-            raise InvalidParameterException("Invalid name")
+    def __validate_repository_data_for_update(self, repository_id: int, repository_data: Optional[dict[str, Any]]) -> None:
+        print(repository_data)
         if "visibility" in repository_data and repository_data["visibility"] not in ["public", "private"]:
             raise InvalidParameterException("Invalid visibility")
+        if "collaborators" in repository_data:
+            repo = self.get_repository(repository_id)
+            for collaborator in repository_data["collaborators"]:
+                user = self.users_service.get_user_by_username(collaborator)
+                if repo["owner"]["id"] == user["id"]:
+                    raise InvalidParameterException("Owner can't be a collaborator")
