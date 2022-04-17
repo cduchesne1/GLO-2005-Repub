@@ -83,6 +83,8 @@ class RepositoriesService:
             raise InvalidParameterException("Invalid parameter")
         if not self.users_service.is_valid_user(repository_data["owner"]):
             raise ItemNotFoundException(f"User with id {repository_data['owner']} not found")
+        if self.repository.name_already_exists(repository_data["owner"], repository_data["name"]):
+            raise InvalidParameterException(f"Repository with name {repository_data['name']} already exists")
 
     def __validate_repository_data_for_update(self, repository_data: Optional[dict[str, Any]]) -> None:
         if "name" in repository_data and repository_data["name"] == '':
