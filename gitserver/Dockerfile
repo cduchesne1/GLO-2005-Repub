@@ -13,10 +13,12 @@ COPY ./git-shell/git.conf /etc/apache2/sites-available/git.conf
 COPY ./git-shell/git-create-repo.sh /usr/bin/mkrepo
 COPY ./git-shell/git-list-repos.sh /usr/bin/lsrepos
 COPY ./git-shell/git-list-files.sh /usr/bin/lsfiles
+COPY ./git-shell/git-list-branches.sh /usr/bin/lsbranches
 COPY ./git-shell/git-show-file-content.sh /usr/bin/showcontent
 RUN chmod +x /usr/bin/mkrepo
 RUN chmod +x /usr/bin/lsrepos
 RUN chmod +x /usr/bin/lsfiles
+RUN chmod +x /usr/bin/lsbranches
 RUN chmod +x /usr/bin/showcontent
 
 RUN a2dissite 000-default.conf
