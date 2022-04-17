@@ -57,6 +57,19 @@ docker compose build
 docker compose up -d
 ```
 
+3) Go in the `backend` folder and in the `util` folder.
+
+4) Run the `getContainerId` python script to get the container id of the git server (make sure it is the only one running)
+
+5) Copy the id into the .env file. The file should look like this:
+```
+GITSERVER_CONTAINER=thecontainerid
+```
+
+6) Run the `populateServer` python script to populate the repositories.
+
+7) Steps 3 to 6 are only for the first time. You can start back the container manually or with the `docker compose up -d` after.
+
 To stop the server, you can run the command:
 ```bash
 docker compose down
