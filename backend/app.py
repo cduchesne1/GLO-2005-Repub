@@ -1,8 +1,8 @@
 import json
+import os
 
-import pymysql
-from flask import Flask, request, make_response
-from flask_cors import CORS, cross_origin
+from flask import Flask, request, make_response, send_file
+from flask_cors import CORS
 
 from exceptions.InvalidParameterException import InvalidParameterException
 from exceptions.ItemNotFoundException import ItemNotFoundException
@@ -10,29 +10,27 @@ from exceptions.MissingParameterException import MissingParameterException
 from repositories.repositoryRepository import RepositoryRepository
 from repositories.taskRepository import TaskRepository
 from repositories.userRepository import UserRepository
+from services.login import Logger
 from services.repositoriesService import RepositoriesService
 from services.tasksService import TasksService
 from services.usersService import UsersService
-from services.login import Logger
 
 app = Flask(__name__)
-
-app.config['CORS_HEADERS'] = 'Content-Type'
 app.register_error_handler(InvalidParameterException, lambda e: e)
 app.register_error_handler(ItemNotFoundException, lambda e: e)
 app.register_error_handler(MissingParameterException, lambda e: e)
 
-cors = CORS(app, resources={r"/*": {"origins": "http://localhost"}})
+CORS(app)
 
-connection = pymysql.connect(host='localhost', user='user', password='password', db='mydb', port=42069)
-user_repository = UserRepository(connection)
-repository_repository = RepositoryRepository(connection)
-task_repository = TaskRepository(connection)
+user_repository = UserRepository()
+repository_repository = RepositoryRepository(user_repository)
+task_repository = TaskRepository(user_repository, repository_repository)
 
 users_service = UsersService(user_repository)
 repositories_service = RepositoriesService(repository_repository, users_service)
 tasks_service = TasksService(task_repository, users_service, repositories_service)
 logger = Logger(user_repository)
+
 
 @app.route('/')
 def heartbeat():
@@ -53,7 +51,6 @@ def logout():
 
 
 @app.route('/signup', methods=['POST'])
-@cross_origin(origin='localhost', headers=['Content-Type', 'Authorization'])
 def signup():
     result = users_service.create_user(request.get_json())
     response = make_response()
@@ -68,10 +65,9 @@ def users():
 
 
 @app.route('/users/<int:user_id>', methods=['GET', 'PUT', 'DELETE'])
-@cross_origin(origin='localhost', headers=['Content-Type', 'Authorization'])
 def profile(user_id):
     if request.method == 'GET':
-        result = users_service.get_user(user_id)
+        result = users_service.get_user(user_id, public=False)
         return json.dumps(result), 200
     elif request.method == 'PUT':
         users_service.update_user(user_id, request.get_json())
@@ -83,10 +79,16 @@ def profile(user_id):
         return 'Method not allowed', 405
 
 
+@app.route('/users/<string:username>', methods=['GET'])
+def username_profile(username):
+    result = users_service.get_user_by_username(username)
+    return json.dumps(result), 200
+
+
 @app.route('/users/<int:user_id>/repositories', methods=['GET'])
 def user_repositories(user_id):
     result = repositories_service.get_user_repositories(user_id)
-    return json.dumps({"repositories": list(result), "total": len(result)}), 200
+    return json.dumps({"repositories": list(result), "total": len(result)}, default=str), 200
 
 
 @app.route('/users/<int:user_id>/tasks', methods=['GET'])
@@ -95,8 +97,43 @@ def user_tasks(user_id):
     return json.dumps({"tasks": list(result), "total": len(result)}, default=str), 200
 
 
+@app.route('/users/<string:username>/repositories/<string:repository_name>', methods=['GET'])
+def user_repository(username, repository_name):
+    result = repositories_service.get_user_repository_by_username_and_name(username, repository_name)
+    return json.dumps(result, default=str), 200
+
+
+@app.route('/users/<string:username>/repositories/<string:repository_name>/branches', methods=['GET'])
+def user_repository_branches(username, repository_name):
+    result = repositories_service.get_repository_branches_by_username_and_name(username, repository_name)
+    return json.dumps({"branches": result}, default=str), 200
+
+
+@app.route('/users/<string:username>/repositories/<string:repository_name>/files', methods=['GET'])
+def user_repository_files(username, repository_name):
+    if request.args.get('path'):
+        print(request.args.get('path'))
+        file_path = None
+        try:
+            file_path = repositories_service.get_file_content(username, repository_name, request.args.get('branch'),
+                                                              request.args.get('path'))
+            return send_file(file_path)
+        finally:
+            if os.path.exists(file_path):
+                os.remove(file_path)
+    else:
+        result = repositories_service.get_user_repository_files_by_username_name_and_branch(username, repository_name,
+                                                                                            request.args.get('branch'))
+        return json.dumps({"files": result}, default=str), 200
+
+
+@app.route('/users/<string:username>/repositories/<string:repository_name>/tasks/<int:task_number>', methods=['GET'])
+def specific_task_in_repository(username, repository_name, task_number):
+    result = tasks_service.get_task_in_repository_by_username_name_and_number(username, repository_name, task_number)
+    return json.dumps(result, default=str), 200
+
+
 @app.route('/repositories', methods=['GET', 'POST'])
-@cross_origin(origin='localhost', headers=['Content- Type', 'Authorization'])
 def repositories():
     if request.method == 'GET':
         result = repositories_service.get_public_repositories()
@@ -186,5 +223,6 @@ def task_comment(comment_id):
     else:
         return 'Method not allowed', 405
 
-app.debug = True
-app.run()
+
+if __name__ == '__main__':
+    app.run(debug=True, host='0.0.0.0', port=3000)

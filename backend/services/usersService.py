@@ -18,8 +18,8 @@ class UsersService:
             raise ItemNotFoundException("No users found")
         return result
 
-    def get_user(self, user_id: int) -> dict[str, Any]:
-        result = self.repository.get_user(user_id)
+    def get_user(self, user_id: int, public=True) -> dict[str, Any]:
+        result = self.repository.get_user(user_id, public=public)
         if result is None:
             raise ItemNotFoundException(f"User with id {user_id} not found")
         return result
@@ -42,6 +42,12 @@ class UsersService:
     def is_valid_user(self, user_id: int) -> bool:
         user = self.get_user(user_id)
         return user is not None
+
+    def get_user_by_username(self, username: str) -> dict[str, Any]:
+        result = self.repository.get_user_by_username(username)
+        if result is None:
+            raise ItemNotFoundException(f"User with username {username} not found")
+        return result
 
     def __validate_user_data(self, user_data: Optional[dict[str, Any]]) -> None:
         if 'email' not in user_data or 'username' not in user_data or 'name' not in user_data \

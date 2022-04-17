@@ -28,6 +28,13 @@ class TasksService:
             raise ItemNotFoundException(f"Task with id {task_id} not found")
         return result
 
+    def get_task_in_repository_by_username_name_and_number(self, username: str, repository_name: str, number: int) -> dict[str, Any]:
+        repository = self.repositories_service.get_user_repository_by_username_and_name(username, repository_name)
+        task = self.repository.get_repository_by_repository_id_and_number(repository["id"], number)
+        if task is None:
+            raise ItemNotFoundException(f"Task with number {number} not found")
+        return task
+
     def get_user_tasks(self, user_id: int) -> list[dict[str, Any]]:
         if self.users_service.is_valid_user(user_id):
             return self.repository.get_user_tasks(user_id)

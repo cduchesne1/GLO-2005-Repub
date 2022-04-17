@@ -26,6 +26,28 @@ class RepositoriesService:
             return self.repository.get_user_repositories(user_id)
         raise ItemNotFoundException(f"User with id {user_id} not found")
 
+    def get_user_repository_by_username_and_name(self, username: str, repository_name: str) -> Optional[dict[str, Any]]:
+        user = self.users_service.get_user_by_username(username)
+        repository = self.repository.get_repository_by_user_id_and_name(user["id"], repository_name)
+        if repository is None:
+            raise ItemNotFoundException(f"Repository with name {repository_name} not found")
+        return repository
+
+    def get_user_repository_files_by_username_name_and_branch(self, username: str, repository_name: str, branch: str) -> list[str]:
+        self.users_service.get_user_by_username(username)
+        self.get_user_repository_by_username_and_name(username, repository_name)
+        return self.repository.get_files(username, repository_name, branch)
+
+    def get_repository_branches_by_username_and_name(self, username: str, repository_name: str) -> list[str]:
+        self.users_service.get_user_by_username(username)
+        self.get_user_repository_by_username_and_name(username, repository_name)
+        return self.repository.get_branches(username, repository_name)
+
+    def get_file_content(self, username: str, repository_name: str, branch: str, file_path: str) -> str:
+        self.users_service.get_user_by_username(username)
+        self.get_user_repository_by_username_and_name(username, repository_name)
+        return self.repository.get_file_content(username, repository_name, branch, file_path)
+
     def create_repository(self, repository_data: Optional[dict[str, Any]]) -> int:
         self.__validate_repository_data(repository_data)
         return self.repository.create_repository(repository_data)

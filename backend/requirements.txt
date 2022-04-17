@@ -8,6 +8,12 @@ pytest
 # MySQL
 pymysql
 
+# Docker
+docker
+
+# Env variables
+python-dotenv
+
 #Encryption
 bcrypt
 cryptography
