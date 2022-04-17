@@ -13,6 +13,8 @@ import SettingsTab from "@/components/repository/SettingsTab";
 import CreateTaskTab from "@/components/repository/CreateTaskTab";
 import CreationRepositoryPage from "@/pages/CreationRepositoryPage";
 import SettingsPage from "@/pages/SettingsPage";
+import FileDirectory from "@/components/repository/FileDirectory";
+import FileContent from "@/components/repository/FileContent";
 
 Vue.use(Router);
 
@@ -68,6 +70,13 @@ export default new Router({
           path: "/:username/:repository",
           name: "Code",
           component: CodeTab,
+          children: [
+            {
+              path: "/:username/:repository",
+              name: "FileDirectory",
+              component: FileDirectory,
+            },
+          ],
         },
         {
           path: "/:username/:repository/tasks",
@@ -89,6 +98,16 @@ export default new Router({
           name: "Repository Settings",
           component: SettingsTab,
         },
+        {
+          path: "/:username/:repository/tree/:branch/:path*",
+          name: "SubDirectory",
+          component: FileDirectory,
+        },
+        {
+          path: "/:username/:repository/blob/:branch/:path*",
+          name: "FileContent",
+          component: FileContent,
+        }
       ]
     }
   ],
