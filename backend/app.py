@@ -1,6 +1,7 @@
 import json
+import os
 
-from flask import Flask, request, make_response
+from flask import Flask, request, make_response, send_file
 from flask_cors import CORS
 
 from exceptions.InvalidParameterException import InvalidParameterException
@@ -101,6 +102,24 @@ def user_tasks(user_id):
 def user_repository(username, repository_name):
     result = repositories_service.get_user_repository_by_username_and_name(username, repository_name)
     return json.dumps(result, default=str), 200
+
+
+@app.route('/users/<string:username>/repositories/<string:repository_name>/files', methods=['GET'])
+def user_repository_files(username, repository_name):
+    if request.args.get('path'):
+        print(request.args.get('path'))
+        file_path = None
+        try:
+            file_path = repositories_service.get_file_content(username, repository_name, request.args.get('branch'),
+                                                              request.args.get('path'))
+            return send_file(file_path)
+        finally:
+            if os.path.exists(file_path):
+                os.remove(file_path)
+    else:
+        result = repositories_service.get_user_repository_files_by_username_name_and_branch(username, repository_name,
+                                                                                            request.args.get('branch'))
+        return json.dumps({"files": result}, default=str), 200
 
 
 @app.route('/users/<string:username>/repositories/<string:repository_name>/tasks/<int:task_number>', methods=['GET'])

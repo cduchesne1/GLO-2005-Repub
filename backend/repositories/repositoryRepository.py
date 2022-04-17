@@ -1,12 +1,18 @@
+import os
 from typing import Any, Optional
 
+import docker
 import pymysql
+from dotenv import load_dotenv
 
+from exceptions.ItemNotFoundException import ItemNotFoundException
 from repositories.userRepository import UserRepository
 
 
 class RepositoryRepository:
     def __init__(self, user_repository: UserRepository):
+        load_dotenv()
+        self.client = docker.from_env()
         self.user_repository = user_repository
 
     def __create_connection(self) -> pymysql.Connection:
@@ -169,3 +175,27 @@ class RepositoryRepository:
                 return cursor.lastrowid
         finally:
             connection.close()
+
+    def get_files(self, username: str, repository: str, branch: str) -> list[str]:
+        container = self.client.containers.get(os.getenv('GITSERVER_CONTAINER'))
+        _, stream = container.exec_run(f"lsfiles {username} {repository} {branch}", stream=True)
+        files = []
+        for data in stream:
+            files = data.decode().split('\n')
+        files.remove('')
+        files = [] if len(files) == 1 and 'fatal' in files[0] else files
+        return files
+
+    def get_file_content(self, username: str, repository: str, branch: str, path: str) -> str:
+        simple_path = path.split('/')[-1]
+        file = open(f"temp/{simple_path}", "w")
+        try:
+            container = self.client.containers.get(os.getenv('GITSERVER_CONTAINER'))
+            _, stream = container.exec_run(f"showcontent {username} {repository} {branch} {path}", stream=True)
+            for data in stream:
+                if 'fatal' in data.decode():
+                    raise ItemNotFoundException(f"File {path} not found")
+                file.write(data.decode())
+            return f"temp/{simple_path}"
+        finally:
+            file.close()
