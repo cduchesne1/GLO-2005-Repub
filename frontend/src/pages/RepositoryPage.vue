@@ -28,7 +28,12 @@
       <TabsComponent class="mt-8">
         <TabComponent
           name="Code"
-          :selected="$route.name == 'Code'"
+          :selected="
+            $route.name == 'Code' ||
+            $route.name == 'FileDirectory' ||
+            $route.name == 'SubDirectory' ||
+            $route.name == 'FileContent'
+          "
           :href="`#/${repositoryData.owner.username}/${repositoryData.name}`"
         >
         </TabComponent>

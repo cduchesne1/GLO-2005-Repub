@@ -1,14 +1,17 @@
 import Vue from 'vue';
 import App from './App.vue';
 import router from "./navigation/router";
+import Clipboard from 'v-clipboard'
 import "./index.css";
+
+Vue.use(Clipboard)
 
 const store = Vue.observable({
   user: {
-    name: "Devin Fenech",
-    username: "dfenech0",
-    email: "dfenech0@reverbnation.com",
-    id: 1,
+    name: "Andrei Bon",
+    username: "abon16",
+    email: "abon16@harvard.edu",
+    id: 43,
   },
   isConnected: false,
 });
