@@ -2,8 +2,11 @@ import Vue from 'vue';
 import App from './App.vue';
 import router from "./navigation/router";
 import Clipboard from 'v-clipboard'
+import vSelect from "vue-select";
+import "vue-select/dist/vue-select.css";
 import "./index.css";
 
+Vue.component("v-select", vSelect);
 Vue.use(Clipboard)
 
 const store = Vue.observable({

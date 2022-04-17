@@ -38,6 +38,11 @@ class RepositoriesService:
         self.get_user_repository_by_username_and_name(username, repository_name)
         return self.repository.get_files(username, repository_name, branch)
 
+    def get_repository_branches_by_username_and_name(self, username: str, repository_name: str) -> list[str]:
+        self.users_service.get_user_by_username(username)
+        self.get_user_repository_by_username_and_name(username, repository_name)
+        return self.repository.get_branches(username, repository_name)
+
     def get_file_content(self, username: str, repository_name: str, branch: str, file_path: str) -> str:
         self.users_service.get_user_by_username(username)
         self.get_user_repository_by_username_and_name(username, repository_name)

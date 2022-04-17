@@ -74,6 +74,22 @@ const fetchRepositoryByUsernameAndName = async (username, name) => {
   }
 };
 
+const fetchRepositoryBranches = async (username, name) => {
+    try {
+        const response = await fetch(
+        `${process.env.VUE_APP_API_URL}/users/${username}/repositories/${name}/branches`
+        );
+    
+        const data = await response.json();
+
+        const branches = data.branches.map((branch) => branch.replace("*", "").trim());
+    
+        return branches;
+    } catch (error) {
+        console.error(error);
+    }
+};
+
 const fetchRepositoryFiles = async (username, name, branch) => {
   try {
     const response = await fetch(
@@ -133,4 +149,5 @@ export {
   fetchRepositoryByUsernameAndName,
   fetchRepositoryFiles,
   fetchFileContent,
+  fetchRepositoryBranches
 };

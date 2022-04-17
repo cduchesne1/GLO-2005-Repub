@@ -104,6 +104,12 @@ def user_repository(username, repository_name):
     return json.dumps(result, default=str), 200
 
 
+@app.route('/users/<string:username>/repositories/<string:repository_name>/branches', methods=['GET'])
+def user_repository_branches(username, repository_name):
+    result = repositories_service.get_repository_branches_by_username_and_name(username, repository_name)
+    return json.dumps({"branches": result}, default=str), 200
+
+
 @app.route('/users/<string:username>/repositories/<string:repository_name>/files', methods=['GET'])
 def user_repository_files(username, repository_name):
     if request.args.get('path'):

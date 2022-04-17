@@ -107,6 +107,13 @@ class RepositoryRepository:
             connection.close()
 
     def create_repository(self, repository_data: dict[str, Any]) -> int:
+        container = self.client.containers.get(os.getenv('GITSERVER_CONTAINER'))
+        username = self.user_repository.get_user(repository_data["owner"])["username"]
+        _, stream = container.exec_run(f"mkrepo {username} {repository_data['name']}", stream=True)
+        response = stream.read().decode('utf-8')
+        if "created" not in response:
+            raise Exception("Error creating repository")
+
         connection = self.__create_connection()
         try:
             cursor = connection.cursor()
@@ -199,3 +206,12 @@ class RepositoryRepository:
             return f"temp/{simple_path}"
         finally:
             file.close()
+
+    def get_branches(self, username: str, repository: str) -> list[str]:
+        container = self.client.containers.get(os.getenv('GITSERVER_CONTAINER'))
+        _, stream = container.exec_run(f"lsbranches {username} {repository}", stream=True)
+        branches = []
+        for data in stream:
+            branches = data.decode().split('\n')
+        branches.remove('') if '' in branches else None
+        return branches
