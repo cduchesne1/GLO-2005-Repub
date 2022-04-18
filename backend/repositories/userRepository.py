@@ -6,10 +6,12 @@ import bcrypt
 import pymysql
 
 from exceptions.InvalidParameterException import InvalidParameterException
+from repositories.gitServerRepository import GitServerRepository
 
 
 class UserRepository:
-    def __init__(self):
+    def __init__(self, git_repository: GitServerRepository):
+        self.git_repository = git_repository
         self.tokens = []
 
     def __create_connection(self) -> pymysql.Connection:
@@ -118,9 +120,12 @@ class UserRepository:
         finally:
             connection.close()
 
-    def delete_user(self, user_id: int) -> None:
+    def delete_user(self, user_id: int, user_repositories: list[dict[str, Any]]) -> None:
         connection = self.__create_connection()
         try:
+            for repo in user_repositories:
+                self.git_repository.delete_repository(repo["owner"]["username"], repo["name"])
+
             cursor = connection.cursor()
             cursor.execute("DELETE FROM users WHERE id = %s;", (user_id,))
             connection.commit()

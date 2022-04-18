@@ -4,13 +4,15 @@ from typing import Any, Optional
 from exceptions.InvalidParameterException import InvalidParameterException
 from exceptions.ItemNotFoundException import ItemNotFoundException
 from exceptions.MissingParameterException import MissingParameterException
+from repositories.repositoryRepository import RepositoryRepository
 from repositories.userRepository import UserRepository
 
 
 class UsersService:
 
-    def __init__(self, user_repository: UserRepository):
+    def __init__(self, user_repository: UserRepository, repository_repository: RepositoryRepository):
         self.repository = user_repository
+        self.repository_repository = repository_repository
 
     def get_all_users(self) -> list[dict[str, Any]]:
         result = self.repository.get_all_users()
@@ -32,7 +34,7 @@ class UsersService:
 
     def delete_user(self, user_id: int) -> None:
         if self.is_valid_user(user_id):
-            return self.repository.delete_user(user_id)
+            return self.repository.delete_user(user_id, self.repository_repository.get_user_repositories(user_id))
         raise ItemNotFoundException(f"User with id {user_id} not found")
 
     def create_user(self, user_data: Optional[dict[str, Any]]) -> int:

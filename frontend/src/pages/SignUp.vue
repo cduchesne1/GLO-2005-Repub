@@ -102,7 +102,13 @@ export default {
         });
 
         if (response.status === 201) {
-          this.$router.push("/profile");
+          const id = (await response.json()).userId;
+          console.log(id);
+          this.$actions.setName(user.name);
+          this.$actions.setUsername(user.username);
+          this.$actions.setEmail(user.email);
+          this.$actions.setId(id);
+          this.$router.push("/");
         } else {
           const error = await response.json();
           if (error.desc === "Email already exists") {
