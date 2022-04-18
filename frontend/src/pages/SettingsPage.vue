@@ -147,7 +147,7 @@
 import LoggedTopBar from "@/components/LoggedTopBar";
 import FooterComponent from "@/components/FooterComponent";
 import { updateUserProfile, fetchUser, deleteUser } from "@/api/userApi";
-import authApi from "../api/AuthApi"
+import authApi from "@/api/AuthApi"
 
 export default {
   components: {

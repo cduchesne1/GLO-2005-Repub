@@ -62,7 +62,7 @@
         >
           README.md
         </div>
-        <div id="readme" class="text-white text-base px-4 py-4"></div>
+        <div id="readme" class="text-white text-base px-4 py-4 whitespace-pre-wrap"></div>
       </div>
     </div>
     <div class="flex flex-col pl-32">
@@ -139,12 +139,10 @@ export default {
       repositoryPath: `http://localhost:8000/${this.$route.params.username}/${this.$route.params.repository}.git`,
       createRepoText: `echo "# ${this.$route.params.repository}" >> README.md\ngit init\ngit add README.md\ngit commit -m "first commit"\ngit branch -M master\ngit remote add origin http://localhost:8000/${this.$route.params.username}/${this.$route.params.repository}.git\ngit push -u origin master`,
       pushRepoText: `git remote add origin http://localhost:8000/${this.$route.params.username}/${this.$route.params.repository}.git\ngit branch -M master\ngit push -u origin master`,
-      isLoading: false
     };
   },
   computed: {},
   async created() {
-    this.isLoading = true;
     this.repository = await fetchRepositoryByUsernameAndName(
       this.$route.params.username,
       this.$route.params.repository
@@ -162,10 +160,10 @@ export default {
         "README.md",
         "master"
       );
+      this.isLoading = false;
       this.hasReadme = true;
       document.getElementById("readme").innerHTML = marked.parse(data);
     }
-    this.isLoading = false;
   },
   methods: {
     goToProfile(username) {

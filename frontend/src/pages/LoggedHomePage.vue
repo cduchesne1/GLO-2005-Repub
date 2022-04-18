@@ -19,7 +19,7 @@
           />
         </svg>
       </div>
-      <div class="flex justify-center flex-1" v-if="!isLoading">
+      <div class="flex justify-center flex-1 h-full" v-if="!isLoading">
         <div class="flex flex-col px-16 pt-8 bg-gray-900">
           <div
             class="flex items-center border-b border-solid border-gray-500 pb-8"
@@ -55,7 +55,7 @@
             </a>
           </div>
         </div>
-        <div class="flex flex-col flex-1 pt-8 items-center">
+        <div class="flex flex-col flex-1 pt-8 items-center justify-between">
           <p class="text-base text-white font-bold">
             {{
               `Hi ${$store.user.name.split(" ")[0]}, there is no news for you!`
