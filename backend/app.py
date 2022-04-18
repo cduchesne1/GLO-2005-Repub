@@ -21,7 +21,7 @@ app.register_error_handler(InvalidParameterException, lambda e: e)
 app.register_error_handler(ItemNotFoundException, lambda e: e)
 app.register_error_handler(MissingParameterException, lambda e: e)
 
-CORS(app)
+CORS(app, supports_credentials=True)
 
 git_repository = GitServerRepository()
 user_repository = UserRepository(git_repository)
@@ -41,15 +41,14 @@ def heartbeat():
 
 @app.route('/login', methods=['POST'])
 def login():
-    token_id = logger.log_user(request.get_json())
-    reponse = make_response()
-    reponse.set_cookie("X-token-id", token_id)
-    return reponse, 200
+    return_token = logger.log_user(request.get_json())
+    return json.dumps(return_token), 200
 
 
 @app.route('/logout', methods=['POST'])
 def logout():
-    logger.logout(request.cookies.get("X-token-id"))
+    print(request.headers.get("X-token-id"))
+    logger.logout(request.headers.get("X-token-id"))
     return 'Logout successful', 200
 
 
