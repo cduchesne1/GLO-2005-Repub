@@ -103,7 +103,7 @@ class TaskRepository:
             cursor.execute("SELECT MAX(num) FROM tasks WHERE repository = %s", task_data["repository"])
             result = cursor.fetchone()
             number = result[0] + 1 if result[0] is not None else 1
-            self.cursor.execute(
+            cursor.execute(
                 "INSERT INTO tasks (repository, title, description, assigned, state, creator, timestamp, num) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)",
                 (task_data["repository"], task_data["title"],
                  task_data["description"] if "description" in task_data else None, None,

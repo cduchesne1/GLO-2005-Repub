@@ -69,7 +69,7 @@ class RepositoriesService:
 
     def is_user_repository(self, repository_id: int, user_id: int) -> bool:
         repository = self.get_repository(repository_id)
-        if repository is None or repository["owner"] != user_id:
+        if repository is None or repository["owner"]["id"] != user_id:
             collaborators = self.repository.get_collaborators(repository_id)
             return user_id in collaborators
         return True

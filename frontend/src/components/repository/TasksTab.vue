@@ -54,8 +54,12 @@
 import moment from "moment";
 import { fetchRepositoryByUsernameAndName } from "@/api/repositoryApi";
 import { fetchRepositoryTasks } from "@/api/taskApi";
+import ProfilePicture from "@/components/ProfilePicture";
 
 export default {
+  components: {
+    ProfilePicture,
+  },
   data() {
     return {
       repository: null,
