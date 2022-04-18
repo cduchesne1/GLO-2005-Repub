@@ -3,13 +3,15 @@ from typing import Any, Optional
 from exceptions.InvalidParameterException import InvalidParameterException
 from exceptions.ItemNotFoundException import ItemNotFoundException
 from exceptions.MissingParameterException import MissingParameterException
+from repositories.gitServerRepository import GitServerRepository
 from repositories.repositoryRepository import RepositoryRepository
 from services.usersService import UsersService
 
 
 class RepositoriesService:
-    def __init__(self, repository: RepositoryRepository, users_service: UsersService):
+    def __init__(self, repository: RepositoryRepository, git_repository: GitServerRepository, users_service: UsersService):
         self.repository = repository
+        self.git_repository = git_repository
         self.users_service = users_service
 
     def get_repository(self, repository_id: int) -> dict[str, Any]:
@@ -36,17 +38,17 @@ class RepositoriesService:
     def get_user_repository_files_by_username_name_and_branch(self, username: str, repository_name: str, branch: str) -> list[str]:
         self.users_service.get_user_by_username(username)
         self.get_user_repository_by_username_and_name(username, repository_name)
-        return self.repository.get_files(username, repository_name, branch)
+        return self.git_repository.get_files(username, repository_name, branch)
 
     def get_repository_branches_by_username_and_name(self, username: str, repository_name: str) -> list[str]:
         self.users_service.get_user_by_username(username)
         self.get_user_repository_by_username_and_name(username, repository_name)
-        return self.repository.get_branches(username, repository_name)
+        return self.git_repository.get_branches(username, repository_name)
 
     def get_file_content(self, username: str, repository_name: str, branch: str, file_path: str) -> str:
         self.users_service.get_user_by_username(username)
         self.get_user_repository_by_username_and_name(username, repository_name)
-        return self.repository.get_file_content(username, repository_name, branch, file_path)
+        return self.git_repository.get_file_content(username, repository_name, branch, file_path)
 
     def create_repository(self, repository_data: Optional[dict[str, Any]]) -> int:
         self.__validate_repository_data(repository_data)

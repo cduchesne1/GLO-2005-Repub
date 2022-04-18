@@ -96,7 +96,11 @@
         :class="index < collaborators.length - 1 ? 'border-b' : ''"
       >
         <a>{{ collaborator }}</a>
-        <a @click="removeCollaborator(collaborator)" class="text-gray-500 hover:text-red-500 cursor-pointer">Remove</a>
+        <a
+          @click="removeCollaborator(collaborator)"
+          class="text-gray-500 hover:text-red-500 cursor-pointer"
+          >Remove</a
+        >
       </div>
     </div>
     <div class="border-b border-solid- border-gray-500 w-full pb-4 mt-16">
@@ -129,6 +133,7 @@
       <div class="flex justify-between py-4 px-4">
         <a class="text-white">Delete repository</a>
         <button
+        @click="deleteRepo()"
           class="border-red-600 hover:border-red-700 text-red-500 text-sm font-bold py-1 px-4 rounded mx-4 border border-solid"
         >
           Delete
@@ -141,6 +146,7 @@
 import {
   fetchRepositoryByUsernameAndName,
   updateRepository,
+  deleteRepository,
 } from "@/api/repositoryApi";
 export default {
   data() {
@@ -248,6 +254,12 @@ export default {
       await updateRepository(this.repository.id, {
         visibility: this.visibility,
       });
+    },
+    async deleteRepo() {
+      if (confirm("Are you sure you want to delete this repository?")) {
+        await deleteRepository(this.repository.id);
+        this.$router.push("/");
+      }
     },
   },
 };

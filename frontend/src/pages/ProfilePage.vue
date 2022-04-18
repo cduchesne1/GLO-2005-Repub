@@ -51,13 +51,16 @@
         New
       </button>
       </div>
+      <div v-if="repositories.length <= 0" class="text-xl text-white font-bold mt-32 flex justify-center">
+        You don't have any repositories yet. Create one now!
+      </div>
       <RepositoryItem
         v-for="repo in repositories"
         :repository="repo"
         :key="repo.id"
       />
     </div>
-    <FooterComponent class="mt-8" />
+    <FooterComponent class="mt-auto" />
   </div>
 </template>
 <script>
