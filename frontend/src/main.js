@@ -17,7 +17,7 @@ const store = Vue.observable({
     email: "abon16@harvard.edu",
     id: 43,
   },
-  isConnected: false,
+  isConnected: true,
 });
 
 const actions = {
