@@ -180,7 +180,6 @@ class RepositoryRepository:
 
     def convert_collaborators(self, collaborators: list[str]) -> list[int]:
         collaborators = [self.user_repository.get_user_by_username(user)["id"] for user in collaborators]
-        print(collaborators)
         return collaborators
 
     def get_tag_id(self, tag: str) -> int:
