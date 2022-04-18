@@ -13,7 +13,7 @@ const login = async (email, password) => {
   });
   if (response.status === 200) {
     const data = await response.json();
-    await Vue.$cookies.set("X-token-id", data.token);
+    await Vue.$cookies.set("X-token-id", data.token_id);
     return data;
   } else {
     return false;
