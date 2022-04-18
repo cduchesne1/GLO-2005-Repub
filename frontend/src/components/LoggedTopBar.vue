@@ -16,7 +16,9 @@
         class="text-base text-gray-500 mr-4 cursor-pointer"
         >Tasks</a
       >
-      <a class="text-base text-gray-500">Explore</a>
+      <a class="text-base text-gray-500"
+         @click="goToUserExplore()"
+      >Explore</a>
     </div>
     <TopBarProfilePicture v-if="$store.isConnected"
     class="cursor-pointer"
@@ -64,6 +66,11 @@ export default {
     },
     goToSignUp() {
       this.$router.push("/signup");
+    },
+    goToUserExplore() {
+      this.$router.push({
+        path: "/loggedExplore",
+      });
     },
   },
 };

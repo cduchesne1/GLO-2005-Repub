@@ -15,7 +15,7 @@
       class="bg-gray-900 text-white w-96 py-2 px-2 rounded-lg"
     />
     <div class="flex items-center">
-      <a class="text-base text-gray-500">Explore</a>
+      <a class="text-base text-gray-500" @click="goToExplore()" >Explore</a>
       <button
         class="bg-pink-600 hover:bg-pink-700 text-white text-sm font-bold py-2 px-8 rounded mx-4"
         @click="goToSignUp"
@@ -52,6 +52,11 @@ export default {
       } else {
         this.$router.push("/");
       }
+    },
+    goToExplore() {
+      this.$router.push({
+        path: "/explore",
+      });
     },
   },
 }
