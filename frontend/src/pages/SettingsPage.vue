@@ -139,6 +139,7 @@
 import LoggedTopBar from "@/components/LoggedTopBar";
 import FooterComponent from "@/components/FooterComponent";
 import { updateUserProfile, fetchUser, deleteUser } from "@/api/userApi";
+import authApi from "../api/AuthApi"
 
 export default {
   components: {
@@ -208,6 +209,7 @@ export default {
     async deleteAccount() {
       if (confirm("Are you sure you want to delete your account?")) {
         await deleteUser(this.$store.user.id);
+        await authApi.logout();
         this.$actions.setName("");
         this.$actions.setUsername("");
         this.$actions.setEmail("");

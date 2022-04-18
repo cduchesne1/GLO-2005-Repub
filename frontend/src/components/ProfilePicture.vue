@@ -74,7 +74,7 @@ export default {
             this.$actions.setName("");
             this.$actions.setEmail("");
             this.$actions.setUsername("");
-            this.$actions.setId("");
+            this.$actions.setId(null);
             this.$router.push({ path: "/login" });
         },
     },
