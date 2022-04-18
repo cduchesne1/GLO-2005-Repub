@@ -16,6 +16,8 @@ import CreationRepositoryPage from "@/pages/CreationRepositoryPage";
 import SettingsPage from "@/pages/SettingsPage";
 import FileDirectory from "@/components/repository/FileDirectory";
 import FileContent from "@/components/repository/FileContent";
+import ExplorePage from "@/pages/ExplorePage";
+import LoggedExplorePage from "@/pages/LoggedExplorePage";
 
 Vue.use(Router);
 
@@ -25,6 +27,16 @@ export default new Router({
       path: "/",
       name: "Home",
       component: HomePage,
+    },
+    {
+      path: "/explore",
+      name: "Explore",
+      component: ExplorePage,
+    },
+    {
+      path: "/loggedExplore",
+      name: "ExploreLogged",
+      component: LoggedExplorePage,
     },
     {
       path: "/logged",
