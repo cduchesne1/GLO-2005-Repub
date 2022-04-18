@@ -173,6 +173,20 @@ const deleteRepository = async (repositoryId) => {
   }
 };
 
+export const fetchRepositoryByText = async () => {
+  try {
+    const response = await fetch(`${process.env.VUE_APP_API_URL}/repositories`);
+
+    const data = await response.json();
+
+    const repositories = data.repositories;
+
+    return shuffle(repositories);
+  } catch (error) {
+    console.error(error);
+  }
+};
+
 // From https://stackoverflow.com/questions/2450954/how-to-randomize-shuffle-a-javascript-array?page=1&tab=trending#tab-top
 function shuffle(array) {
   let currentIndex = array.length,

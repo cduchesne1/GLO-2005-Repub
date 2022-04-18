@@ -53,6 +53,10 @@ const deleteUser = async (userId) => {
     }
 };
 
+export const fetchUsersByText = async (text) => {
+ return [{username: "erenonu"}, {username: text}];
+};
+
 // From https://stackoverflow.com/questions/286141/remove-blank-attributes-from-an-object-in-javascript
 function clean(obj) {
   for (var propName in obj) {

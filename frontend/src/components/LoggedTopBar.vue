@@ -6,11 +6,7 @@
         src="../assets/rePubIcon.svg"
         class="cursor-pointer"
       />
-      <input
-        type="text"
-        placeholder="Search"
-        class="bg-gray-900 text-white w-96 py-2 px-2 rounded-lg mx-4"
-      />
+      <search-bar/>
       <a
         @click="goToUserTasks()"
         class="text-base text-gray-500 mr-4 cursor-pointer"
@@ -23,9 +19,11 @@
 </template>
 <script>
 import ProfilePicture from "@/components/ProfilePicture";
+import SearchBar from "@/components/SearchBar";
 
 export default {
   components: {
+    SearchBar,
     ProfilePicture,
   },
   methods: {
