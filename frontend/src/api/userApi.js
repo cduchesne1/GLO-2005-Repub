@@ -15,7 +15,13 @@ const fetchUserByUsername = async (username) => {
 const fetchUser = async (userId) => {
   try {
     const response = await fetch(
-      `${process.env.VUE_APP_API_URL}/users/${userId}`
+      `${process.env.VUE_APP_API_URL}/users/${userId}`,
+      {
+        headers: {
+        "X-token-id":  Vue.$cookies.get("X-token-id"),
+        "content-type": "application/json",
+        },
+      }
     );
 
     const user = await response.json();
