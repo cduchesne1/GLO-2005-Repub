@@ -46,7 +46,7 @@
         >
         </TabComponent>
         <TabComponent
-        v-if="this.username === this.$store.username"
+          v-if="isOwner()"
           name="Settings"
           :selected="$route.name == 'Repository Settings'"
           :href="`#/${repositoryData.owner.username}/${repositoryData.name}/settings`"
@@ -99,6 +99,9 @@ export default {
       this.$router.push(
         `/${this.repositoryData.owner.username}/${this.repositoryData.name}`
       );
+    },
+    isOwner() {
+      return this.repositoryData.owner.username === this.$store.user.username;
     },
   },
 };

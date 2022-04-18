@@ -18,7 +18,7 @@
       >
       <a class="text-base text-gray-500">Explore</a>
     </div>
-    <ProfilePicture v-if="$store.isConnected"
+    <TopBarProfilePicture v-if="$store.isConnected"
     class="cursor-pointer"
     :path="`/${this.$store.user.username}`" 
     :name="$store.user.name" />
@@ -40,11 +40,11 @@
   </div>
 </template>
 <script>
-import ProfilePicture from "@/components/ProfilePicture";
+import TopBarProfilePicture from "@/components/TopBarProfilePicture";
 
 export default {
   components: {
-    ProfilePicture,
+    TopBarProfilePicture,
   },
   methods: {
     goToHome() {
