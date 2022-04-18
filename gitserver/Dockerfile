@@ -11,11 +11,13 @@ RUN chown -Rfv www-data:www-data /var/www/git
 
 COPY ./git-shell/git.conf /etc/apache2/sites-available/git.conf
 COPY ./git-shell/git-create-repo.sh /usr/bin/mkrepo
+COPY ./git-shell/git-delete-repo.sh /usr/bin/rmrepo
 COPY ./git-shell/git-list-repos.sh /usr/bin/lsrepos
 COPY ./git-shell/git-list-files.sh /usr/bin/lsfiles
 COPY ./git-shell/git-list-branches.sh /usr/bin/lsbranches
 COPY ./git-shell/git-show-file-content.sh /usr/bin/showcontent
 RUN chmod +x /usr/bin/mkrepo
+RUN chmod +x /usr/bin/rmrepo
 RUN chmod +x /usr/bin/lsrepos
 RUN chmod +x /usr/bin/lsfiles
 RUN chmod +x /usr/bin/lsbranches

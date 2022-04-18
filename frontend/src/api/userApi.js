@@ -43,6 +43,16 @@ const updateUserProfile = async (userId, body) => {
   }
 };
 
+const deleteUser = async (userId) => {
+    try {
+        await fetch(`${process.env.VUE_APP_API_URL}/users/${userId}`, {
+        method: "DELETE",
+        });
+    } catch (error) {
+        console.error(error);
+    }
+};
+
 // From https://stackoverflow.com/questions/286141/remove-blank-attributes-from-an-object-in-javascript
 function clean(obj) {
   for (var propName in obj) {
@@ -53,4 +63,4 @@ function clean(obj) {
   return obj;
 }
 
-export { fetchUserByUsername, fetchUser, updateUserProfile };
+export { fetchUserByUsername, fetchUser, updateUserProfile, deleteUser };

@@ -7,6 +7,7 @@ from flask_cors import CORS
 from exceptions.InvalidParameterException import InvalidParameterException
 from exceptions.ItemNotFoundException import ItemNotFoundException
 from exceptions.MissingParameterException import MissingParameterException
+from repositories.gitServerRepository import GitServerRepository
 from repositories.repositoryRepository import RepositoryRepository
 from repositories.taskRepository import TaskRepository
 from repositories.userRepository import UserRepository
@@ -22,12 +23,13 @@ app.register_error_handler(MissingParameterException, lambda e: e)
 
 CORS(app)
 
-user_repository = UserRepository()
-repository_repository = RepositoryRepository(user_repository)
+git_repository = GitServerRepository()
+user_repository = UserRepository(git_repository)
+repository_repository = RepositoryRepository(user_repository, git_repository)
 task_repository = TaskRepository(user_repository, repository_repository)
 
-users_service = UsersService(user_repository)
-repositories_service = RepositoriesService(repository_repository, users_service)
+users_service = UsersService(user_repository, repository_repository)
+repositories_service = RepositoriesService(repository_repository, git_repository, users_service)
 tasks_service = TasksService(task_repository, users_service, repositories_service)
 logger = Logger(user_repository)
 
@@ -54,9 +56,7 @@ def logout():
 @app.route('/signup', methods=['POST'])
 def signup():
     result = users_service.create_user(request.get_json())
-    response = make_response()
-    response.headers['Location'] = f'{request.url_root}users/{result}'
-    return response, 201
+    return json.dumps({"userId": result}), 201
 
 
 @app.route('/users', methods=['GET'])
@@ -141,9 +141,7 @@ def repositories():
         return json.dumps({"repositories": list(result), "total": len(result)}), 200
     elif request.method == 'POST':
         result = repositories_service.create_repository(request.get_json())
-        response = make_response()
-        response.headers['Location'] = f'{request.url_root}repositories/{result}'
-        return response, 201
+        return json.dumps({"repositoryId": result}), 201
     else:
         return 'Method not allowed', 405
 
@@ -176,9 +174,7 @@ def tasks():
         return json.dumps({"tasks": list(result), "total": len(result)}, default=str), 200
     elif request.method == 'POST':
         result = tasks_service.create_task(request.get_json())
-        response = make_response()
-        response.headers['Location'] = f'{request.url_root}tasks/{result}'
-        return response, 201
+        return json.dumps({"taskId": result}), 201
     else:
         return 'Method not allowed', 405
 
@@ -203,9 +199,7 @@ def task_comments(task_id):
         return json.dumps({"comments": list(result), "total": len(result)}, default=str), 200
     elif request.method == 'POST':
         result = tasks_service.create_comment(task_id, request.get_json())
-        response = make_response()
-        response.headers['Location'] = f'{request.url_root}comments/{result}'
-        return response, 201
+        return json.dumps({"commentId": result}), 201
     else:
         return 'Method not allowed', 405
 
