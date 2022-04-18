@@ -1,5 +1,6 @@
 import Vue from 'vue';
 import App from './App.vue';
+import VueCookie from "vue-cookies";
 import router from "./navigation/router";
 import Clipboard from 'v-clipboard'
 import vSelect from "vue-select";
@@ -11,10 +12,10 @@ Vue.use(Clipboard)
 
 const store = Vue.observable({
   user: {
-    name: "Andrei Bon",
-    username: "abon16",
-    email: "abon16@harvard.edu",
-    id: 43,
+    name: "",
+    username: "",
+    email: "",
+    id: null,
   },
   isConnected: false,
 });
@@ -42,7 +43,9 @@ const actions = {
 
 Vue.prototype.$store = store;
 Vue.prototype.$actions = actions;
-Vue.config.productionTip = false
+Vue.config.productionTip = false;
+
+Vue.use(VueCookie);
 
 new Vue({
   render: h => h(App),

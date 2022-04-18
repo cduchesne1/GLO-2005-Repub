@@ -6,10 +6,12 @@ import bcrypt
 import pymysql
 
 from exceptions.InvalidParameterException import InvalidParameterException
+from repositories.gitServerRepository import GitServerRepository
 
 
 class UserRepository:
-    def __init__(self):
+    def __init__(self, git_repository: GitServerRepository):
+        self.git_repository = git_repository
         self.tokens = []
 
     def __create_connection(self) -> pymysql.Connection:
@@ -118,9 +120,12 @@ class UserRepository:
         finally:
             connection.close()
 
-    def delete_user(self, user_id: int) -> None:
+    def delete_user(self, user_id: int, user_repositories: list[dict[str, Any]]) -> None:
         connection = self.__create_connection()
         try:
+            for repo in user_repositories:
+                self.git_repository.delete_repository(repo["owner"]["username"], repo["name"])
+
             cursor = connection.cursor()
             cursor.execute("DELETE FROM users WHERE id = %s;", (user_id,))
             connection.commit()
@@ -149,15 +154,21 @@ class UserRepository:
         connection = self.__create_connection()
         try:
             cursor = connection.cursor()
-            user_id = self.__get_user_id(user_credential["email"])
-            hashed_password_from_credential = bcrypt.hashpw(user_credential["password"], bcrypt.gensalt())
+            user_id = self.__get_user_id(user_credential["email"])[0]
+            public_DTO = self.get_user(user_id) 
             cursor.execute("SELECT password FROM authentication WHERE id = %s", user_id)
-            hashed_password_from_db = cursor.fetchone()
+            hashed_password_from_db = cursor.fetchone()[0]
             if hashed_password_from_db is None:
                 raise InvalidParameterException("Password and email combination doesn't exist")
-
-            if bcrypt.checkpw(hashed_password_from_credential, hashed_password_from_db):
-                return self.create_token()
+            
+            passwd_to_check = bytes(hashed_password_from_db, 'utf-8')
+            if bcrypt.checkpw(user_credential["password"].encode(), passwd_to_check):
+                return {
+                    "token_id": str(self.create_token()),
+                    "username": public_DTO["username"],
+                    "name": public_DTO["name"],
+                    "id": user_id,
+                    }
             else:
                 raise InvalidParameterException("Password and email combination doesn't exist")
         finally:

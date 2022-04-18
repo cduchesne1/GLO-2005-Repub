@@ -163,6 +163,16 @@ const updateRepository = async (repositoryId, body) => {
   }
 };
 
+const deleteRepository = async (repositoryId) => {
+  try {
+    await fetch(`${process.env.VUE_APP_API_URL}/repositories/${repositoryId}`, {
+      method: "DELETE",
+    });
+  } catch (error) {
+    console.error(error);
+  }
+};
+
 // From https://stackoverflow.com/questions/2450954/how-to-randomize-shuffle-a-javascript-array?page=1&tab=trending#tab-top
 function shuffle(array) {
   let currentIndex = array.length,
@@ -205,4 +215,5 @@ export {
   fetchRepositoryBranches,
   createRepository,
   updateRepository,
+  deleteRepository,
 };

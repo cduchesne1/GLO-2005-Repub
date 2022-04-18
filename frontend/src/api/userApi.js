@@ -1,3 +1,5 @@
+import Vue from "vue";
+
 const fetchUserByUsername = async (username) => {
   try {
     const response = await fetch(
@@ -15,7 +17,13 @@ const fetchUserByUsername = async (username) => {
 const fetchUser = async (userId) => {
   try {
     const response = await fetch(
-      `${process.env.VUE_APP_API_URL}/users/${userId}`
+      `${process.env.VUE_APP_API_URL}/users/${userId}`,
+      {
+        headers: {
+        "X-token-id":  Vue.$cookies.get("X-token-id"),
+        "content-type": "application/json",
+        },
+      }
     );
 
     const user = await response.json();
@@ -43,6 +51,16 @@ const updateUserProfile = async (userId, body) => {
   }
 };
 
+const deleteUser = async (userId) => {
+    try {
+        await fetch(`${process.env.VUE_APP_API_URL}/users/${userId}`, {
+        method: "DELETE",
+        });
+    } catch (error) {
+        console.error(error);
+    }
+};
+
 // From https://stackoverflow.com/questions/286141/remove-blank-attributes-from-an-object-in-javascript
 function clean(obj) {
   for (var propName in obj) {
@@ -53,4 +71,4 @@ function clean(obj) {
   return obj;
 }
 
-export { fetchUserByUsername, fetchUser, updateUserProfile };
+export { fetchUserByUsername, fetchUser, updateUserProfile, deleteUser };

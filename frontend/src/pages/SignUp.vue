@@ -66,11 +66,12 @@
       class="flex bg-white bg-opacity-10 border-2 border-gray-300 rounded-xl p-4 mt-8"
     >
       <a class="text-md text-white mr-2">Already have an account?</a>
-      <a class="text-md text-pink-600">Sign In</a>
+      <a class="text-md text-pink-600 cursor-pointer" @click="goToLogin">Sign In</a>
     </div>
   </div>
 </template>
 <script>
+import authApi from "../api/AuthApi"
 export default {
   data() {
     return {
@@ -78,72 +79,34 @@ export default {
       name: "",
       username: "",
       password: "",
-      emailError: null,
-      nameError: null,
-      usernameError: null,
-      passwordError: null,
+      emailError: undefined,
+      nameError: undefined,
+      usernameError: undefined,
+      passwordError: undefined,
     };
   },
   methods: {
     async signUp() {
-      if (this.checkForm()) {
-        const user = {
-          email: this.email,
-          name: this.name,
-          username: this.username,
-          password: this.password,
-        };
-        const response = await fetch(`${process.env.VUE_APP_API_URL}/signup`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(user),
-        });
-
-        if (response.status === 201) {
-          this.$router.push("/profile");
-        } else {
-          const error = await response.json();
-          if (error.desc === "Email already exists") {
-            this.emailError = "Email already exists";
-          } else if (error.desc === "Username already exists") {
-            this.usernameError = "Username already exists";
-          }
+      const check = await authApi.signup(this.email, this.username, this.name, this.password);
+      if (check.passed) {
+        const data = await authApi.login(this.email, this.password)
+        if (data) {
+          this.$actions.connect();
+          this.$actions.setName(data.name);
+          this.$actions.setEmail(this.email);
+          this.$actions.setUsername(data.username);
+          this.$actions.setId(data.id);
+          this.$router.push({ path: "/logged" });
         }
       }
+      this.emailError = check.emailError;
+      this.nameError = check.nameError;
+      this.usernameError = check.usernameError;
+      this.passwordError = check.passwordError;
     },
-    checkForm() {
-      this.emailError = null;
-      this.nameError = null;
-      this.usernameError = null;
-      this.passwordError = null;
-      if (this.email === "") {
-        this.emailError = "Email is required";
-      } else if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.email) === false) {
-        this.emailError = "Email is invalid";
-      }
-
-      if (this.name === "") {
-        this.nameError = "Name is required";
-      }
-      if (this.username === "") {
-        this.usernameError = "Username is required";
-      }
-      if (this.password === "") {
-        this.passwordError = "Password is required";
-      }
-
-      if (
-        this.emailError ||
-        this.nameError ||
-        this.usernameError ||
-        this.passwordError
-      ) {
-        return false;
-      }
-      return true;
-    },
+    goToLogin() {
+      this.$router.push({ path: "/login/" });
+    }
   },
 };
 </script>

@@ -131,6 +131,7 @@
         <div class="flex justify-between py-4 px-4">
           <a class="text-white">Delete account</a>
           <button
+          @click="deleteAccount()"
             class="border-red-600 hover:border-red-700 text-red-500 text-sm font-bold py-1 px-4 rounded mx-4 border border-solid"
           >
             Delete
@@ -145,7 +146,8 @@
 <script>
 import LoggedTopBar from "@/components/LoggedTopBar";
 import FooterComponent from "@/components/FooterComponent";
-import { updateUserProfile, fetchUser } from "@/api/userApi";
+import { updateUserProfile, fetchUser, deleteUser } from "@/api/userApi";
+import authApi from "../api/AuthApi"
 
 export default {
   components: {
@@ -214,6 +216,18 @@ export default {
       this.user = await fetchUser(this.$store.user.id);
       this.updateStore();
       this.resetFields();
+    },
+    async deleteAccount() {
+      if (confirm("Are you sure you want to delete your account?")) {
+        await deleteUser(this.$store.user.id);
+        await authApi.logout();
+        this.$actions.setName("");
+        this.$actions.setUsername("");
+        this.$actions.setEmail("");
+        this.$actions.setId(null);
+        this.$actions.disconnect();
+        this.$router.push("/");
+      }
     },
     updateStore() {
       this.$actions.setName(this.user.name);
