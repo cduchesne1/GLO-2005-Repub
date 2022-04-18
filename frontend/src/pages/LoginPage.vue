@@ -21,14 +21,14 @@
         </div>
         <div class="flex bg-white bg-opacity-10 border-2 border-gray-300 rounded-xl p-4 mt-8">
             <div class="text-md text-white mr-2">Don't have an account?</div>
-            <div @click="goToSignUp" class="text-md text-pink-600">Sign Up</div>
+            <div @click="goToSignUp" class="text-md text-pink-600 cursor-pointer">Sign Up</div>
         </div>
     </div>
 </template>
 
 
 <script>
-
+import authApi from "../api/AuthApi"
 export default {
   data() {
     return {
@@ -39,36 +39,20 @@ export default {
   },
   methods: {
     sendCredentials: async function() {
-        const response = await fetch(
-      `${process.env.VUE_APP_API_URL}/login`,
-      {
-        method: "POST",
-        body: JSON.stringify({
-          "email": this.email,
-          "password": this.password,
-        }),
-        headers: new Headers({ "Content-Type": "application/json" }),
-      }
-    );
-      if (response.status == 200) {
-        console.log(response)
-        const data = await response.json()
-        console.log(data)
-        this.$actions.setToken(data.X-token-id)
-        //this.$router.push({ path: "/" });
-      } else {
-        this.showInvalidCredential = true
-      }    
+      const data = await authApi.login(this.email, this.password)
+        if (data) {
+          this.$actions.connect();
+          this.$actions.setName(data.name);
+          this.$actions.setEmail(this.email);
+          this.$actions.setUsername(data.username);
+          this.$actions.setId(data.id);
+          this.$router.push({ path: "/" });
+        } else {
+          this.showInvalidCredential = true
+        }
     },
     goToSignUp: async function () {
-       const response = await fetch(
-      `${process.env.VUE_APP_API_URL}/logout`,
-      {
-        method: "POST",
-        headers: new Headers({ "Content-Type": "application/json" }),
-      })
-      console.log(response)
-      //this.$router.push({ path: "/signup/" });
+      this.$router.push({ path: "/signup/" });
     },
   }
 }

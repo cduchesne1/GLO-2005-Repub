@@ -20,7 +20,7 @@ app.register_error_handler(InvalidParameterException, lambda e: e)
 app.register_error_handler(ItemNotFoundException, lambda e: e)
 app.register_error_handler(MissingParameterException, lambda e: e)
 
-CORS(app)
+CORS(app, supports_credentials=True)
 
 user_repository = UserRepository()
 repository_repository = RepositoryRepository(user_repository)
@@ -39,8 +39,8 @@ def heartbeat():
 
 @app.route('/login', methods=['POST'])
 def login():
-    token_id = logger.log_user(request.get_json())
-    return json.dumps({"X-token-id": str(token_id)}), 200
+    return_token = logger.log_user(request.get_json())
+    return json.dumps(return_token), 200
 
 
 @app.route('/logout', methods=['POST'])
