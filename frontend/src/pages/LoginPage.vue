@@ -46,13 +46,18 @@ export default {
           this.$actions.setEmail(this.email);
           this.$actions.setUsername(data.username);
           this.$actions.setId(data.id);
-          this.$router.push({ path: "/" });
+          this.$router.push({ path: "/logged" });
         } else {
           this.showInvalidCredential = true
         }
     },
     goToSignUp: async function () {
-      this.$router.push({ path: "/signup/" });
+      if (this.$store.isConnected){
+        this.$router.push("/logged");
+      } else {
+        this.$router.push({ path: "/signup/" });
+      }
+      
     },
   }
 }

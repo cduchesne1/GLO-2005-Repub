@@ -96,7 +96,7 @@ export default {
           this.$actions.setEmail(this.email);
           this.$actions.setUsername(data.username);
           this.$actions.setId(data.id);
-          this.$router.push({ path: "/" });
+          this.$router.push({ path: "/logged" });
         }
       }
       this.emailError = check.emailError;

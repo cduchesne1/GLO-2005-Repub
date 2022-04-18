@@ -258,7 +258,11 @@ export default {
     async deleteRepo() {
       if (confirm("Are you sure you want to delete this repository?")) {
         await deleteRepository(this.repository.id);
+        if (this.$store.isConnected){
+        this.$router.push("/logged");
+      } else {
         this.$router.push("/");
+      }
       }
     },
   },
