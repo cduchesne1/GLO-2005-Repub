@@ -47,7 +47,6 @@ def login():
 
 @app.route('/logout', methods=['POST'])
 def logout():
-    print(request.headers.get("X-token-id"))
     logger.logout(request.headers.get("X-token-id"))
     return 'Logout successful', 200
 
@@ -67,6 +66,7 @@ def users():
 @app.route('/users/<int:user_id>', methods=['GET', 'PUT', 'DELETE'])
 def profile(user_id):
     if request.method == 'GET':
+        logger.check_if_token_is_valid(request.headers.get("X-token-id"))
         result = users_service.get_user(user_id, public=False)
         return json.dumps(result), 200
     elif request.method == 'PUT':
