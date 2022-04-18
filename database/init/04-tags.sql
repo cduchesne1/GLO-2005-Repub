@@ -1,12 +1,12 @@
-DROP TABLE IF EXISTS tags;
+DROP TABLE IF EXISTS Tags;
 
-CREATE TABLE IF NOT EXISTS tags (
+CREATE TABLE IF NOT EXISTS Tags (
 	id INT NOT NULL,
-	tag VARCHAR(12) NOT NULL,
+	tag VARCHAR(255) NOT NULL,
 	PRIMARY KEY (id)
 );
 
-INSERT INTO tags (id, tag) 
+INSERT INTO Tags (id, tag) 
 VALUES
 	(1, 'JavaScript'),
 	(2, 'HTML'),

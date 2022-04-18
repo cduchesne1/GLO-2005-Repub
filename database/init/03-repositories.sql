@@ -1,18 +1,18 @@
-DROP TABLE IF EXISTS repositories;
+DROP TABLE IF EXISTS Repositories;
 
-CREATE TABLE IF NOT EXISTS repositories(
+CREATE TABLE IF NOT EXISTS Repositories(
     id INT AUTO_INCREMENT,
     owner INT NOT NULL,
     name VARCHAR(255) NOT NULL,
-    visibility VARCHAR(7) NOT NULL,
+    visibility ENUM('public', 'private') NOT NULL,
     description TEXT,
-    website VARCHAR(1000),
+    website TEXT,
     UNIQUE KEY(owner, name),
     FOREIGN KEY(owner) REFERENCES users(id) ON UPDATE CASCADE ON DELETE CASCADE,
     PRIMARY KEY(id)
 );
 
-INSERT INTO repositories (owner, name, visibility, description, website)
+INSERT INTO Repositories (owner, name, visibility, description, website)
 VALUES
     (56, 'Stim', 'public', 'mauris viverra diam vitae quam suspendisse potenti nullam porttitor lacus at turpis donec posuere metus vitae', 'https://mapy.cz/pretium/nisl/ut/volutpat/sapien.jsp'),
     (62, 'Voltsillam', 'private', null, null),

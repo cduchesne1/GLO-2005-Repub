@@ -1,12 +1,12 @@
-DROP TABLE IF EXISTS tasks;
+DROP TABLE IF EXISTS Tasks;
 
-CREATE TABLE IF NOT EXISTS tasks (
+CREATE TABLE IF NOT EXISTS Tasks (
 	id INT AUTO_INCREMENT,
 	repository INT NOT NULL,
 	title TEXT NOT NULL,
 	description TEXT,
 	assigned INT,
-	state VARCHAR(6) NOT NULL,
+	state ENUM('open', 'closed') NOT NULL,
 	creator INT,
 	timestamp DATETIME NOT NULL,
 	num INT NOT NULL,
@@ -16,7 +16,50 @@ CREATE TABLE IF NOT EXISTS tasks (
 	FOREIGN KEY(creator) REFERENCES users(id) ON DELETE SET NULL
 );
 
-INSERT INTO tasks (repository, title, description, assigned, state, creator, timestamp, num) 
+DELIMITER //
+CREATE TRIGGER SetTaskNumber
+	BEFORE INSERT ON Tasks
+	FOR EACH ROW
+		BEGIN
+			SET NEW.num = IFNULL((SELECT MAX(num) FROM Tasks WHERE repository = NEW.repository), 0) + 1;
+		END; //
+DELIMITER ;
+
+DELIMITER //
+CREATE TRIGGER ValidateTaskCreator
+	BEFORE INSERT ON Tasks
+	FOR EACH ROW
+		BEGIN
+			IF NEW.creator IS NOT NULL THEN
+				SELECT id INTO @repository FROM Repositories WHERE owner = NEW.creator;
+				IF @repository IS NULL OR @repository != NEW.repository THEN
+					SELECT repository INTO @repository FROM Collaborators WHERE user = NEW.creator;
+					IF @repository IS NULL OR @repository != NEW.repository THEN
+						SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'User is not a collaborator or the owner of the repository';
+					END IF;
+				END IF;
+			END IF;
+		END; //
+DELIMITER ;
+
+DELIMITER //
+CREATE TRIGGER ValidateTaskAssigned
+	BEFORE UPDATE ON Tasks
+	FOR EACH ROW
+		BEGIN
+			IF NEW.assigned IS NOT NULL THEN
+				SELECT id INTO @repository FROM Repositories WHERE owner = NEW.assigned;
+				IF @repository IS NULL OR @repository != NEW.repository THEN
+					SELECT repository INTO @repository FROM Collaborators WHERE user = NEW.assigned;
+					IF @repository IS NULL OR @repository != NEW.repository THEN
+						SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'User is not a collaborator or the owner of the repository';
+					END IF;
+				END IF;
+			END IF;
+		END; //
+DELIMITER ;
+
+INSERT INTO Tasks (repository, title, description, assigned, state, creator, timestamp, num) 
 VALUES
 	(62, 'nec sem duis aliquam convallis nunc proin', 'Nullam porttitor lacus at turpis. Donec posuere metus vitae ipsum. Aliquam non mauris. Morbi non lectus. Aliquam sit amet diam in magna bibendum imperdiet. Nullam orci pede, venenatis non, sodales sed, tincidunt eu, felis.', null, 'open', 31, '2022-02-16 13:59:31', 2),
 	(47, 'mi nulla', 'Maecenas leo odio, condimentum id, luctus nec, molestie sed, justo.', null, 'closed', 13, '2022-03-07 12:30:45', 2),

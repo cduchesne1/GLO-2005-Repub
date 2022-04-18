@@ -1,13 +1,13 @@
-DROP TABLE IF EXISTS authentication;
+DROP TABLE IF EXISTS Authentication;
 
-CREATE TABLE IF NOT EXISTS authentication(
+CREATE TABLE IF NOT EXISTS Authentication(
     id INT AUTO_INCREMENT,
     password VARCHAR(255) NOT NULL,
     PRIMARY KEY(id),
     FOREIGN KEY(id) REFERENCES users(id) ON DELETE CASCADE
 );
 
-INSERT INTO authentication(password)
+INSERT INTO Authentication(password)
 VALUES
 ('$2b$12$Bmc27HczZKKXUv8ZudgYFeGWIJLgpgMemmqC7wZmZwQYmGuQ8P8ku'),
 ('$2b$12$PydBnndYx1kKfWMY3RTcZeG6hzlkD6inXMWj9MHI3yyBZ5YkzaO0i'),

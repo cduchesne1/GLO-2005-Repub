@@ -1,6 +1,6 @@
-DROP TABLE IF EXISTS tagged;
+DROP TABLE IF EXISTS Tagged;
 
-CREATE TABLE IF NOT EXISTS tagged  (
+CREATE TABLE IF NOT EXISTS Tagged  (
 	repository INT NOT NULL,
 	tag INT NOT NULL,
 	PRIMARY KEY (repository, tag),
@@ -8,7 +8,7 @@ CREATE TABLE IF NOT EXISTS tagged  (
 	FOREIGN KEY (tag) REFERENCES tags(id) ON DELETE CASCADE
 );
 
-INSERT INTO tagged (repository, tag)
+INSERT INTO Tagged (repository, tag)
 VALUES
 	(1, 23),
 	(2, 27),

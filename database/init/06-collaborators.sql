@@ -1,6 +1,6 @@
-DROP TABLE IF EXISTS collaborators;
+DROP TABLE IF EXISTS Collaborators;
 
-CREATE TABLE IF NOT EXISTS collaborators (
+CREATE TABLE IF NOT EXISTS Collaborators (
 	user INT,
 	repository INT,
 	PRIMARY KEY (user, repository),
@@ -8,7 +8,7 @@ CREATE TABLE IF NOT EXISTS collaborators (
 	FOREIGN KEY (repository) REFERENCES repositories(id) ON DELETE CASCADE
 );
 
-INSERT INTO collaborators (user, repository) 
+INSERT INTO Collaborators (user, repository) 
 VALUES
 	(85, 45),
 	(3, 107),

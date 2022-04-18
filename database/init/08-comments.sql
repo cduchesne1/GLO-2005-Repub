@@ -1,6 +1,6 @@
-DROP TABLE IF EXISTS comments;
+DROP TABLE IF EXISTS Comments;
 
-CREATE TABLE IF NOT EXISTS comments (
+CREATE TABLE IF NOT EXISTS Comments (
 	id INT AUTO_INCREMENT,
 	task INT NOT NULL,
 	comment TEXT NOT NULL,
@@ -10,7 +10,23 @@ CREATE TABLE IF NOT EXISTS comments (
 	FOREIGN KEY (task) REFERENCES tasks(id) ON DELETE CASCADE,
 	FOREIGN KEY (sender) REFERENCES users(id) ON DELETE SET NULL
 );
-INSERT INTO comments (task, comment, sender, timestamp)
+
+DELIMITER //
+CREATE TRIGGER ValidateCommentSender
+	BEFORE INSERT ON Comments
+	FOR EACH ROW
+	BEGIN
+		SELECT repository INTO @repository FROM Tasks WHERE id = NEW.task;
+		SELECT owner INTO @owner FROM Repositories WHERE id = @repository;
+		IF NEW.sender != @owner THEN
+			SELECT user INTO @user FROM Collaborators WHERE user = NEW.sender AND repository = @repository;
+			IF @user IS NULL THEN
+				SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'You are not allowed to comment on this task';
+			END IF;
+		END IF;
+	END;
+
+INSERT INTO Comments (task, comment, sender, timestamp)
 VALUES
 	(163, 'Morbi vel lectus in quam fringilla rhoncus.', 18, '2021-10-21 23:51:35'),
 	(177, 'Cras pellentesque volutpat dui. Maecenas tristique, est et tempus semper, est quam pharetra magna, ac consequat metus sapien ut nunc. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae, Mauris viverra diam vitae quam. Suspendisse potenti. Nullam porttitor lacus at turpis. Donec posuere metus vitae ipsum. Aliquam non mauris. Morbi non lectus. Aliquam sit amet diam in magna bibendum imperdiet. Nullam orci pede, venenatis non, sodales sed, tincidunt eu, felis.', 92, '2021-06-19 23:55:07'),
