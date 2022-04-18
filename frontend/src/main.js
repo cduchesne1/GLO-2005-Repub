@@ -12,12 +12,12 @@ Vue.use(Clipboard)
 
 const store = Vue.observable({
   user: {
-    name: "Andrei Bon",
-    username: "abon16",
-    email: "abon16@harvard.edu",
-    id: 43,
+    name: "",
+    username: "",
+    email: "",
+    id: null,
   },
-  isConnected: true,
+  isConnected: false,
 });
 
 const actions = {

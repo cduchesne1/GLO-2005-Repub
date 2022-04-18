@@ -1,3 +1,5 @@
+import Vue from "vue";
+
 const fetchUserByUsername = async (username) => {
   try {
     const response = await fetch(
