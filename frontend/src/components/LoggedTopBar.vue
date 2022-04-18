@@ -30,7 +30,11 @@ export default {
   },
   methods: {
     goToHome() {
-      this.$router.push("/");
+      if (this.$store.isConnected){
+        this.$router.push("/logged");
+      } else {
+        this.$router.push("/");
+      }
     },
     goToUserTasks() {
       this.$router.push({

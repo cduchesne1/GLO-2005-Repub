@@ -82,6 +82,9 @@ export default {
     };
   },
   async created () {
+      if (!this.$store.isConnected) {
+        this.$router.push("/")
+      }
       this.recentRepositories = await fetchUserRecentRepositories(this.$store.user.id);
       this.exploreRepositories = (await fetchExploreRepositories()).slice(0, 5);
   },
