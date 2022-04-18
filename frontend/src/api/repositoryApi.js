@@ -75,25 +75,27 @@ const fetchRepositoryByUsernameAndName = async (username, name) => {
 };
 
 const fetchRepositoryBranches = async (username, name) => {
-    try {
-        const response = await fetch(
-        `${process.env.VUE_APP_API_URL}/users/${username}/repositories/${name}/branches`
-        );
-    
-        const data = await response.json();
+  try {
+    const response = await fetch(
+      `${process.env.VUE_APP_API_URL}/users/${username}/repositories/${name}/branches`
+    );
 
-        const branches = data.branches.map((branch) => branch.replace("*", "").trim());
-    
-        return branches;
-    } catch (error) {
-        console.error(error);
-    }
+    const data = await response.json();
+
+    const branches = data.branches.map((branch) =>
+      branch.replace("*", "").trim()
+    );
+
+    return branches;
+  } catch (error) {
+    console.error(error);
+  }
 };
 
 const fetchRepositoryFiles = async (username, name, branch) => {
   try {
     const response = await fetch(
-      `${process.env.VUE_APP_API_URL}/users/${username}/repositories/${name}/files?branch=${branch}`,
+      `${process.env.VUE_APP_API_URL}/users/${username}/repositories/${name}/files?branch=${branch}`
     );
 
     const data = await response.json();
@@ -107,17 +109,58 @@ const fetchRepositoryFiles = async (username, name, branch) => {
 };
 
 const fetchFileContent = async (username, name, path, branch) => {
+  try {
+    const response = await fetch(
+      `${process.env.VUE_APP_API_URL}/users/${username}/repositories/${name}/files?path=${path}&branch=${branch}`
+    );
+
+    const data = await response.text();
+
+    return data;
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+const createRepository = async (body) => {
+  clean(body);
+  if (Object.keys(body).length > 0) {
     try {
-        const response = await fetch(
-        `${process.env.VUE_APP_API_URL}/users/${username}/repositories/${name}/files?path=${path}&branch=${branch}`,
-        );
-    
-        const data = await response.text();
-    
-        return data;
+      const response = await fetch(
+        `${process.env.VUE_APP_API_URL}/repositories`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(body),
+        }
+      );
+      return response.status;
     } catch (error) {
-        console.error(error);
+      console.error(error);
     }
+  }
+};
+
+const updateRepository = async (repositoryId, body) => {
+  clean(body);
+  if (Object.keys(body).length > 0) {
+    try {
+      await fetch(
+        `${process.env.VUE_APP_API_URL}/repositories/${repositoryId}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(body),
+        }
+      );
+    } catch (error) {
+      console.error(error);
+    }
+  }
 };
 
 // From https://stackoverflow.com/questions/2450954/how-to-randomize-shuffle-a-javascript-array?page=1&tab=trending#tab-top
@@ -141,6 +184,16 @@ function shuffle(array) {
   return array;
 }
 
+// From https://stackoverflow.com/questions/286141/remove-blank-attributes-from-an-object-in-javascript
+function clean(obj) {
+  for (var propName in obj) {
+    if (obj[propName] === null || obj[propName] === undefined) {
+      delete obj[propName];
+    }
+  }
+  return obj;
+}
+
 export {
   fetchUserRecentRepositories,
   fetchUserRepositories,
@@ -149,5 +202,7 @@ export {
   fetchRepositoryByUsernameAndName,
   fetchRepositoryFiles,
   fetchFileContent,
-  fetchRepositoryBranches
+  fetchRepositoryBranches,
+  createRepository,
+  updateRepository,
 };

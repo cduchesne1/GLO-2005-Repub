@@ -41,6 +41,7 @@ class UsersService:
 
     def is_valid_user(self, user_id: int) -> bool:
         user = self.get_user(user_id)
+        print(user)
         return user is not None
 
     def get_user_by_username(self, username: str) -> dict[str, Any]:

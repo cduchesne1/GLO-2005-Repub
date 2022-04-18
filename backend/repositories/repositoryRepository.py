@@ -55,7 +55,7 @@ class RepositoryRepository:
             cursor.execute(
                 """SELECT r.id AS id, r.owner, r.name, r.visibility, r.description, r.website, 
                     GROUP_CONCAT(DISTINCT c.user) AS collaborators, GROUP_CONCAT(DISTINCT t.tag) AS tags 
-                    FROM repositories r INNER JOIN tagged rt ON r.id = rt.repository INNER JOIN tags t on rt.tag = t.id
+                    FROM repositories r LEFT OUTER JOIN tagged rt ON r.id = rt.repository LEFT OUTER JOIN tags t on rt.tag = t.id
                     LEFT OUTER JOIN collaborators c ON r.id = c.repository WHERE r.id = %s GROUP BY r.id;""",
                 repository_id)
             result = cursor.fetchone()
@@ -72,7 +72,7 @@ class RepositoryRepository:
             cursor.execute(
                 """SELECT r.id AS id, r.owner, r.name, r.visibility, r.description, r.website, 
                 GROUP_CONCAT(DISTINCT c.user) AS collaborators, GROUP_CONCAT(DISTINCT t.tag) AS tags 
-                FROM repositories r INNER JOIN tagged rt ON r.id = rt.repository INNER JOIN tags t on rt.tag = t.id 
+                FROM repositories r LEFT OUTER JOIN tagged rt ON r.id = rt.repository LEFT OUTER JOIN tags t on rt.tag = t.id 
                 LEFT OUTER JOIN collaborators c ON r.id = c.repository WHERE r.visibility = 'public' GROUP BY r.id;""")
             return [self.__to_dto(row) for row in cursor.fetchall()]
         finally:
@@ -85,7 +85,7 @@ class RepositoryRepository:
             cursor.execute(
                 """ SELECT r.id AS id, r.owner, r.name, r.visibility, r.description, r.website, 
                 GROUP_CONCAT(DISTINCT c.user) AS collaborators, GROUP_CONCAT(DISTINCT t.tag) AS tags
-                FROM repositories r INNER JOIN tagged rt ON r.id = rt.repository INNER JOIN tags t on rt.tag = t.id
+                FROM repositories r LEFT OUTER JOIN tagged rt ON r.id = rt.repository LEFT OUTER JOIN tags t on rt.tag = t.id
                 LEFT OUTER JOIN collaborators c ON r.id = c.repository WHERE r.owner = %s GROUP BY r.id;""", user_id)
             return [self.__to_dto(row) for row in cursor.fetchall()]
         finally:
@@ -98,7 +98,7 @@ class RepositoryRepository:
             cursor.execute(
                 """SELECT r.id AS id, r.owner, r.name, r.visibility, r.description, r.website, 
                 GROUP_CONCAT(DISTINCT c.user) AS collaborators, GROUP_CONCAT(DISTINCT t.tag) AS tags 
-                FROM repositories r INNER JOIN tagged rt ON r.id = rt.repository INNER JOIN tags t on rt.tag = t.id 
+                FROM repositories r LEFT OUTER JOIN tagged rt ON r.id = rt.repository LEFT OUTER JOIN tags t on rt.tag = t.id 
                 LEFT OUTER JOIN collaborators c ON r.id = c.repository WHERE r.owner = %s AND r.name = %s GROUP BY r.id;""",
                 (user_id, name))
             result = cursor.fetchone()
@@ -110,7 +110,9 @@ class RepositoryRepository:
         container = self.client.containers.get(os.getenv('GITSERVER_CONTAINER'))
         username = self.user_repository.get_user(repository_data["owner"])["username"]
         _, stream = container.exec_run(f"mkrepo {username} {repository_data['name']}", stream=True)
-        response = stream.read().decode('utf-8')
+        response = ""
+        for data in stream:
+            response += data.decode("utf-8")
         if "created" not in response:
             raise Exception("Error creating repository")
 
@@ -137,12 +139,19 @@ class RepositoryRepository:
         try:
             cursor = connection.cursor()
             cursor.execute("""UPDATE repositories SET 
-                    name = IFNULL(%s, name), visibility = IFNULL(%s, visibility), 
+                    visibility = IFNULL(%s, visibility), 
                     description = IFNULL(%s, description), website = IFNULL(%s, website) WHERE id = %s;""",
-                           (repository_data["name"] if "name" in repository_data else None,
-                            repository_data["visibility"] if "visibility" in repository_data else None,
+                           (repository_data["visibility"] if "visibility" in repository_data else None,
                             repository_data["description"] if "description" in repository_data else None,
                             repository_data["website"] if "website" in repository_data else None, repository_id))
+            if "tags" in repository_data:
+                cursor.execute("DELETE FROM tagged WHERE repository = %s", (repository_id,))
+                cursor.executemany("INSERT INTO tagged (repository, tag) VALUES (%s, %s)",
+                                   [(repository_id, tag) for tag in self.convert_tags(repository_data["tags"])])
+            if "collaborators" in repository_data:
+                cursor.execute("DELETE FROM collaborators WHERE repository = %s", (repository_id,))
+                cursor.executemany("INSERT INTO collaborators (repository, user) VALUES (%s, %s)",
+                                   [(repository_id, user) for user in self.convert_collaborators(repository_data["collaborators"])])
             connection.commit()
         finally:
             connection.close()
@@ -168,6 +177,10 @@ class RepositoryRepository:
 
     def convert_tags(self, tags: list[str]) -> list[int]:
         return [self.get_tag_id(tag) for tag in tags]
+
+    def convert_collaborators(self, collaborators: list[str]) -> list[int]:
+        collaborators = [self.user_repository.get_user_by_username(user)["id"] for user in collaborators]
+        return collaborators
 
     def get_tag_id(self, tag: str) -> int:
         connection = self.__create_connection()
@@ -215,3 +228,13 @@ class RepositoryRepository:
             branches = data.decode().split('\n')
         branches.remove('') if '' in branches else None
         return branches
+
+    def name_already_exists(self, user_id: int, name: str) -> bool:
+        connection = self.__create_connection()
+        try:
+            cursor = connection.cursor()
+            cursor.execute("SELECT * FROM repositories WHERE name = %s AND owner = %s", (name, user_id))
+            result = cursor.fetchone()
+            return result is not None
+        finally:
+            connection.close()

@@ -8,52 +8,56 @@
       <label class="text-md text-white mb-2 mt-8">Repository name</label>
       <div class="flex">
         <input
-            type="text"
-            class="bg-gray-900 text-white w-96 py-2 px-2 rounded-lg"
-        />
-      </div>
-      <label class="text-md text-white mt-8 mb-2">Description</label>
-      <div class="flex items-end">
-      <textarea
+          v-model="name"
           type="text"
           class="bg-gray-900 text-white w-96 py-2 px-2 rounded-lg"
-      />
+        />
+      </div>
+      <a v-if="nameError" class="text-md text-red-600 mb-2">{{ nameError }}</a>
+      <label class="text-md text-white mt-8 mb-2">Description</label>
+      <div class="flex items-end">
+        <textarea
+          v-model="description"
+          type="text"
+          class="bg-gray-900 text-white w-96 py-2 px-2 rounded-lg"
+        />
       </div>
       <label class="text-md text-white mb-2 mt-8">Website</label>
       <div class="flex">
         <input
-            type="text"
-            class="bg-gray-900 text-white w-96 py-2 px-2 rounded-lg"
+          v-model="website"
+          type="text"
+          class="bg-gray-900 text-white w-96 py-2 px-2 rounded-lg"
         />
       </div>
 
       <label class="text-md text-white mb-2 mt-8">Visibility</label>
       <div>
         <button
-            v-if="visibility==='Private'"
-            class="border-gray-500 text-gray-500 text-xs font-bold py-1 px-1 rounded-xl border-2 border-solid inline-block mr-auto my-2 ml-4 hover:bg-gray-700"
-            @click="setPublic()"
+          v-if="visibility === 'Private'"
+          class="border-gray-500 text-gray-500 text-xs font-bold py-1 px-1 rounded-xl border-2 border-solid inline-block mr-auto my-2 ml-4 hover:bg-gray-700"
+          @click="setPublic()"
         >
           Public
         </button>
         <button
-            v-if="visibility==='Private'"
-            class="border-pink-600 text-pink-600 text-xs font-bold py-1 px-1 rounded-xl border-2 border-solid inline-block mr-auto my-2 ml-4 hover:bg-gray-700"
-            @click="setPrivate()"
+          v-if="visibility === 'Private'"
+          class="border-pink-600 text-pink-600 text-xs font-bold py-1 px-1 rounded-xl border-2 border-solid inline-block mr-auto my-2 ml-4 hover:bg-gray-700"
+          @click="setPrivate()"
         >
           Private
         </button>
         <button
-            v-if="visibility==='Public'"
-            class="border-pink-600 text-pink-600 text-xs font-bold py-1 px-1 rounded-xl border-2 border-solid inline-block mr-auto my-2 ml-4 hover:bg-gray-700"
-            @click="setPublic()"
+          class="border-gray-500 text-gray-500 text-xs font-bold py-1 px-1 rounded-xl border-2 border-solid inline-block mr-auto my-2 ml-4 hover:bg-gray-700"
+          :class="visibility === 'public' ? 'border-pink-600 text-pink-600' : ''"
+          @click="setPublic()"
         >
           Public
         </button>
         <button
-            v-if="visibility==='Public'"
-            class="border-gray-500 text-gray-500 text-xs font-bold py-1 px-1 rounded-xl border-2 border-solid inline-block mr-auto my-2 ml-4 hover:bg-gray-700"
-            @click="setPrivate()"
+          class="border-gray-500 text-gray-500 text-xs font-bold py-1 px-1 rounded-xl border-2 border-solid inline-block mr-auto my-2 ml-4 hover:bg-gray-700"
+          :class="visibility === 'private' ? 'border-pink-600 text-pink-600' : ''"
+          @click="setPrivate()"
         >
           Private
         </button>
@@ -61,60 +65,45 @@
       <label class="text-md text-white mb-2 mt-8">Tags</label>
       <div class="flex">
         <input
-            id="AddTagBar"
-            type="text"
-            class="bg-gray-900 text-white w-96 py-2 px-2 rounded-lg"
-            placeholder="Search"
+          id="AddTagBar"
+          type="text"
+          class="bg-gray-900 text-white w-96 py-2 px-2 rounded-lg"
+          placeholder="Search"
         />
-        <button class="border-gray-500 text-gray-500 text-xs font-bold py-1 px-1 rounded-xl border-2 border-solid hover:bg-gray-700"
-                @click="addTag()">
+        <button
+          class="border-gray-500 text-gray-500 text-xs font-bold py-1 px-1 rounded-xl border-2 border-solid hover:bg-gray-700"
+          @click="addTag()"
+        >
           Add tag
         </button>
       </div>
       <div class="flex mt-2 pt-2">
-        <div v-for="tag in tags" :key="tag" class="relative bg-pink-600 text-white text-xs font-bold py-1 px-3 rounded-xl mr-4" >
-          {{ tag }}
-          <button class="absolute bottom-3 right-0 bg-white border-whitex border-2 border-solid hover:bg-gray-300 text-gray-800 font-bold rounded py--1"
-          @click="deleteTag(tag)"
-          >x</button>
-        </div>
-      </div>
-      <div
-          class="flex justify-between border-b border-solid- border-gray-500 w-full pb-4 mt-16"
-      >
-        <h2 class="text-3xl text-white">Manage access</h2>
-        <button
-            class="bg-pink-600 hover:bg-pink-700 text-white text-sm font-bold py-1 px-4 rounded mx-4 "
-        >
-          Add people
-        </button>
-      </div>
-      <div class="border border-solid border-gray-500 rounded-lg w-full mt-8" v-if="collaborators.length>0">
         <div
-            v-for="(collaborator, index) in collaborators"
-            :key="collaborator.name"
-            class="flex justify-between border-solid border-gray-500 text-white text-base py-2 px-4"
-            :class="index < collaborators.length - 1 ? 'border-b' : ''"
+          v-for="tag in tags"
+          :key="tag"
+          class="relative bg-pink-600 text-white text-xs font-bold py-1 px-3 rounded-xl mr-4"
         >
-          <a>{{ collaborator.name }}</a>
-          <a class="text-gray-500 hover:text-red-500 cursor-pointer">Remove</a>
+          {{ tag }}
+          <button
+            class="absolute bottom-3 right-0 bg-white border-white border-2 border-solid hover:bg-gray-300 text-gray-800 font-bold rounded py--1"
+            @click="deleteTag(tag)"
+          >
+            x
+          </button>
         </div>
       </div>
-      <div class=" border-solid border-gray-500 w-full mt-8" v-if="collaborators.length===0">
-        <a class="text-base text-gray-500 ">There is no collaborator</a>
-      </div>
       <div
-          class=" justify-between border-solid- border-gray-500 w-full pb-4 mt-16"
+        class="justify-between border-solid- border-gray-500 w-full pb-4 mt-16"
       >
         <button
-            class="bg-pink-600 border-pink-600 border-2 border-solid hover:bg-pink-700 text-white text-sm font-bold py-1 px-4 rounded "
-            @click="confirm()"
+          class="bg-pink-600 border-pink-600 border-2 border-solid hover:bg-pink-700 text-white text-sm font-bold py-1 px-4 rounded"
+          @click="confirm()"
         >
           Confirm
         </button>
         <button
-            class="border-gray-500 hover:bg-gray-700 text-gray-500 text-sm font-bold py-1 px-4 rounded border-2 border-solid inline-block mr-auto my-1 ml-4"
-            @click="cancel()"
+          class="border-gray-500 hover:bg-gray-700 text-gray-500 text-sm font-bold py-1 px-4 rounded border-2 border-solid inline-block mr-auto my-1 ml-4"
+          @click="cancel()"
         >
           Cancel
         </button>
@@ -126,6 +115,7 @@
 <script>
 import LoggedTopBar from "@/components/LoggedTopBar";
 import FooterComponent from "@/components/FooterComponent";
+import { createRepository } from "@/api/repositoryApi";
 
 export default {
   components: {
@@ -134,37 +124,59 @@ export default {
   },
   data() {
     return {
-      collaborators: [],
-      visibility: 'Public',
+      name: "",
+      description: "",
+      website: "",
+      visibility: "public",
       tags: [],
+      nameError: null,
     };
   },
-  methods:{
-    setPublic(){
-      this.visibility='Public';
+  methods: {
+    setPublic() {
+      this.visibility = "public";
     },
-    setPrivate(){
-      this.visibility='Private';
+    setPrivate() {
+      this.visibility = "private";
     },
-    addTag(){
+    addTag() {
       const addTagBar = document.getElementById("AddTagBar");
-      if(addTagBar.value !== ""){
+      if (addTagBar.value !== "") {
         this.tags.push(addTagBar.value);
-        addTagBar.value="";
+        addTagBar.value = "";
       }
     },
-    deleteTag(tag){
+    deleteTag(tag) {
       const myIndex = this.tags.indexOf(tag);
       if (myIndex !== -1) {
         this.tags.splice(myIndex, 1);
       }
     },
-    confirm(){
+    async confirm() {
+      this.nameError = null;
+      if (this.name === "") {
+        this.nameError = "Repository name is required";
+        return;
+      }
+      const body = {
+        owner: this.$store.user.id,
+        name: this.name,
+        description: this.description ? this.description : null,
+        website: this.website ? this.website : null,
+        visibility: this.visibility,
+        tags: this.tags,
+      };
 
+      const response = await createRepository(body);
+      if (response == 201) {
+        this.$router.push(`/${this.$store.user.username}/${this.name}`);
+      } else {
+        this.nameError = "Repository name already exists";
+      }
     },
-    cancel(){
+    cancel() {
       this.$router.back();
-    }
-  }
+    },
+  },
 };
 </script>

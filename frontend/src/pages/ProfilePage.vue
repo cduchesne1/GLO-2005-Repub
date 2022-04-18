@@ -3,7 +3,12 @@
     <LoggedTopBar />
     <div class="flex px-48 justify-between items-center my-16">
       <div class="flex">
-        <ProfilePicture class="cursor-pointer" :path="`/${user.username}`" :name="user.name" :size="48" />
+        <ProfilePicture
+          class="cursor-pointer"
+          :path="`/${user.username}`"
+          :name="user.name"
+          :size="48"
+        />
         <div class="flex flex-col justify-center ml-4">
           <h1 class="text-5xl text-white font-bold">{{ user.name }}</h1>
           <h2 class="text-pink-600 font-bold text-2xl">{{ user.username }}</h2>
@@ -18,13 +23,13 @@
             </div>
             <div v-if="user.website" class="flex items-center mr-4">
               <img class="w-6 mr-2" src="../assets/websiteIcon.svg" />
-              <a class="text-sm text-white" href="https://www.google.com"
-                >{{ user.website }}</a
-              >
+              <a class="text-sm text-white" href="https://www.google.com">{{
+                user.website
+              }}</a>
             </div>
           </div>
           <button
-          v-if="isCurrentUser()"
+            v-if="isCurrentUser()"
             class="bg-pink-600 hover:bg-pink-700 text-white text-sm font-bold py-2 px-8 rounded mx-4 mt-4"
             @click="goToSettings()"
           >
@@ -37,10 +42,22 @@
         <p class="text-white text-base max-w-sm text-justify">{{ user.bio }}</p>
       </div>
     </div>
-    <div class="px-48">
-      <RepositoryItem v-for="repo in repositories" :repository="repo" :key="repo.id"/>
+    <div class="px-48 flex flex-col">
+      <div v-if="isCurrentUser()" class="flex w-full justify-end">
+        <button
+        class="bg-pink-600 hover:bg-pink-700 text-white text-sm font-bold py-1 px-4 rounded mx-4"
+        @click="goToCreationRepository()"
+      >
+        New
+      </button>
+      </div>
+      <RepositoryItem
+        v-for="repo in repositories"
+        :repository="repo"
+        :key="repo.id"
+      />
     </div>
-    <FooterComponent class="mt-8"/>
+    <FooterComponent class="mt-8" />
   </div>
 </template>
 <script>
@@ -69,13 +86,16 @@ export default {
     this.repositories = await fetchUserRepositories(this.user.id);
     console.log(this.repositories);
   },
-  methods:{
-    goToSettings(){
+  methods: {
+    goToSettings() {
       this.$router.push("/settings/profile");
     },
-    isCurrentUser(){
+    goToCreationRepository() {
+      this.$router.push("/new");
+    },
+    isCurrentUser() {
       return this.user.username === this.$store.user.username;
-    }
-  }
+    },
+  },
 };
 </script>
