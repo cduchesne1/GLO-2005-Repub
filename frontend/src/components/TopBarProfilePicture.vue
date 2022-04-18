@@ -28,7 +28,7 @@
     </div>
 </template>
 <script>
-import authApi from "../api/AuthApi"
+import authApi from "@/api/AuthApi"
 export default {
     props: {
         size: {
