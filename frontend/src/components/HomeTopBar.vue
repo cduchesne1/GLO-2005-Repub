@@ -34,6 +34,11 @@
 
 <script>
 export default {
+  data() {
+    return {
+      search: ""
+    }
+  },
   methods: {
     goToLogin() {
       this.$router.push("/login");

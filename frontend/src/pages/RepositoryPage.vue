@@ -46,6 +46,7 @@
         >
         </TabComponent>
         <TabComponent
+        v-if="this.username === this.$store.username"
           name="Settings"
           :selected="$route.name == 'Repository Settings'"
           :href="`#/${repositoryData.owner.username}/${repositoryData.name}/settings`"
