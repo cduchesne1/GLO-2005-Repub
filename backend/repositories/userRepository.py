@@ -1,6 +1,6 @@
 import datetime
 from typing import Any, Optional
-from uuid import uuid4
+from uuid import uuid4, UUID
 
 import bcrypt
 import pymysql
@@ -172,7 +172,7 @@ class UserRepository:
             passwd_to_check = bytes(hashed_password_from_db, 'utf-8')
             if bcrypt.checkpw(user_credential["password"].encode(), passwd_to_check):
                 return {
-                    "token_id": str(self.create_token()),
+                    "token_id": str(self.create_token(public_DTO["username"])),
                     "username": public_DTO["username"],
                     "name": public_DTO["name"]
                 }
@@ -181,29 +181,38 @@ class UserRepository:
         finally:
             connection.close()
 
-    def create_token(self):
+    def create_token(self, username: str):
         token_id = uuid4()
         token_creation_time = datetime.datetime.now()
         token_expire_time = datetime.datetime.now() + datetime.timedelta(days=1)
         new_token = {"token_id": token_id, "token_creation_time": token_creation_time,
-                     "token_expire_time": token_expire_time}
+                     "token_expire_time": token_expire_time, "username": username}
         self.tokens.append(new_token)
         return new_token["token_id"]
 
     def check_if_token_is_valid(self, token_id):
+        print(token_id)
+        print(self.tokens)
         token_is_valid = False
         for stocked_token in self.tokens:
+            print(stocked_token["token_expire_time"], datetime.datetime.now())
             if stocked_token["token_expire_time"] < datetime.datetime.now():
                 self.tokens.remove(stocked_token)
                 continue
-            if stocked_token["token_id"] == token_id:
+            if stocked_token["token_id"] == UUID(token_id):
                 token_index = self.tokens.index(stocked_token)
                 self.update_token(token_index)
                 token_is_valid = True
         return token_is_valid
 
+    def get_user_by_token(self, token_id):
+        for stocked_token in self.tokens:
+            if stocked_token["token_id"] == token_id:
+                return stocked_token["username"]
+        return None
+
     def update_token(self, token_index):
-        self.tokens[token_index]["token_expire_time"] = datetime.datetime.now()
+        self.tokens[token_index]["token_expire_time"] = datetime.datetime.now() + datetime.timedelta(days=1)
 
     def logout(self, token_id):
         for stocked_token in self.tokens:

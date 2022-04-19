@@ -68,14 +68,22 @@ def users():
 
 @app.route('/users/<string:username>', methods=['GET', 'PUT', 'DELETE'])
 def profile(username):
+    if logger.check_if_token_is_valid(request.headers.get("X-token-id")) is False:
+        print("Invalid token")
+        return 'Invalid token', 401
     if request.method == 'GET':
-        logger.check_if_token_is_valid(request.headers.get("X-token-id"))
-        result = users_service.get_user(username, public=False)
+        public = logger.get_user_by_token(request.headers.get("X-token-id")) != username
+        print(public)
+        result = users_service.get_user(username, public=public)
         return json.dumps(result), 200
     elif request.method == 'PUT':
+        if logger.get_user_by_token(request.headers.get("X-token-id")) != username:
+            return 'Unauthorized', 401
         users_service.update_user(username, request.get_json())
         return 'User with username {} updated'.format(username), 200
     elif request.method == 'DELETE':
+        if logger.get_user_by_token(request.headers.get("X-token-id")) != username:
+            return 'Unauthorized', 401
         users_service.delete_user(username)
         return 'User with username {} deleted'.format(username), 200
     else:
@@ -84,7 +92,8 @@ def profile(username):
 
 @app.route('/users/<string:username>/repositories', methods=['GET'])
 def user_repositories(username):
-    result = repositories_service.get_user_repositories(username)
+    public = logger.get_user_by_token(request.headers.get("X-token-id")) != username
+    result = repositories_service.get_user_repositories(username, public=public)
     return json.dumps({"repositories": list(result), "total": len(result)}, default=str), 200
 
 

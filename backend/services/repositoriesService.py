@@ -27,9 +27,10 @@ class RepositoriesService:
     def get_repositories_by_filter(self, filter) -> list[dict[str, Any]]:
         return self.repository.get_filtered_repositories(filter)
 
-    def get_user_repositories(self, username: str) -> list[dict[str, Any]]:
+    def get_user_repositories(self, username: str, public=False) -> list[dict[str, Any]]:
         if self.users_service.is_valid_user(username):
-            return self.repository.get_user_repositories(username)
+            return self.repository.get_user_repositories(
+                username) if not public else self.repository.get_user_public_repositories(username)
         raise ItemNotFoundException(f"User with username {username} not found")
 
     def get_user_repository_files(self, username: str, repository_name: str, branch: str) -> list[str]:

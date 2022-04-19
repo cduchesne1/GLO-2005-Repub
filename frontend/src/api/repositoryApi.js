@@ -1,7 +1,15 @@
+import Vue from "vue";
+
 const fetchUserRecentRepositories = async (username) => {
   try {
     const response = await fetch(
-      `${process.env.VUE_APP_API_URL}/users/${username}/repositories`
+      `${process.env.VUE_APP_API_URL}/users/${username}/repositories`,
+      {
+        headers: {
+          "X-token-id":  Vue.$cookies.get("X-token-id"),
+          "content-type": "application/json",
+          },
+      }
     );
 
     const data = await response.json();
@@ -18,7 +26,13 @@ const fetchUserRecentRepositories = async (username) => {
 const fetchUserRepositories = async (username) => {
   try {
     const response = await fetch(
-      `${process.env.VUE_APP_API_URL}/users/${username}/repositories`
+      `${process.env.VUE_APP_API_URL}/users/${username}/repositories`,
+      {
+        headers: {
+          "X-token-id":  Vue.$cookies.get("X-token-id"),
+          "content-type": "application/json",
+          },
+      }
     );
 
     const data = await response.json();
