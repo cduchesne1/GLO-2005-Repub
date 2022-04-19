@@ -47,7 +47,7 @@
             </div>
             <a
               v-for="repo in recentRepositories"
-              :key="repo.owner + '-' + repo.name"
+              :key="repo.owner.username + '-' + repo.name"
               @click="goToRepository(repo.owner.username, repo.name)"
               class="text-base text-white mt-2 cursor-pointer hover:text-pink-600"
             >
@@ -67,7 +67,7 @@
           <a class="text-base text-white font-bold">Explore Repositories</a>
           <div
             v-for="repo in exploreRepositories"
-            :key="repo.owner + '-' + repo.name"
+            :key="repo.owner.username + '-' + repo.name"
             class="flex flex-col border-b border-solid border-gray-500 mt-8"
           >
             <a

@@ -64,7 +64,7 @@
       <RepositoryItem
         v-for="repo in repositories"
         :repository="repo"
-        :key="repo.owner + '-' + repo.name"
+        :key="repo.owner.username + '-' + repo.name"
       />
     </div>
     <FooterComponent class="mt-auto" />
