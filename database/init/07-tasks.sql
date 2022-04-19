@@ -12,9 +12,9 @@ CREATE TABLE IF NOT EXISTS Tasks (
 	timestamp DATETIME NOT NULL,
 	num INT NOT NULL,
 	PRIMARY KEY(id),
-	FOREIGN KEY(owner, name) REFERENCES Repositories(owner, name) ON DELETE CASCADE,
-	FOREIGN KEY(assigned) REFERENCES Users(username) ON DELETE SET NULL,
-	FOREIGN KEY(creator) REFERENCES Users(username) ON DELETE SET NULL
+	FOREIGN KEY(owner, name) REFERENCES Repositories(owner, name)ON UPDATE CASCADE ON DELETE CASCADE,
+	FOREIGN KEY(assigned) REFERENCES Users(username) ON UPDATE CASCADE ON DELETE SET NULL,
+	FOREIGN KEY(creator) REFERENCES Users(username) ON UPDATE CASCADE ON DELETE SET NULL
 );
 
 INSERT INTO Tasks (owner, name, title, description, assigned, state, creator, timestamp, num) 

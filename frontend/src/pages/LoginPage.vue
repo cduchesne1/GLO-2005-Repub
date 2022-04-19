@@ -28,7 +28,7 @@
 
 
 <script>
-import authApi from "@/api/AuthApi"
+import { login } from "@/api/authApi"
 export default {
   data() {
     return {
@@ -39,13 +39,12 @@ export default {
   },
   methods: {
     sendCredentials: async function() {
-      const data = await authApi.login(this.email, this.password)
+      const data = await login(this.email, this.password)
         if (data) {
           this.$actions.connect();
           this.$actions.setName(data.name);
           this.$actions.setEmail(this.email);
           this.$actions.setUsername(data.username);
-          this.$actions.setId(data.id);
           this.$router.push({ path: "/logged" });
         } else {
           this.showInvalidCredential = true

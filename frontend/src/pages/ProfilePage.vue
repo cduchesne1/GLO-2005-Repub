@@ -64,7 +64,7 @@
       <RepositoryItem
         v-for="repo in repositories"
         :repository="repo"
-        :key="repo.id"
+        :key="repo.owner + '-' + repo.name"
       />
     </div>
     <FooterComponent class="mt-auto" />
@@ -76,8 +76,8 @@ import LoggedTopBar from "@/components/LoggedTopBar";
 import FooterComponent from "@/components/FooterComponent";
 import RepositoryItem from "@/components/RepositoryItem";
 import ProfilePicture from "@/components/ProfilePicture";
-import { fetchUserByUsername } from "@/api/userApi";
 import { fetchUserRepositories } from "@/api/repositoryApi";
+import { fetchUser } from "@/api/userApi";
 
 export default {
   components: {
@@ -95,9 +95,8 @@ export default {
   },
   async created() {
     this.isLoading = true;
-    this.user = await fetchUserByUsername(this.$route.params.username);
-    this.repositories = await fetchUserRepositories(this.user.id);
-    console.log(this.repositories);
+    this.user = await fetchUser(this.$route.params.username);
+    this.repositories = await fetchUserRepositories(this.$route.params.username);
     this.isLoading = false;
   },
   methods: {

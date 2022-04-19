@@ -71,7 +71,7 @@
   </div>
 </template>
 <script>
-import authApi from "@/api/AuthApi"
+import { signup, login } from "@/api/authApi"
 export default {
   data() {
     return {
@@ -87,15 +87,14 @@ export default {
   },
   methods: {
     async signUp() {
-      const check = await authApi.signup(this.email, this.username, this.name, this.password);
+      const check = await signup(this.email, this.username, this.name, this.password);
       if (check.passed) {
-        const data = await authApi.login(this.email, this.password)
+        const data = await login(this.email, this.password)
         if (data) {
           this.$actions.connect();
           this.$actions.setName(data.name);
           this.$actions.setEmail(this.email);
           this.$actions.setUsername(data.username);
-          this.$actions.setId(data.id);
           this.$router.push({ path: "/logged" });
         }
       }

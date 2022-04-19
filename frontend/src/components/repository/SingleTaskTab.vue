@@ -216,7 +216,7 @@
 </template>
 <script>
 import moment from "moment";
-import { fetchRepositoryByUsernameAndName } from "@/api/repositoryApi";
+import { fetchRepository } from "@/api/repositoryApi";
 import {
   fetchTaskByUsernameRepositoryAndNumber,
   fetchTaskComments,
@@ -246,10 +246,11 @@ export default {
   },
   async created() {
     this.isLoading = true;
-    this.collaborators = await fetchRepositoryByUsernameAndName(
+    const repo = await fetchRepository(
       this.$route.params.username,
       this.$route.params.repository
-    ).then((response) => response.collaborators);
+    );
+    this.collaborators = [...repo.collaborators, repo.owner];
     this.task = await fetchTaskByUsernameRepositoryAndNumber(
       this.$route.params.username,
       this.$route.params.repository,
@@ -324,7 +325,7 @@ export default {
     },
     async sendComment() {
       const comment = {
-        sender: this.$store.user.id,
+        sender: this.$store.user.username,
         comment: this.newComment,
       };
       if (this.newComment) {
@@ -339,7 +340,7 @@ export default {
     async setAssigned(value) {
       if (value && value != this.assignee) {
         await updateTask(this.task.id, {
-          assigned: this.collaborators.find((c) => c.username == value).id,
+          assigned: this.collaborators.find((c) => c.username == value).username,
         });
         this.task.assigned = this.collaborators.find(
           (c) => c.username == value

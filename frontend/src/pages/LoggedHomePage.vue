@@ -47,7 +47,7 @@
             </div>
             <a
               v-for="repo in recentRepositories"
-              :key="repo.id"
+              :key="repo.owner + '-' + repo.name"
               @click="goToRepository(repo.owner.username, repo.name)"
               class="text-base text-white mt-2 cursor-pointer hover:text-pink-600"
             >
@@ -67,7 +67,7 @@
           <a class="text-base text-white font-bold">Explore Repositories</a>
           <div
             v-for="repo in exploreRepositories"
-            :key="repo.id"
+            :key="repo.owner + '-' + repo.name"
             class="flex flex-col border-b border-solid border-gray-500 mt-8"
           >
             <a
@@ -116,7 +116,7 @@ export default {
       this.$router.push("/");
     }
     this.recentRepositories = await fetchUserRecentRepositories(
-      this.$store.user.id
+      this.$store.user.username
     );
     this.exploreRepositories = (await fetchExploreRepositories()).slice(0, 5);
     this.isLoading = false;

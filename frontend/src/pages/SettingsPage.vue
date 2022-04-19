@@ -147,7 +147,7 @@
 import LoggedTopBar from "@/components/LoggedTopBar";
 import FooterComponent from "@/components/FooterComponent";
 import { updateUserProfile, fetchUser, deleteUser } from "@/api/userApi";
-import authApi from "@/api/AuthApi"
+import { logout } from "@/api/authApi"
 
 export default {
   components: {
@@ -170,7 +170,7 @@ export default {
   },
   async created() {
     this.isLoading = true;
-    this.user = await fetchUser(this.$store.user.id);
+    this.user = await fetchUser(this.$store.user.username);
     this.isLoading = false;
   },
   methods: {
@@ -212,19 +212,18 @@ export default {
             ? this.location
             : null,
       };
-      await updateUserProfile(this.$store.user.id, data);
-      this.user = await fetchUser(this.$store.user.id);
+      await updateUserProfile(this.$store.user.username, data);
+      this.user = await fetchUser(this.$store.user.username);
       this.updateStore();
       this.resetFields();
     },
     async deleteAccount() {
       if (confirm("Are you sure you want to delete your account?")) {
-        await deleteUser(this.$store.user.id);
-        await authApi.logout();
+        await deleteUser(this.$store.user.username);
+        await logout();
         this.$actions.setName("");
         this.$actions.setUsername("");
         this.$actions.setEmail("");
-        this.$actions.setId(null);
         this.$actions.disconnect();
         this.$router.push("/");
       }

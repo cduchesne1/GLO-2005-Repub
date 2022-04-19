@@ -5,7 +5,7 @@ CREATE TABLE IF NOT EXISTS Tagged  (
 	name VARCHAR(255) NOT NULL,
 	tag INT NOT NULL,
 	PRIMARY KEY (owner, name, tag),
-	FOREIGN KEY (owner, name) REFERENCES Repositories(owner, name) ON DELETE CASCADE,
+	FOREIGN KEY (owner, name) REFERENCES Repositories(owner, name) ON UPDATE CASCADE ON DELETE CASCADE,
 	FOREIGN KEY (tag) REFERENCES Tags(id) ON DELETE CASCADE
 );
 

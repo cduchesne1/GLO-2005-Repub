@@ -15,7 +15,6 @@ const store = Vue.observable({
     name: "",
     username: "",
     email: "",
-    id: null,
   },
   isConnected: false,
 });
@@ -29,9 +28,6 @@ const actions = {
   },
   setEmail(email) {
     store.user.email = email;
-  },
-  setId(id) {
-    store.user.id = id;
   },
   connect() {
     store.isConnected = true;

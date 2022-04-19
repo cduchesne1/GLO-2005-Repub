@@ -25,32 +25,30 @@ class UserRepository:
 
     def __to_dto(self, row: Any) -> dict[str, Any]:
         return {
-            "id": row[0],
-            "name": row[1],
-            "username": row[2],
-            "email": row[3],
-            "bio": row[4],
-            "website": row[5],
-            "company": row[6],
-            "location": row[7],
+            "name": row[0],
+            "username": row[1],
+            "email": row[2],
+            "bio": row[3],
+            "website": row[4],
+            "company": row[5],
+            "location": row[6],
         }
 
     def __to_public_dto(self, row: Any) -> dict[str, Any]:
         return {
-            "id": row[0],
-            "name": row[1],
-            "username": row[2],
-            "bio": row[4],
-            "website": row[5],
-            "company": row[6],
-            "location": row[7],
+            "name": row[0],
+            "username": row[1],
+            "bio": row[3],
+            "website": row[4],
+            "company": row[5],
+            "location": row[6],
         }
 
     def get_all_users(self) -> list[dict[str, Any]]:
         connection = self.__create_connection()
         try:
             cursor = connection.cursor()
-            cursor.execute("SELECT * FROM users;")
+            cursor.execute("SELECT * FROM Users;")
             result = cursor.fetchall()
             return [self.__to_public_dto(row) for row in result]
         finally:
@@ -61,7 +59,7 @@ class UserRepository:
         try:
             cursor = connection.cursor()
             cursor.execute(
-                "INSERT INTO users (name, username, email, bio, website, company, location) VALUES (%s, %s, %s, NULL, NULL, NULL, NULL);",
+                "INSERT INTO Users (name, username, email, bio, website, company, location) VALUES (%s, %s, %s, NULL, NULL, NULL, NULL);",
                 (user_data['name'], user_data['username'], user_data['email']))
             cursor.execute("INSERT INTO authentication (id, password) VALUES (%s, %s);",
                            (cursor.lastrowid, self.__encrypt_password(user_data['password'])))
@@ -73,11 +71,11 @@ class UserRepository:
     def __encrypt_password(self, password: str) -> str:
         return bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
 
-    def get_user(self, user_id: int, public=True) -> Optional[dict[str, Any]]:
+    def get_user(self, username: str, public=True) -> Optional[dict[str, Any]]:
         connection = self.__create_connection()
         try:
             cursor = connection.cursor()
-            cursor.execute("SELECT * FROM users WHERE id = %s;", (user_id,))
+            cursor.execute("SELECT * FROM Users WHERE username = %s;", username)
             result = cursor.fetchone()
             if result is None:
                 return None
@@ -87,11 +85,11 @@ class UserRepository:
         finally:
             connection.close()
 
-    def get_user_by_username(self, username: str, public=True) -> Optional[dict[str, Any]]:
+    def get_user_by_email(self, email: str, public=True) -> Optional[dict[str, Any]]:
         connection = self.__create_connection()
         try:
             cursor = connection.cursor()
-            cursor.execute("SELECT * FROM users WHERE username = %s;", username)
+            cursor.execute("SELECT * FROM Users WHERE email = %s;", email)
             result = cursor.fetchone()
             if result is None:
                 return None
@@ -101,33 +99,33 @@ class UserRepository:
         finally:
             connection.close()
 
-    def update_user(self, user_id: int, user_data: dict[str, Any]) -> None:
+    def update_user(self, username: str, user_data: dict[str, Any]) -> None:
         connection = self.__create_connection()
         try:
             cursor = connection.cursor()
-            cursor.execute("""UPDATE users SET 
+            cursor.execute("""UPDATE Users SET 
                     name = IFNULL(%s, name), username = IFNULL(%s, username), 
                     email = IFNULL(%s, email), bio = IFNULL(%s, bio), website = IFNULL(%s, website), 
-                    company = IFNULL(%s, company), location = IFNULL(%s, location) WHERE id = %s;""",
+                    company = IFNULL(%s, company), location = IFNULL(%s, location) WHERE username = %s;""",
                            (user_data["name"] if "name" in user_data else None,
                             user_data["username"] if "username" in user_data else None,
                             user_data["email"] if "email" in user_data else None,
                             user_data["bio"] if "bio" in user_data else None,
                             user_data["website"] if "website" in user_data else None,
                             user_data["company"] if "company" in user_data else None,
-                            user_data["location"] if "location" in user_data else None, user_id))
+                            user_data["location"] if "location" in user_data else None, username))
             connection.commit()
         finally:
             connection.close()
 
-    def delete_user(self, user_id: int, user_repositories: list[dict[str, Any]]) -> None:
+    def delete_user(self, username: str, user_repositories: list[dict[str, Any]]) -> None:
         connection = self.__create_connection()
         try:
             for repo in user_repositories:
-                self.git_repository.delete_repository(repo["owner"]["username"], repo["name"])
+                self.git_repository.delete_repository(username, repo["name"])
 
             cursor = connection.cursor()
-            cursor.execute("DELETE FROM users WHERE id = %s;", (user_id,))
+            cursor.execute("DELETE FROM Users WHERE username = %s;", username)
             connection.commit()
         finally:
             connection.close()
@@ -136,7 +134,7 @@ class UserRepository:
         connection = self.__create_connection()
         try:
             cursor = connection.cursor()
-            cursor.execute("SELECT * FROM users WHERE username = %s;", username)
+            cursor.execute("SELECT * FROM Users WHERE username = %s;", username)
             return cursor.fetchone() is not None
         finally:
             connection.close()
@@ -145,7 +143,7 @@ class UserRepository:
         connection = self.__create_connection()
         try:
             cursor = connection.cursor()
-            cursor.execute("SELECT * FROM users WHERE email = %s;", email)
+            cursor.execute("SELECT * FROM Users WHERE email = %s;", email)
             return cursor.fetchone() is not None
         finally:
             connection.close()
@@ -154,21 +152,19 @@ class UserRepository:
         connection = self.__create_connection()
         try:
             cursor = connection.cursor()
-            user_id = self.__get_user_id(user_credential["email"])[0]
-            public_DTO = self.get_user(user_id) 
-            cursor.execute("SELECT password FROM authentication WHERE id = %s", user_id)
+            public_DTO = self.get_user_by_email(user_credential["email"])
+            cursor.execute("SELECT password FROM Authentication WHERE email = %s", user_credential["email"])
             hashed_password_from_db = cursor.fetchone()[0]
             if hashed_password_from_db is None:
                 raise InvalidParameterException("Password and email combination doesn't exist")
-            
+
             passwd_to_check = bytes(hashed_password_from_db, 'utf-8')
             if bcrypt.checkpw(user_credential["password"].encode(), passwd_to_check):
                 return {
                     "token_id": str(self.create_token()),
                     "username": public_DTO["username"],
-                    "name": public_DTO["name"],
-                    "id": user_id,
-                    }
+                    "name": public_DTO["name"]
+                }
             else:
                 raise InvalidParameterException("Password and email combination doesn't exist")
         finally:
@@ -182,18 +178,6 @@ class UserRepository:
                      "token_expire_time": token_expire_time}
         self.tokens.append(new_token)
         return new_token["token_id"]
-
-    def __get_user_id(self, email):
-        connection = self.__create_connection()
-        try:
-            cursor = connection.cursor()
-            cursor.execute("SELECT id FROM users WHERE email = %s", email)
-            user_id = cursor.fetchone()
-            if user_id is None:
-                raise InvalidParameterException("email doesn't exist")
-            return user_id
-        finally:
-            connection.close()
 
     def check_if_token_is_valid(self, token_id):
         token_is_valid = False

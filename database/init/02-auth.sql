@@ -4,7 +4,7 @@ CREATE TABLE IF NOT EXISTS Authentication(
     email VARCHAR(255) NOT NULL,
     password VARCHAR(255) NOT NULL,
     PRIMARY KEY(email),
-    FOREIGN KEY(email) REFERENCES Users(email) ON DELETE CASCADE
+    FOREIGN KEY(email) REFERENCES Users(email) ON UPDATE CASCADE ON DELETE CASCADE
 );
 
 INSERT INTO Authentication(email, password)

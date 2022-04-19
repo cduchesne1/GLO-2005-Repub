@@ -159,7 +159,7 @@ export default {
         return;
       }
       const body = {
-        owner: this.$store.user.id,
+        owner: this.$store.user.username,
         name: this.name,
         description: this.description ? this.description : null,
         website: this.website ? this.website : null,

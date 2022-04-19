@@ -8,7 +8,7 @@ CREATE TABLE IF NOT EXISTS Comments (
 	timestamp DATETIME NOT NULL,
 	PRIMARY KEY (id),
 	FOREIGN KEY (task) REFERENCES Tasks(id) ON DELETE CASCADE,
-	FOREIGN KEY (sender) REFERENCES Users(username) ON DELETE SET NULL
+	FOREIGN KEY (sender) REFERENCES Users(username) ON UPDATE CASCADE ON DELETE SET NULL
 );
 INSERT INTO Comments (task, comment, sender, timestamp)
 VALUES

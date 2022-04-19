@@ -5,8 +5,8 @@ CREATE TABLE IF NOT EXISTS Collaborators (
 	owner VARCHAR(255) NOT NULL,
 	name VARCHAR(255) NOT NULL,
 	PRIMARY KEY (user, owner, name),
-	FOREIGN KEY (user) REFERENCES Users(username) ON DELETE CASCADE,
-	FOREIGN KEY (owner, name) REFERENCES Repositories(owner, name) ON DELETE CASCADE
+	FOREIGN KEY (user) REFERENCES Users(username) ON UPDATE CASCADE ON DELETE CASCADE,
+	FOREIGN KEY (owner, name) REFERENCES Repositories(owner, name) ON UPDATE CASCADE ON DELETE CASCADE
 );
 
 INSERT INTO Collaborators (user, owner, name) 
