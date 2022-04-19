@@ -1,7 +1,7 @@
-const fetchUserRecentRepositories = async (userId) => {
+const fetchUserRecentRepositories = async (username) => {
   try {
     const response = await fetch(
-      `${process.env.VUE_APP_API_URL}/users/${userId}/repositories`
+      `${process.env.VUE_APP_API_URL}/users/${username}/repositories`
     );
 
     const data = await response.json();
@@ -15,10 +15,10 @@ const fetchUserRecentRepositories = async (userId) => {
   }
 };
 
-const fetchUserRepositories = async (userId) => {
+const fetchUserRepositories = async (username) => {
   try {
     const response = await fetch(
-      `${process.env.VUE_APP_API_URL}/users/${userId}/repositories`
+      `${process.env.VUE_APP_API_URL}/users/${username}/repositories`
     );
 
     const data = await response.json();
@@ -46,21 +46,7 @@ const fetchExploreRepositories = async () => {
   }
 };
 
-const fetchRepository = async (repositoryId) => {
-  try {
-    const response = await fetch(
-      `${process.env.VUE_APP_API_URL}/repositories/${repositoryId}`
-    );
-
-    const repository = await response.json();
-
-    return repository;
-  } catch (error) {
-    console.error(error);
-  }
-};
-
-const fetchRepositoryByUsernameAndName = async (username, name) => {
+const fetchRepository = async (username, name) => {
   try {
     const response = await fetch(
       `${process.env.VUE_APP_API_URL}/users/${username}/repositories/${name}`
@@ -143,12 +129,12 @@ const createRepository = async (body) => {
   }
 };
 
-const updateRepository = async (repositoryId, body) => {
+const updateRepository = async (username, name, body) => {
   clean(body);
   if (Object.keys(body).length > 0) {
     try {
       await fetch(
-        `${process.env.VUE_APP_API_URL}/repositories/${repositoryId}`,
+        `${process.env.VUE_APP_API_URL}/users/${username}/repositories/${name}`,
         {
           method: "PUT",
           headers: {
@@ -163,11 +149,14 @@ const updateRepository = async (repositoryId, body) => {
   }
 };
 
-const deleteRepository = async (repositoryId) => {
+const deleteRepository = async (username, name) => {
   try {
-    await fetch(`${process.env.VUE_APP_API_URL}/repositories/${repositoryId}`, {
-      method: "DELETE",
-    });
+    await fetch(
+      `${process.env.VUE_APP_API_URL}/users/${username}/repositories/${name}`,
+      {
+        method: "DELETE",
+      }
+    );
   } catch (error) {
     console.error(error);
   }
@@ -223,7 +212,6 @@ export {
   fetchUserRepositories,
   fetchExploreRepositories,
   fetchRepository,
-  fetchRepositoryByUsernameAndName,
   fetchRepositoryFiles,
   fetchFileContent,
   fetchRepositoryBranches,

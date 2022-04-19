@@ -1,7 +1,7 @@
-const fetchRepositoryTasks = async (repositoryId) => {
+const fetchRepositoryTasks = async (username, name) => {
   try {
     const response = await fetch(
-      `${process.env.VUE_APP_API_URL}/repositories/${repositoryId}/tasks`
+      `${process.env.VUE_APP_API_URL}/users/${username}/repositories/${name}/tasks`
     );
 
     const data = await response.json();
@@ -15,10 +15,10 @@ const fetchRepositoryTasks = async (repositoryId) => {
   }
 };
 
-const fetchUserTasks = async (userId) => {
+const fetchUserTasks = async (username) => {
   try {
     const response = await fetch(
-      `${process.env.VUE_APP_API_URL}/users/${userId}/tasks`
+      `${process.env.VUE_APP_API_URL}/users/${username}/tasks`
     );
 
     const data = await response.json();
@@ -69,6 +69,7 @@ const fetchTaskComments = async (taskId) => {
 
 const createTask = async (task) => {
   clean(task);
+  console.log(task);
   if (Object.keys(task).length > 0) {
     try {
       await fetch(`${process.env.VUE_APP_API_URL}/tasks`, {

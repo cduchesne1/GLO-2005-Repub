@@ -28,28 +28,29 @@ class TasksService:
             raise ItemNotFoundException(f"Task with id {task_id} not found")
         return result
 
-    def get_task_in_repository_by_username_name_and_number(self, username: str, repository_name: str, number: int) -> dict[str, Any]:
-        repository = self.repositories_service.get_user_repository_by_username_and_name(username, repository_name)
-        task = self.repository.get_repository_by_repository_id_and_number(repository["id"], number)
+    def get_task_by_username_name_and_number(self, username: str, repository_name: str, number: int) -> dict[str, Any]:
+        task = self.repository.get_task_by_repository_and_number(username, repository_name, number)
         if task is None:
             raise ItemNotFoundException(f"Task with number {number} not found")
         return task
 
-    def get_user_tasks(self, user_id: int) -> list[dict[str, Any]]:
-        if self.users_service.is_valid_user(user_id):
-            return self.repository.get_user_tasks(user_id)
-        raise ItemNotFoundException(f"User with id {user_id} not found")
+    def get_user_tasks(self, username: str) -> list[dict[str, Any]]:
+        if self.users_service.is_valid_user(username):
+            return self.repository.get_user_tasks(username)
+        raise ItemNotFoundException(f"User with username {username} not found")
 
-    def get_repository_tasks(self, repository_id: int) -> list[dict[str, Any]]:
-        if self.repositories_service.is_valid_repository(repository_id):
-            return self.repository.get_repository_tasks(repository_id)
-        raise ItemNotFoundException(f"Repository with id {repository_id} not found")
+    def get_repository_tasks(self, username: str, repository_name: str) -> list[dict[str, Any]]:
+        if self.repositories_service.is_valid_repository(username, repository_name):
+            return self.repository.get_repository_tasks(username, repository_name)
+        raise ItemNotFoundException(f"Repository {username}/{repository_name} not found")
 
     def create_task(self, task_data: dict[str, Any]) -> int:
+        print(task_data)
         self.__validate_task_data(task_data)
         return self.repository.create_task(task_data)
 
     def update_task(self, task_id: int, task_data: dict[str, Any]) -> None:
+        print(task_data)
         if self.is_valid_task(task_id):
             self.__validate_task_data_for_update(task_id, task_data)
             return self.repository.update_task(task_id, task_data)
@@ -98,24 +99,27 @@ class TasksService:
     def __validate_task_data(self, task_data: Optional[dict[str, Any]]) -> None:
         if task_data is None:
             raise MissingParameterException("Body is missing")
-        if "repository" not in task_data or "title" not in task_data or "creator" not in task_data:
+        if "owner" not in task_data or "name" not in task_data or "title" not in task_data or "creator" not in task_data:
             raise MissingParameterException("One or more parameters are missing")
         if task_data["title"] == '':
             raise InvalidParameterException("Invalid title")
         if not self.users_service.is_valid_user(task_data["creator"]):
-            raise ItemNotFoundException(f"User with id {task_data['creator']} not found")
-        if not self.repositories_service.is_user_repository(task_data["repository"], task_data["creator"]):
-            raise ItemNotFoundException(f"Repository with id {task_data['repository']} not found")
+            raise ItemNotFoundException(f"User with username {task_data['creator']} not found")
+        if not self.repositories_service.is_user_repository(task_data["owner"], task_data["name"],
+                                                            task_data["creator"]):
+            raise ItemNotFoundException(f"Repository {task_data['owner']}/{task_data['name']} not found")
 
     def __validate_task_data_for_update(self, task_id: int, task_data: Optional[dict[str, Any]]) -> None:
         if "title" in task_data and task_data["title"] == '':
             raise InvalidParameterException("Invalid title")
         if "assigned" in task_data:
             if not self.users_service.is_valid_user(task_data["assigned"]):
-                raise ItemNotFoundException(f"User with id {task_data['assigned']} not found")
-            repository = self.repository.get_task_repository(task_id)
-            if not self.repositories_service.is_user_repository(repository, task_data["assigned"]):
-                raise InvalidParameterException(f"Cannot assign task to user with id {task_data['assigned']}")
+                raise ItemNotFoundException(f"User with username {task_data['assigned']} not found")
+            owner, name = self.repository.get_task_repository(task_id)
+            print(owner, name)
+            if not self.repositories_service.is_user_repository(owner, name, task_data["assigned"]):
+                raise InvalidParameterException(f"Cannot assign task to user with username {task_data['assigned']}")
+            print("here")
         if "state" in task_data:
             if task_data["state"] not in ["open", "closed"]:
                 raise InvalidParameterException("Invalid state")
@@ -128,9 +132,9 @@ class TasksService:
         if comment_data["comment"] == '':
             raise InvalidParameterException("Invalid comment")
         if not self.users_service.is_valid_user(comment_data["sender"]):
-            raise ItemNotFoundException(f"User with id {comment_data['sender']} not found")
+            raise ItemNotFoundException(f"User with username {comment_data['sender']} not found")
         if not self.is_valid_task(task_id):
             raise ItemNotFoundException(f"Task with id {task_id} not found")
-        repository = self.repository.get_task_repository(task_id)
-        if not self.repositories_service.is_user_repository(repository, comment_data["sender"]):
-            raise InvalidParameterException(f"Cannot comment on task from user with id {comment_data['sender']}")
+        owner, name = self.repository.get_task_repository(task_id)
+        if not self.repositories_service.is_user_repository(owner, name, comment_data["sender"]):
+            raise InvalidParameterException(f"Cannot comment on task from user with username {comment_data['sender']}")

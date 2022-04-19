@@ -1,7 +1,15 @@
-const fetchUserByUsername = async (username) => {
+import Vue from "vue";
+
+const fetchUser = async (username) => {
   try {
     const response = await fetch(
-      `${process.env.VUE_APP_API_URL}/users/${username}`
+      `${process.env.VUE_APP_API_URL}/users/${username}`,
+      {
+        headers: {
+        "X-token-id":  Vue.$cookies.get("X-token-id"),
+        "content-type": "application/json",
+        },
+      }
     );
 
     const user = await response.json();
@@ -12,25 +20,11 @@ const fetchUserByUsername = async (username) => {
   }
 };
 
-const fetchUser = async (userId) => {
-  try {
-    const response = await fetch(
-      `${process.env.VUE_APP_API_URL}/users/${userId}`
-    );
-
-    const user = await response.json();
-
-    return user;
-  } catch (error) {
-    console.error(error);
-  }
-};
-
-const updateUserProfile = async (userId, body) => {
+const updateUserProfile = async (username, body) => {
   body = clean(body);
   if (Object.keys(body).length > 0) {
     try {
-      await fetch(`${process.env.VUE_APP_API_URL}/users/${userId}`, {
+      await fetch(`${process.env.VUE_APP_API_URL}/users/${username}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -43,9 +37,9 @@ const updateUserProfile = async (userId, body) => {
   }
 };
 
-const deleteUser = async (userId) => {
+const deleteUser = async (username) => {
     try {
-        await fetch(`${process.env.VUE_APP_API_URL}/users/${userId}`, {
+        await fetch(`${process.env.VUE_APP_API_URL}/users/${username}`, {
         method: "DELETE",
         });
     } catch (error) {
@@ -67,4 +61,4 @@ function clean(obj) {
   return obj;
 }
 
-export { fetchUserByUsername, fetchUser, updateUserProfile, deleteUser };
+export { fetchUser, updateUserProfile, deleteUser };

@@ -46,6 +46,7 @@
         >
         </TabComponent>
         <TabComponent
+          v-if="isOwner()"
           name="Settings"
           :selected="$route.name == 'Repository Settings'"
           :href="`#/${repositoryData.owner.username}/${repositoryData.name}/settings`"
@@ -62,7 +63,7 @@ import LoggedTopBar from "@/components/LoggedTopBar";
 import FooterComponent from "@/components/FooterComponent";
 import TabsComponent from "@/components/TabsComponent";
 import TabComponent from "@/components/TabComponent";
-import { fetchRepositoryByUsernameAndName } from "@/api/repositoryApi";
+import { fetchRepository } from "@/api/repositoryApi";
 
 export default {
   components: {
@@ -85,7 +86,7 @@ export default {
     };
   },
   async created() {
-    this.repositoryData = await fetchRepositoryByUsernameAndName(
+    this.repositoryData = await fetchRepository(
       this.username,
       this.repository
     );
@@ -98,6 +99,9 @@ export default {
       this.$router.push(
         `/${this.repositoryData.owner.username}/${this.repositoryData.name}`
       );
+    },
+    isOwner() {
+      return this.repositoryData.owner.username === this.$store.user.username;
     },
   },
 };
