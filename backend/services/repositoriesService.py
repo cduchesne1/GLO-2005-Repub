@@ -24,6 +24,9 @@ class RepositoriesService:
     def get_public_repositories(self) -> list[dict[str, Any]]:
         return self.repository.get_all_public()
 
+    def get_repositories_by_filter(self, filter) -> list[dict[str, Any]]:
+        return self.repository.get_filtered_repositories(filter)
+
     def get_user_repositories(self, username: str) -> list[dict[str, Any]]:
         if self.users_service.is_valid_user(username):
             return self.repository.get_user_repositories(username)
