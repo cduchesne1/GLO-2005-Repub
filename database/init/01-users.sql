@@ -1,7 +1,6 @@
-DROP TABLE IF EXISTS users;
+DROP TABLE IF EXISTS Users;
 
-CREATE TABLE IF NOT EXISTS users(
-    id INT AUTO_INCREMENT,
+CREATE TABLE IF NOT EXISTS Users(
     name VARCHAR(255) NOT NULL,
     username VARCHAR(255) NOT NULL,
     email VARCHAR(255) NOT NULL,
@@ -9,12 +8,11 @@ CREATE TABLE IF NOT EXISTS users(
     website VARCHAR(255),
     company VARCHAR(255),
     location VARCHAR(255),
-    PRIMARY KEY(id),
-    UNIQUE (username),
-    UNIQUE (email)
+    PRIMARY KEY(username),
+    UNIQUE KEY (email)
 );
 
-INSERT INTO users(name, username, email, bio, website, company, location)
+INSERT INTO Users(name, username, email, bio, website, company, location)
 VALUES
     ('Devin Fenech', 'dfenech0', 'dfenech0@reverbnation.com', null, null, 'Voonix', 'Indonesia'),
     ('Mayer Stollenberg', 'mstollenberg1', 'mstollenberg1@opera.com', 'augue quam sollicitudin vitae consectetuer eget rutrum at lorem integer tincidunt ante vel', 'deviantart.com', null, null),

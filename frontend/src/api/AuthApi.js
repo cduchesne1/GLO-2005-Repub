@@ -108,4 +108,4 @@ const checkForm = (email, username, name, password) => {
   };
 }
 
-export default { login, logout, signup }
+export { login, logout, signup }

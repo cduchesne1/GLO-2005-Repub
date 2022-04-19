@@ -94,7 +94,7 @@
           <div
             v-for="tag in repository.tags"
             :key="tag"
-            class="bg-pink-600 text-white text-xs font-bold py-1 px-1 rounded-xl inline-block mr-auto mt-4"
+            class="bg-pink-600 text-white text-xs font-bold py-1 px-1 rounded-xl inline-block mr-2 mt-4"
           >
             {{ tag }}
           </div>
@@ -108,7 +108,7 @@
         >
           <ProfilePicture
             v-for="collaborator in repository.collaborators"
-            :key="collaborator.id"
+            :key="collaborator.username"
             class="cursor-pointer"
             :size="14"
             :path="`/${collaborator.username}`"
@@ -124,7 +124,7 @@
 import ProfilePicture from "@/components/ProfilePicture";
 import { marked } from "marked";
 import {
-  fetchRepositoryByUsernameAndName,
+  fetchRepository,
   fetchRepositoryFiles,
   fetchFileContent,
 } from "@/api/repositoryApi";
@@ -143,10 +143,11 @@ export default {
   },
   computed: {},
   async created() {
-    this.repository = await fetchRepositoryByUsernameAndName(
+    this.repository = await fetchRepository(
       this.$route.params.username,
       this.$route.params.repository
     );
+    console.log(this.repository);
     this.files = await fetchRepositoryFiles(
       this.$route.params.username,
       this.$route.params.repository,

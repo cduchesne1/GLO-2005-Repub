@@ -67,7 +67,7 @@ export default {
   },
   async created() {
     this.isLoading = true;
-    this.tasks = await fetchUserTasks(this.$store.user.id);
+    this.tasks = await fetchUserTasks(this.$store.user.username);
     this.isLoading = false;
   },
   methods: {

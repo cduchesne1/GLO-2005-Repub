@@ -13,7 +13,7 @@
       <RepositoryItem
           v-for="repo in repositories"
           :repository="repo"
-          :key="repo.id"
+          :key="repo.owner.username + '-' + repo.name"
       />
     </div>
     <FooterComponent class="mt-auto" v-if="!isLoading"/>

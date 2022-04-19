@@ -20,37 +20,30 @@ class UsersService:
             raise ItemNotFoundException("No users found")
         return result
 
-    def get_user(self, user_id: int, public=True) -> dict[str, Any]:
-        result = self.repository.get_user(user_id, public=public)
+    def get_user(self, username: str, public=True) -> dict[str, Any]:
+        result = self.repository.get_user(username, public=public)
         if result is None:
-            raise ItemNotFoundException(f"User with id {user_id} not found")
+            raise ItemNotFoundException(f"User with username {username} not found")
         return result
 
-    def update_user(self, user_id: int, user_data: Optional[dict[str, Any]]) -> None:
-        if self.is_valid_user(user_id):
+    def update_user(self, username: str, user_data: Optional[dict[str, Any]]) -> None:
+        if self.is_valid_user(username):
             self.__validate_user_data_for_update(user_data)
-            return self.repository.update_user(user_id, user_data)
-        raise ItemNotFoundException(f"User with id {user_id} not found")
+            return self.repository.update_user(username, user_data)
+        raise ItemNotFoundException(f"User with username {username} not found")
 
-    def delete_user(self, user_id: int) -> None:
-        if self.is_valid_user(user_id):
-            return self.repository.delete_user(user_id, self.repository_repository.get_user_repositories(user_id))
-        raise ItemNotFoundException(f"User with id {user_id} not found")
+    def delete_user(self, username: str) -> None:
+        if self.is_valid_user(username):
+            return self.repository.delete_user(username, self.repository_repository.get_user_repositories(username))
+        raise ItemNotFoundException(f"User with username {username} not found")
 
     def create_user(self, user_data: Optional[dict[str, Any]]) -> int:
         self.__validate_user_data(user_data)
         return self.repository.create_user(user_data)
 
-    def is_valid_user(self, user_id: int) -> bool:
-        user = self.get_user(user_id)
-        print(user)
+    def is_valid_user(self, username: str) -> bool:
+        user = self.get_user(username)
         return user is not None
-
-    def get_user_by_username(self, username: str) -> dict[str, Any]:
-        result = self.repository.get_user_by_username(username)
-        if result is None:
-            raise ItemNotFoundException(f"User with username {username} not found")
-        return result
 
     def __validate_user_data(self, user_data: Optional[dict[str, Any]]) -> None:
         if 'email' not in user_data or 'username' not in user_data or 'name' not in user_data \

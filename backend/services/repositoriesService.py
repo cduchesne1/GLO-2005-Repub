@@ -9,71 +9,65 @@ from services.usersService import UsersService
 
 
 class RepositoriesService:
-    def __init__(self, repository: RepositoryRepository, git_repository: GitServerRepository, users_service: UsersService):
+    def __init__(self, repository: RepositoryRepository, git_repository: GitServerRepository,
+                 users_service: UsersService):
         self.repository = repository
         self.git_repository = git_repository
         self.users_service = users_service
 
-    def get_repository(self, repository_id: int) -> dict[str, Any]:
-        result = self.repository.get_repository(repository_id)
+    def get_repository(self, username: str, repository_name: str) -> dict[str, Any]:
+        result = self.repository.get_repository(username, repository_name)
         if result is None:
-            raise ItemNotFoundException(f"Repository with id {repository_id} not found")
+            raise ItemNotFoundException(f"Repository with {username}/{repository_name} not found")
         return result
 
     def get_public_repositories(self) -> list[dict[str, Any]]:
         return self.repository.get_all_public()
 
-    def get_user_repositories(self, user_id: int) -> list[dict[str, Any]]:
-        if self.users_service.is_valid_user(user_id):
-            return self.repository.get_user_repositories(user_id)
-        raise ItemNotFoundException(f"User with id {user_id} not found")
+    def get_user_repositories(self, username: str) -> list[dict[str, Any]]:
+        if self.users_service.is_valid_user(username):
+            return self.repository.get_user_repositories(username)
+        raise ItemNotFoundException(f"User with username {username} not found")
 
-    def get_user_repository_by_username_and_name(self, username: str, repository_name: str) -> Optional[dict[str, Any]]:
-        user = self.users_service.get_user_by_username(username)
-        repository = self.repository.get_repository_by_user_id_and_name(user["id"], repository_name)
-        if repository is None:
-            raise ItemNotFoundException(f"Repository with name {repository_name} not found")
-        return repository
-
-    def get_user_repository_files_by_username_name_and_branch(self, username: str, repository_name: str, branch: str) -> list[str]:
-        self.users_service.get_user_by_username(username)
-        self.get_user_repository_by_username_and_name(username, repository_name)
+    def get_user_repository_files(self, username: str, repository_name: str, branch: str) -> list[str]:
+        self.users_service.get_user(username)
+        self.get_repository(username, repository_name)
         return self.git_repository.get_files(username, repository_name, branch)
 
-    def get_repository_branches_by_username_and_name(self, username: str, repository_name: str) -> list[str]:
-        self.users_service.get_user_by_username(username)
-        self.get_user_repository_by_username_and_name(username, repository_name)
+    def get_repository_branches(self, username: str, repository_name: str) -> list[str]:
+        self.users_service.get_user(username)
+        self.get_repository(username, repository_name)
         return self.git_repository.get_branches(username, repository_name)
 
     def get_file_content(self, username: str, repository_name: str, branch: str, file_path: str) -> str:
-        self.users_service.get_user_by_username(username)
-        self.get_user_repository_by_username_and_name(username, repository_name)
+        self.users_service.get_user(username)
+        self.get_repository(username, repository_name)
         return self.git_repository.get_file_content(username, repository_name, branch, file_path)
 
-    def create_repository(self, repository_data: Optional[dict[str, Any]]) -> int:
+    def create_repository(self, repository_data: Optional[dict[str, Any]]) -> str:
         self.__validate_repository_data(repository_data)
         return self.repository.create_repository(repository_data)
 
-    def update_repository(self, repository_id: int, repository_data: Optional[dict[str, Any]]) -> None:
-        if self.is_valid_repository(repository_id):
-            self.__validate_repository_data_for_update(repository_id, repository_data)
-            return self.repository.update_repository(repository_id, repository_data)
-        raise ItemNotFoundException(f"Repository with id {repository_id} not found")
+    def update_repository(self, username: str, repository_name: str, repository_data: Optional[dict[str, Any]]) -> None:
+        if self.is_valid_repository(username, repository_name):
+            self.__validate_repository_data_for_update(username, repository_name, repository_data)
+            return self.repository.update_repository(username, repository_name, repository_data)
+        raise ItemNotFoundException(f"Repository {username}/{repository_name} not found")
 
-    def delete_repository(self, repository_id: int) -> None:
-        if self.is_valid_repository(repository_id):
-            return self.repository.delete_repository(repository_id)
-        raise ItemNotFoundException(f"Repository with id {repository_id} not found")
+    def delete_repository(self, username: str, repository_name: str) -> None:
+        if self.is_valid_repository(username, repository_name):
+            return self.repository.delete_repository(username, repository_name)
+        raise ItemNotFoundException(f"Repository {username}/{repository_name} not found")
 
-    def is_valid_repository(self, repository_id: int) -> bool:
-        repository = self.get_repository(repository_id)
+    def is_valid_repository(self, username: str, repository_name: str) -> bool:
+        repository = self.get_repository(username, repository_name)
         return repository is not None
 
-    def is_user_repository(self, repository_id: int, user_id: int) -> bool:
-        repository = self.get_repository(repository_id)
-        if repository is None or repository["owner"]["id"] != user_id:
-            collaborators = self.repository.get_collaborators(repository_id)
-            return user_id in collaborators
+    def is_user_repository(self, username: str, repository_name: str, creator: str) -> bool:
+        if username != creator:
+            collaborators = self.repository.get_collaborators(username, repository_name)
+            print(collaborators)
+            return creator in collaborators
         return True
 
     def __validate_repository_data(self, repository_data: Optional[dict[str, Any]]) -> None:
@@ -88,13 +82,12 @@ class RepositoriesService:
         if self.repository.name_already_exists(repository_data["owner"], repository_data["name"]):
             raise InvalidParameterException(f"Repository with name {repository_data['name']} already exists")
 
-    def __validate_repository_data_for_update(self, repository_id: int, repository_data: Optional[dict[str, Any]]) -> None:
-        print(repository_data)
+    def __validate_repository_data_for_update(self, username: str, repository_name: str,
+                                              repository_data: Optional[dict[str, Any]]) -> None:
         if "visibility" in repository_data and repository_data["visibility"] not in ["public", "private"]:
             raise InvalidParameterException("Invalid visibility")
         if "collaborators" in repository_data:
-            repo = self.get_repository(repository_id)
+            repo = self.get_repository(username, repository_name)
             for collaborator in repository_data["collaborators"]:
-                user = self.users_service.get_user_by_username(collaborator)
-                if repo["owner"]["id"] == user["id"]:
+                if repo["owner"] == collaborator:
                     raise InvalidParameterException("Owner can't be a collaborator")

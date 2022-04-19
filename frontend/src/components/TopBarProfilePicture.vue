@@ -28,7 +28,7 @@
     </div>
 </template>
 <script>
-import authApi from "@/api/AuthApi"
+import { logout } from "@/api/authApi"
 export default {
     props: {
         size: {
@@ -69,12 +69,11 @@ export default {
             this.$router.push(this.path);
         },
         async logout() {
-            await authApi.logout()
+            await logout()
             this.$actions.disconnect();
             this.$actions.setName("");
             this.$actions.setEmail("");
             this.$actions.setUsername("");
-            this.$actions.setId(null);
             this.$router.push({ path: "/login" });
         },
     },

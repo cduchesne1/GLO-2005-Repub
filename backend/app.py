@@ -1,7 +1,7 @@
 import json
 import os
 
-from flask import Flask, request, make_response, send_file
+from flask import Flask, request, send_file
 from flask_cors import CORS
 
 from exceptions.InvalidParameterException import InvalidParameterException
@@ -63,56 +63,58 @@ def users():
     return json.dumps({"users": list(result), "total": len(result)}), 200
 
 
-@app.route('/users/<int:user_id>', methods=['GET', 'PUT', 'DELETE'])
-def profile(user_id):
+@app.route('/users/<string:username>', methods=['GET', 'PUT', 'DELETE'])
+def profile(username):
     if request.method == 'GET':
         logger.check_if_token_is_valid(request.headers.get("X-token-id"))
-        result = users_service.get_user(user_id, public=False)
+        result = users_service.get_user(username, public=False)
         return json.dumps(result), 200
     elif request.method == 'PUT':
-        users_service.update_user(user_id, request.get_json())
-        return 'User with id {} updated'.format(user_id), 200
+        users_service.update_user(username, request.get_json())
+        return 'User with username {} updated'.format(username), 200
     elif request.method == 'DELETE':
-        users_service.delete_user(user_id)
-        return 'User with id {} deleted'.format(user_id), 200
+        users_service.delete_user(username)
+        return 'User with username {} deleted'.format(username), 200
     else:
         return 'Method not allowed', 405
 
 
-@app.route('/users/<string:username>', methods=['GET'])
-def username_profile(username):
-    result = users_service.get_user_by_username(username)
-    return json.dumps(result), 200
-
-
-@app.route('/users/<int:user_id>/repositories', methods=['GET'])
-def user_repositories(user_id):
-    result = repositories_service.get_user_repositories(user_id)
+@app.route('/users/<string:username>/repositories', methods=['GET'])
+def user_repositories(username):
+    result = repositories_service.get_user_repositories(username)
     return json.dumps({"repositories": list(result), "total": len(result)}, default=str), 200
 
 
-@app.route('/users/<int:user_id>/tasks', methods=['GET'])
-def user_tasks(user_id):
-    result = tasks_service.get_user_tasks(user_id)
+@app.route('/users/<string:username>/tasks', methods=['GET'])
+def user_tasks(username):
+    result = tasks_service.get_user_tasks(username)
     return json.dumps({"tasks": list(result), "total": len(result)}, default=str), 200
 
 
-@app.route('/users/<string:username>/repositories/<string:repository_name>', methods=['GET'])
-def user_repository(username, repository_name):
-    result = repositories_service.get_user_repository_by_username_and_name(username, repository_name)
-    return json.dumps(result, default=str), 200
+@app.route('/users/<string:username>/repositories/<string:repository_name>', methods=['GET', 'PUT', 'DELETE'])
+def repository(username, repository_name):
+    if request.method == 'GET':
+        result = repositories_service.get_repository(username, repository_name)
+        return json.dumps(result), 200
+    elif request.method == 'PUT':
+        repositories_service.update_repository(username, repository_name, request.get_json())
+        return f"Repository {username}/{repository_name} updated", 200
+    elif request.method == 'DELETE':
+        repositories_service.delete_repository(username, repository_name)
+        return f"Repository {username}/{repository_name} deleted", 200
+    else:
+        return 'Method not allowed', 405
 
 
 @app.route('/users/<string:username>/repositories/<string:repository_name>/branches', methods=['GET'])
-def user_repository_branches(username, repository_name):
-    result = repositories_service.get_repository_branches_by_username_and_name(username, repository_name)
+def repository_branches(username, repository_name):
+    result = repositories_service.get_repository_branches(username, repository_name)
     return json.dumps({"branches": result}, default=str), 200
 
 
 @app.route('/users/<string:username>/repositories/<string:repository_name>/files', methods=['GET'])
-def user_repository_files(username, repository_name):
+def repository_files(username, repository_name):
     if request.args.get('path'):
-        print(request.args.get('path'))
         file_path = None
         try:
             file_path = repositories_service.get_file_content(username, repository_name, request.args.get('branch'),
@@ -122,14 +124,14 @@ def user_repository_files(username, repository_name):
             if os.path.exists(file_path):
                 os.remove(file_path)
     else:
-        result = repositories_service.get_user_repository_files_by_username_name_and_branch(username, repository_name,
-                                                                                            request.args.get('branch'))
+        result = repositories_service.get_user_repository_files(username, repository_name,
+                                                                request.args.get('branch'))
         return json.dumps({"files": result}, default=str), 200
 
 
 @app.route('/users/<string:username>/repositories/<string:repository_name>/tasks/<int:task_number>', methods=['GET'])
 def specific_task_in_repository(username, repository_name, task_number):
-    result = tasks_service.get_task_in_repository_by_username_name_and_number(username, repository_name, task_number)
+    result = tasks_service.get_task_by_username_name_and_number(username, repository_name, task_number)
     return json.dumps(result, default=str), 200
 
 
@@ -140,29 +142,14 @@ def repositories():
         return json.dumps({"repositories": list(result), "total": len(result)}), 200
     elif request.method == 'POST':
         result = repositories_service.create_repository(request.get_json())
-        return json.dumps({"repositoryId": result}), 201
+        return json.dumps({"repository": result}), 201
     else:
         return 'Method not allowed', 405
 
 
-@app.route('/repositories/<int:repository_id>', methods=['GET', 'PUT', 'DELETE'])
-def repository(repository_id):
-    if request.method == 'GET':
-        result = repositories_service.get_repository(repository_id)
-        return json.dumps(result), 200
-    elif request.method == 'PUT':
-        repositories_service.update_repository(repository_id, request.get_json())
-        return 'Repository with id {} updated'.format(repository_id), 200
-    elif request.method == 'DELETE':
-        repositories_service.delete_repository(repository_id)
-        return 'Repository with id {} deleted'.format(repository_id), 200
-    else:
-        return 'Method not allowed', 405
-
-
-@app.route('/repositories/<int:repository_id>/tasks', methods=['GET'])
-def repository_issues(repository_id):
-    result = tasks_service.get_repository_tasks(repository_id)
+@app.route('/users/<string:username>/repositories/<string:repository_name>/tasks', methods=['GET'])
+def repository_issues(username, repository_name):
+    result = tasks_service.get_repository_tasks(username, repository_name)
     return json.dumps({"tasks": list(result), "total": len(result)}, default=str), 200
 
 

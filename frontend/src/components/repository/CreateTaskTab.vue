@@ -35,7 +35,6 @@
   </div>
 </template>
 <script>
-import { fetchRepositoryByUsernameAndName } from "@/api/repositoryApi";
 import { createTask } from "@/api/taskApi";
 
 export default {
@@ -50,10 +49,6 @@ export default {
   },
   async created() {
     this.isLoading = true;
-    this.repository = await fetchRepositoryByUsernameAndName(
-      this.$route.params.username,
-      this.$route.params.repository
-    );
     this.isLoading = false;
   },
   methods: {
@@ -63,8 +58,9 @@ export default {
         return;
       }
       await createTask({
-        repository: this.repository.id,
-        creator: this.$store.user.id,
+        owner: this.$route.params.username,
+        name: this.$route.params.repository,
+        creator: this.$store.user.username,
         title: this.title,
         description: this.description ? this.description : null,
       });

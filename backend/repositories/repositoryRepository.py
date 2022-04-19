@@ -1,4 +1,3 @@
-import os
 from typing import Any, Optional
 
 import docker
@@ -27,21 +26,19 @@ class RepositoryRepository:
 
     def __to_dto(self, row: Any) -> dict[str, Any]:
         return {
-            "id": row[0],
-            "owner": self.user_repository.get_user(row[1]),
-            "name": row[2],
-            "visibility": row[3],
-            "description": row[4],
-            "website": row[5],
-            "collaborators": self.__collaborators_to_dto(row[6]),
-            "tags": row[7].split(",") if row[7] else []
+            "owner": self.user_repository.get_user(row[0]),
+            "name": row[1],
+            "visibility": row[2],
+            "description": row[3],
+            "website": row[4],
+            "collaborators": self.__collaborators_to_dto(row[5]),
+            "tags": row[6].split(",") if row[6] else []
         }
 
     def __to_simple_dto(self, row: Any) -> dict[str, Any]:
         return {
-            "id": row[0],
-            "owner": self.user_repository.get_user(row[1]),
-            "name": row[2],
+            "owner": self.user_repository.get_user(row[0]),
+            "name": row[1],
         }
 
     def __collaborators_to_dto(self, row: Any) -> list[dict[str, Any]]:
@@ -49,16 +46,16 @@ class RepositoryRepository:
         return list(
             map(lambda collaborator: self.user_repository.get_user(collaborator), collaborators))
 
-    def get_repository(self, repository_id: int, simple=False) -> Optional[dict[str, Any]]:
+    def get_repository(self, username: str, repository_name: str, simple=False) -> Optional[dict[str, Any]]:
         connection = self.__create_connection()
         try:
             cursor = connection.cursor()
             cursor.execute(
-                """SELECT r.id AS id, r.owner, r.name, r.visibility, r.description, r.website, 
-                    GROUP_CONCAT(DISTINCT c.user) AS collaborators, GROUP_CONCAT(DISTINCT t.tag) AS tags 
-                    FROM repositories r LEFT OUTER JOIN tagged rt ON r.id = rt.repository LEFT OUTER JOIN tags t on rt.tag = t.id
-                    LEFT OUTER JOIN collaborators c ON r.id = c.repository WHERE r.id = %s GROUP BY r.id;""",
-                repository_id)
+                """SELECT r.owner, r.name, r.visibility, r.description, r.website,
+                GROUP_CONCAT(DISTINCT c.user) AS collaborators, GROUP_CONCAT(DISTINCT t.tag) AS tags
+                FROM Repositories r LEFT OUTER JOIN Tagged rt ON r.owner = rt.owner AND r.name = rt.name LEFT OUTER JOIN Tags t on rt.tag = t.id
+                LEFT OUTER JOIN Collaborators c ON r.owner = c.owner AND r.name = c.name WHERE r.owner = %s AND r.name = %s;""",
+                (username, repository_name))
             result = cursor.fetchone()
             if result:
                 return self.__to_dto(result) if not simple else self.__to_simple_dto(result)
@@ -71,105 +68,90 @@ class RepositoryRepository:
         try:
             cursor = connection.cursor()
             cursor.execute(
-                """SELECT r.id AS id, r.owner, r.name, r.visibility, r.description, r.website, 
-                GROUP_CONCAT(DISTINCT c.user) AS collaborators, GROUP_CONCAT(DISTINCT t.tag) AS tags 
-                FROM repositories r LEFT OUTER JOIN tagged rt ON r.id = rt.repository LEFT OUTER JOIN tags t on rt.tag = t.id 
-                LEFT OUTER JOIN collaborators c ON r.id = c.repository WHERE r.visibility = 'public' GROUP BY r.id;""")
-            return [self.__to_dto(row) for row in cursor.fetchall()]
-        finally:
-            connection.close()
-
-    def get_user_repositories(self, user_id: int) -> list[dict[str, Any]]:
-        connection = self.__create_connection()
-        try:
-            cursor = connection.cursor()
-            cursor.execute(
-                """ SELECT r.id AS id, r.owner, r.name, r.visibility, r.description, r.website, 
+                """SELECT r.owner, r.name, r.visibility, r.description, r.website,
                 GROUP_CONCAT(DISTINCT c.user) AS collaborators, GROUP_CONCAT(DISTINCT t.tag) AS tags
-                FROM repositories r LEFT OUTER JOIN tagged rt ON r.id = rt.repository LEFT OUTER JOIN tags t on rt.tag = t.id
-                LEFT OUTER JOIN collaborators c ON r.id = c.repository WHERE r.owner = %s GROUP BY r.id;""", user_id)
+                FROM Repositories r LEFT OUTER JOIN Tagged rt ON r.owner = rt.owner AND r.name = rt.name LEFT OUTER JOIN Tags t on rt.tag = t.id
+                LEFT OUTER JOIN Collaborators c ON r.owner = c.owner WHERE r.visibility = 'public' GROUP BY r.owner, r.name;""")
             return [self.__to_dto(row) for row in cursor.fetchall()]
         finally:
             connection.close()
 
-    def get_repository_by_user_id_and_name(self, user_id: int, name: str) -> Optional[dict[str, Any]]:
+    def get_user_repositories(self, username: str) -> list[dict[str, Any]]:
         connection = self.__create_connection()
         try:
             cursor = connection.cursor()
             cursor.execute(
-                """SELECT r.id AS id, r.owner, r.name, r.visibility, r.description, r.website, 
-                GROUP_CONCAT(DISTINCT c.user) AS collaborators, GROUP_CONCAT(DISTINCT t.tag) AS tags 
-                FROM repositories r LEFT OUTER JOIN tagged rt ON r.id = rt.repository LEFT OUTER JOIN tags t on rt.tag = t.id 
-                LEFT OUTER JOIN collaborators c ON r.id = c.repository WHERE r.owner = %s AND r.name = %s GROUP BY r.id;""",
-                (user_id, name))
-            result = cursor.fetchone()
-            return self.__to_dto(result) if result else None
+                """SELECT r.owner, r.name, r.visibility, r.description, r.website,
+                GROUP_CONCAT(DISTINCT c.user) AS collaborators, GROUP_CONCAT(DISTINCT t.tag) AS tags
+                FROM Repositories r LEFT OUTER JOIN Tagged rt ON r.owner = rt.owner AND r.name = rt.name LEFT OUTER JOIN Tags t on rt.tag = t.id
+                LEFT OUTER JOIN Collaborators c ON r.owner = c.owner AND r.name = c.name WHERE r.owner = %s GROUP BY r.name;""",
+                username)
+            return [self.__to_dto(row) for row in cursor.fetchall()]
         finally:
             connection.close()
 
-    def create_repository(self, repository_data: dict[str, Any]) -> int:
-        username = self.user_repository.get_user(repository_data["owner"])["username"]
-        self.git_repository.create_repository(username, repository_data["name"])
+    def create_repository(self, repository_data: dict[str, Any]) -> str:
+        self.git_repository.create_repository(repository_data["owner"], repository_data["name"])
 
         connection = self.__create_connection()
         try:
             cursor = connection.cursor()
             cursor.execute(
-                "INSERT INTO repositories (owner, name, visibility, description, website) VALUES (%s, %s, %s, %s, %s)",
+                "INSERT INTO Repositories (owner, name, visibility, description, website) VALUES (%s, %s, %s, %s, %s)",
                 (repository_data["owner"], repository_data["name"], repository_data["visibility"],
                  repository_data["description"] if "description" in repository_data else None,
                  repository_data["website"] if "website" in repository_data else None))
-            repo_id = cursor.lastrowid
             if "tags" in repository_data:
                 cursor.executemany(
-                    "INSERT INTO tagged (repository, tag) VALUES (%s, %s)",
-                    [(repo_id, tag) for tag in self.convert_tags(repository_data["tags"])])
+                    "INSERT INTO Tagged (owner, name, tag) VALUES (%s, %s, %s)",
+                    [(repository_data["owner"], repository_data["name"], tag) for tag in
+                     self.convert_tags(repository_data["tags"])])
             connection.commit()
-            return repo_id
+            return f"{repository_data['owner']}/{repository_data['name']}"
         finally:
             connection.close()
 
-    def update_repository(self, repository_id: int, repository_data: dict[str, Any]) -> None:
+    def update_repository(self, username: str, repository_name: str, repository_data: dict[str, Any]) -> None:
         connection = self.__create_connection()
         try:
             cursor = connection.cursor()
-            cursor.execute("""UPDATE repositories SET 
+            cursor.execute("""UPDATE Repositories SET 
                     visibility = IFNULL(%s, visibility), 
-                    description = IFNULL(%s, description), website = IFNULL(%s, website) WHERE id = %s;""",
+                    description = IFNULL(%s, description), website = IFNULL(%s, website) WHERE owner = %s AND name = %s;""",
                            (repository_data["visibility"] if "visibility" in repository_data else None,
                             repository_data["description"] if "description" in repository_data else None,
-                            repository_data["website"] if "website" in repository_data else None, repository_id))
+                            repository_data["website"] if "website" in repository_data else None,
+                            username, repository_name))
             if "tags" in repository_data:
-                cursor.execute("DELETE FROM tagged WHERE repository = %s", (repository_id,))
-                cursor.executemany("INSERT INTO tagged (repository, tag) VALUES (%s, %s)",
-                                   [(repository_id, tag) for tag in self.convert_tags(repository_data["tags"])])
+                cursor.execute("DELETE FROM Tagged WHERE owner = %s AND name = %s", (username, repository_name))
+                cursor.executemany("INSERT INTO Tagged (owner, name, tag) VALUES (%s, %s, %s)",
+                                   [(username, repository_name, tag) for tag in
+                                    self.convert_tags(repository_data["tags"])])
             if "collaborators" in repository_data:
-                cursor.execute("DELETE FROM collaborators WHERE repository = %s", (repository_id,))
-                cursor.executemany("INSERT INTO collaborators (repository, user) VALUES (%s, %s)",
-                                   [(repository_id, user) for user in self.convert_collaborators(repository_data["collaborators"])])
+                cursor.execute("DELETE FROM Collaborators WHERE owner = %s AND name = %s", (username, repository_name))
+                cursor.executemany("INSERT INTO Collaborators (user, owner, name) VALUES (%s, %s, %s)",
+                                   [(user, username, repository_name) for user in repository_data["collaborators"]])
             connection.commit()
         finally:
             connection.close()
 
-    def delete_repository(self, repository_id: int) -> None:
+    def delete_repository(self, username: str, repository_name: str) -> None:
         connection = self.__create_connection()
         try:
-            repo = self.get_repository(repository_id)
-            username = repo["owner"]["username"]
-            self.git_repository.delete_repository(username, repo["name"])
+            self.git_repository.delete_repository(username, repository_name)
 
             cursor = connection.cursor()
-            cursor.execute("DELETE FROM repositories WHERE id = %s;", repository_id)
+            cursor.execute("DELETE FROM Repositories WHERE owner = %s AND name = %s;", (username, repository_name))
             connection.commit()
         finally:
             connection.close()
 
-    def get_collaborators(self, repository_id: int) -> list[str]:
+    def get_collaborators(self, username: str, repository_name: str) -> list[str]:
         connection = self.__create_connection()
         try:
             cursor = connection.cursor()
             cursor.execute(
-                """SELECT user FROM collaborators WHERE repository = %s;""", repository_id)
+                """SELECT user FROM Collaborators WHERE owner = %s AND name = %s;""", (username, repository_name))
             return [row[0] for row in cursor.fetchall()]
         finally:
             connection.close()
@@ -177,29 +159,25 @@ class RepositoryRepository:
     def convert_tags(self, tags: list[str]) -> list[int]:
         return [self.get_tag_id(tag) for tag in tags]
 
-    def convert_collaborators(self, collaborators: list[str]) -> list[int]:
-        collaborators = [self.user_repository.get_user_by_username(user)["id"] for user in collaborators]
-        return collaborators
-
     def get_tag_id(self, tag: str) -> int:
         connection = self.__create_connection()
         try:
             cursor = connection.cursor()
-            cursor.execute("SELECT id FROM tags WHERE tag = %s", tag)
+            cursor.execute("SELECT id FROM Tags WHERE tag = %s", tag)
             result = cursor.fetchone()
             if result:
                 return result[0]
             else:
-                cursor.execute("INSERT INTO tags (tag) VALUES (%s)", tag)
+                cursor.execute("INSERT INTO Tags (tag) VALUES (%s)", tag)
                 return cursor.lastrowid
         finally:
             connection.close()
 
-    def name_already_exists(self, user_id: int, name: str) -> bool:
+    def name_already_exists(self, username: str, name: str) -> bool:
         connection = self.__create_connection()
         try:
             cursor = connection.cursor()
-            cursor.execute("SELECT * FROM repositories WHERE name = %s AND owner = %s", (name, user_id))
+            cursor.execute("SELECT * FROM Repositories WHERE name = %s AND owner = %s", (name, username))
             result = cursor.fetchone()
             return result is not None
         finally:
