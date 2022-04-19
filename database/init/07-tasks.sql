@@ -7,7 +7,7 @@ CREATE TABLE IF NOT EXISTS Tasks (
 	title TEXT NOT NULL,
 	description TEXT,
 	assigned VARCHAR(255),
-	state VARCHAR(6) NOT NULL,
+	state ENUM('open', 'closed') NOT NULL,
 	creator VARCHAR(255),
 	timestamp DATETIME NOT NULL,
 	num INT NOT NULL,
