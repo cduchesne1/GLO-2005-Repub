@@ -59,6 +59,9 @@ def signup():
 
 @app.route('/users', methods=['GET'])
 def users():
+    if request.args.get('filter') is not None:
+        result = users_service.get_filtered_users(request.args.get('filter'))
+        return json.dumps({"users": list(result), "total": len(result)}), 200
     result = users_service.get_all_users()
     return json.dumps({"users": list(result), "total": len(result)}), 200
 
@@ -138,6 +141,9 @@ def specific_task_in_repository(username, repository_name, task_number):
 @app.route('/repositories', methods=['GET', 'POST'])
 def repositories():
     if request.method == 'GET':
+        if request.args.get('filter'):
+            result = repositories_service.get_repositories_by_filter(request.args.get('filter'))
+            return json.dumps({"repositories": list(result), "total": len(result)}), 200
         result = repositories_service.get_public_repositories()
         return json.dumps({"repositories": list(result), "total": len(result)}), 200
     elif request.method == 'POST':

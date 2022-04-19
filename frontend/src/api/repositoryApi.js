@@ -162,15 +162,15 @@ const deleteRepository = async (username, name) => {
   }
 };
 
-export const fetchRepositoryByText = async () => {
+export const fetchRepositoryByText = async (text) => {
   try {
-    const response = await fetch(`${process.env.VUE_APP_API_URL}/repositories`);
+    const response = await fetch(`${process.env.VUE_APP_API_URL}/repositories?filter=${text}`);
 
     const data = await response.json();
 
     const repositories = data.repositories;
 
-    return shuffle(repositories);
+    return repositories
   } catch (error) {
     console.error(error);
   }

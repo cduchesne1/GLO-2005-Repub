@@ -54,6 +54,17 @@ class UserRepository:
         finally:
             connection.close()
 
+    def get_filtered_users(self, filter) -> list[dict[str, Any]]:
+        connection = self.__create_connection()
+        try:
+            cursor = connection.cursor()
+            username_pattern = f"{filter}%"
+            cursor.execute("SELECT * FROM Users WHERE username LIKE %s;", username_pattern)
+            result = cursor.fetchall()
+            return [self.__to_public_dto(row) for row in result]
+        finally:
+            connection.close()
+
     def create_user(self, user_data: dict[str, Any]) -> int:
         connection = self.__create_connection()
         try:

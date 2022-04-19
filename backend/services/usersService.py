@@ -20,6 +20,12 @@ class UsersService:
             raise ItemNotFoundException("No users found")
         return result
 
+    def get_filtered_users(self, filter) -> list[dict[str, Any]]:
+        result = self.repository.get_filtered_users(filter)
+        if result is None:
+            raise ItemNotFoundException("No users found")
+        return result
+
     def get_user(self, username: str, public=True) -> dict[str, Any]:
         result = self.repository.get_user(username, public=public)
         if result is None:

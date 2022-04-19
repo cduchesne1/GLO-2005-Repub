@@ -48,7 +48,17 @@ const deleteUser = async (username) => {
 };
 
 export const fetchUsersByText = async (text) => {
- return [{username: "erenonu"}, {username: text}];
+  try {
+    const response = await fetch(
+      `${process.env.VUE_APP_API_URL}/users?filter=${text}`,
+    );
+
+    const users = await response.json();
+
+    return users.users;
+  } catch (error) {
+    console.error(error);
+  }
 };
 
 // From https://stackoverflow.com/questions/286141/remove-blank-attributes-from-an-object-in-javascript

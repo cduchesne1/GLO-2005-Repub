@@ -98,7 +98,7 @@ export default {
       let input, filter;
       input = this.$refs["search-bar"];
       filter = input.value.toLowerCase();
-      this.repoOptions = await fetchRepositoryByText();
+      this.repoOptions = await fetchRepositoryByText(filter);
       this.userOptions = await fetchUsersByText(filter);
       this.isOpen = true;
     },
