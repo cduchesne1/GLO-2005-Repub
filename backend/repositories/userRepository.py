@@ -197,11 +197,11 @@ class UserRepository:
         for stocked_token in self.tokens:
             print(stocked_token["token_expire_time"], datetime.datetime.now())
             if stocked_token["token_expire_time"] < datetime.datetime.now():
-                print('removed')
                 self.tokens.remove(stocked_token)
                 continue
             if stocked_token["token_id"] == UUID(token_id):
-                print('here')
+                token_index = self.tokens.index(stocked_token)
+                self.update_token(token_index)
                 token_is_valid = True
         return token_is_valid
 
@@ -210,6 +210,9 @@ class UserRepository:
             if stocked_token["token_id"] == token_id:
                 return stocked_token["username"]
         return None
+
+    def update_token(self, token_index):
+        self.tokens[token_index]["token_expire_time"] = datetime.datetime.now() + datetime.timedelta(days=1)
 
     def logout(self, token_id):
         for stocked_token in self.tokens:
