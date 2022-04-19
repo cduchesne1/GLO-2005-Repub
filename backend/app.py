@@ -82,7 +82,10 @@ def profile(username):
         users_service.update_user(username, request.get_json())
         return 'User with username {} updated'.format(username), 200
     elif request.method == 'DELETE':
+        username_found = logger.get_user_by_token(request.headers.get("X-token-id"))
+        print(username_found)
         if logger.get_user_by_token(request.headers.get("X-token-id")) != username:
+            print("Invalid token here")
             return 'Unauthorized', 401
         users_service.delete_user(username)
         return 'User with username {} deleted'.format(username), 200

@@ -56,6 +56,7 @@ const signup = async (email, username, name, password) => {
       } else if (error.desc === "Username already exists") {
         check.usernameError = "Username already exists";
       }
+      check.passed = false;
       return check;
     }
   } else {

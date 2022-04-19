@@ -72,8 +72,8 @@ class UserRepository:
             cursor.execute(
                 "INSERT INTO Users (name, username, email, bio, website, company, location) VALUES (%s, %s, %s, NULL, NULL, NULL, NULL);",
                 (user_data['name'], user_data['username'], user_data['email']))
-            cursor.execute("INSERT INTO authentication (id, password) VALUES (%s, %s);",
-                           (cursor.lastrowid, self.__encrypt_password(user_data['password'])))
+            cursor.execute("INSERT INTO Authentication (email, password) VALUES (%s, %s);",
+                           (user_data['email'], self.__encrypt_password(user_data['password'])))
             connection.commit()
             return cursor.lastrowid
         finally:
@@ -206,8 +206,9 @@ class UserRepository:
         return token_is_valid
 
     def get_user_by_token(self, token_id):
+        print(self.tokens)
         for stocked_token in self.tokens:
-            if stocked_token["token_id"] == token_id:
+            if stocked_token["token_id"] == UUID(token_id):
                 return stocked_token["username"]
         return None
 

@@ -88,6 +88,7 @@ export default {
   methods: {
     async signUp() {
       const check = await signup(this.email, this.username, this.name, this.password);
+      console.log(check);
       if (check.passed) {
         const data = await login(this.email, this.password)
         if (data) {

@@ -6,8 +6,8 @@ const fetchUser = async (username) => {
       `${process.env.VUE_APP_API_URL}/users/${username}`,
       {
         headers: {
-        "X-token-id":  Vue.$cookies.get("X-token-id"),
-        "content-type": "application/json",
+          "X-token-id": Vue.$cookies.get("X-token-id"),
+          "content-type": "application/json",
         },
       }
     );
@@ -27,7 +27,8 @@ const updateUserProfile = async (username, body) => {
       await fetch(`${process.env.VUE_APP_API_URL}/users/${username}`, {
         method: "PUT",
         headers: {
-          "Content-Type": "application/json",
+          "X-token-id": Vue.$cookies.get("X-token-id"),
+          "content-type": "application/json",
         },
         body: JSON.stringify(body),
       });
@@ -38,19 +39,23 @@ const updateUserProfile = async (username, body) => {
 };
 
 const deleteUser = async (username) => {
-    try {
-        await fetch(`${process.env.VUE_APP_API_URL}/users/${username}`, {
-        method: "DELETE",
-        });
-    } catch (error) {
-        console.error(error);
-    }
+  try {
+    await fetch(`${process.env.VUE_APP_API_URL}/users/${username}`, {
+      method: "DELETE",
+      headers: {
+        "X-token-id": Vue.$cookies.get("X-token-id"),
+        "content-type": "application/json",
+      },
+    });
+  } catch (error) {
+    console.error(error);
+  }
 };
 
 export const fetchUsersByText = async (text) => {
   try {
     const response = await fetch(
-      `${process.env.VUE_APP_API_URL}/users?filter=${text}`,
+      `${process.env.VUE_APP_API_URL}/users?filter=${text}`
     );
 
     const users = await response.json();
