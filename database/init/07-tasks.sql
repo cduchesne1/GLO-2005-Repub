@@ -17,6 +17,32 @@ CREATE TABLE IF NOT EXISTS Tasks (
 	FOREIGN KEY(creator) REFERENCES Users(username) ON UPDATE CASCADE ON DELETE SET NULL
 );
 
+DELIMITER //
+CREATE TRIGGER SetTaskNumber
+	BEFORE INSERT ON Tasks
+	FOR EACH ROW
+		BEGIN
+			SET NEW.num = IFNULL((SELECT MAX(num) FROM Tasks WHERE owner = NEW.owner AND name = NEW.name), 0) + 1;
+		END; //
+DELIMITER ;
+
+DELIMITER //
+CREATE TRIGGER ValidateTaskAssigned
+    BEFORE UPDATE ON Tasks
+    FOR EACH ROW
+        BEGIN
+            IF NEW.assigned IS NOT NULL THEN
+                SELECT owner, name INTO @owner, @name FROM Repositories WHERE owner = NEW.assigned AND name = NEW.name;
+                IF @owner IS NULL OR @name IS NULL OR @owner != NEW.assigned OR @name != NEW.name THEN
+                    SELECT owner, name INTO @owner, @name FROM Collaborators WHERE user = NEW.assigned AND owner = NEW.owner AND name = NEW.name;
+                    IF @owner IS NULL OR @name IS NULL OR @owner != NEW.assigned OR @name != NEW.name THEN
+                        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Assigned user is not a collaborator or repository owner';
+                    END IF;
+                END IF;
+            END IF;
+        END; //
+DELIMITER ;
+
 INSERT INTO Tasks (owner, name, title, description, assigned, state, creator, timestamp, num) 
 VALUES
 ('erenonu', 'Latlux', 'nec sem duis aliquam convallis nunc proin', 'Nullam porttitor lacus at turpis. Donec posuere metus vitae ipsum. Aliquam non mauris. Morbi non lectus. Aliquam sit amet diam in magna bibendum imperdiet. Nullam orci pede, venenatis non, sodales sed, tincidunt eu, felis.', null, 'open', 'erenonu', '2022-02-16 13:59:31', 2),
