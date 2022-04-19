@@ -104,6 +104,20 @@ class RepositoryRepository:
         finally:
             connection.close()
 
+    def get_user_public_repositories(self, username: str) -> list[dict[str, Any]]:
+        connection = self.__create_connection()
+        try:
+            cursor = connection.cursor()
+            cursor.execute(
+                """SELECT r.owner, r.name, r.visibility, r.description, r.website,
+                GROUP_CONCAT(DISTINCT c.user) AS collaborators, GROUP_CONCAT(DISTINCT t.tag) AS tags
+                FROM Repositories r LEFT OUTER JOIN Tagged rt ON r.owner = rt.owner AND r.name = rt.name LEFT OUTER JOIN Tags t on rt.tag = t.id
+                LEFT OUTER JOIN Collaborators c ON r.owner = c.owner AND r.name = c.name WHERE r.owner = %s AND r.visibility = 'public' GROUP BY r.name;""",
+                username)
+            return [self.__to_dto(row) for row in cursor.fetchall()]
+        finally:
+            connection.close()
+
     def create_repository(self, repository_data: dict[str, Any]) -> str:
         self.git_repository.create_repository(repository_data["owner"], repository_data["name"])
 
