@@ -1,7 +1,7 @@
 DROP TABLE IF EXISTS Collaborators;
 
 CREATE TABLE IF NOT EXISTS Collaborators (
-	user INT,
+	user VARCHAR(255) NOT NULL,
 	owner VARCHAR(255) NOT NULL,
 	name VARCHAR(255) NOT NULL,
 	PRIMARY KEY (user, owner, name),
