@@ -69,11 +69,9 @@ def users():
 @app.route('/users/<string:username>', methods=['GET', 'PUT', 'DELETE'])
 def profile(username):
     if logger.check_if_token_is_valid(request.headers.get("X-token-id")) is False:
-        print("Invalid token")
         return 'Invalid token', 401
     if request.method == 'GET':
         public = logger.get_user_by_token(request.headers.get("X-token-id")) != username
-        print(public)
         result = users_service.get_user(username, public=public)
         return json.dumps(result), 200
     elif request.method == 'PUT':
@@ -82,10 +80,7 @@ def profile(username):
         users_service.update_user(username, request.get_json())
         return 'User with username {} updated'.format(username), 200
     elif request.method == 'DELETE':
-        username_found = logger.get_user_by_token(request.headers.get("X-token-id"))
-        print(username_found)
         if logger.get_user_by_token(request.headers.get("X-token-id")) != username:
-            print("Invalid token here")
             return 'Unauthorized', 401
         users_service.delete_user(username)
         return 'User with username {} deleted'.format(username), 200

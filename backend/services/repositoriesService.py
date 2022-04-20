@@ -70,7 +70,6 @@ class RepositoriesService:
     def is_user_repository(self, username: str, repository_name: str, creator: str) -> bool:
         if username != creator:
             collaborators = self.repository.get_collaborators(username, repository_name)
-            print(collaborators)
             return creator in collaborators
         return True
 

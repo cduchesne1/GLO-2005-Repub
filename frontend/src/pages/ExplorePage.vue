@@ -42,7 +42,6 @@ export default {
   async created() {
     this.isLoading = true;
     this.repositories = await fetchExploreRepositories();
-    console.log(this.repositories);
     this.isLoading = false;
   },
   methods: {

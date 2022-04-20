@@ -147,7 +147,6 @@ export default {
       this.$route.params.username,
       this.$route.params.repository
     );
-    console.log(this.repository);
     this.files = await fetchRepositoryFiles(
       this.$route.params.username,
       this.$route.params.repository,

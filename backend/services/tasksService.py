@@ -45,12 +45,10 @@ class TasksService:
         raise ItemNotFoundException(f"Repository {username}/{repository_name} not found")
 
     def create_task(self, task_data: dict[str, Any]) -> int:
-        print(task_data)
         self.__validate_task_data(task_data)
         return self.repository.create_task(task_data)
 
     def update_task(self, task_id: int, task_data: dict[str, Any]) -> None:
-        print(task_data)
         if self.is_valid_task(task_id):
             self.__validate_task_data_for_update(task_id, task_data)
             return self.repository.update_task(task_id, task_data)
@@ -116,10 +114,8 @@ class TasksService:
             if not self.users_service.is_valid_user(task_data["assigned"]):
                 raise ItemNotFoundException(f"User with username {task_data['assigned']} not found")
             owner, name = self.repository.get_task_repository(task_id)
-            print(owner, name)
             if not self.repositories_service.is_user_repository(owner, name, task_data["assigned"]):
                 raise InvalidParameterException(f"Cannot assign task to user with username {task_data['assigned']}")
-            print("here")
         if "state" in task_data:
             if task_data["state"] not in ["open", "closed"]:
                 raise InvalidParameterException("Invalid state")

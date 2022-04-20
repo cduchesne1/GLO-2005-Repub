@@ -39,7 +39,6 @@ class UsersService:
         raise ItemNotFoundException(f"User with username {username} not found")
 
     def delete_user(self, username: str) -> None:
-        print("deleting")
         if self.is_valid_user(username):
             return self.repository.delete_user(username, self.repository_repository.get_user_repositories(username))
         raise ItemNotFoundException(f"User with username {username} not found")

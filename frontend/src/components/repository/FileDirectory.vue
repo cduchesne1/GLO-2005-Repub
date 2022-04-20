@@ -93,14 +93,12 @@ export default {
           this.$route.params.repository,
           this.selectedBranch
         );
-        console.log(this.allFiles);
         this.folders = [];
         this.getFiles(this.allFiles);
       }
     },
     openDirectory(file) {
       const currentPath = this.$route.params.path;
-      console.log(currentPath);
       if (currentPath) {
         if (file.isFolder) {
           this.$router.push(

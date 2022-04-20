@@ -69,7 +69,6 @@ const fetchTaskComments = async (taskId) => {
 
 const createTask = async (task) => {
   clean(task);
-  console.log(task);
   if (Object.keys(task).length > 0) {
     try {
       await fetch(`${process.env.VUE_APP_API_URL}/tasks`, {
